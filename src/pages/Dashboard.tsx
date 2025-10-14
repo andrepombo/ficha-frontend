@@ -23,6 +23,8 @@ function Dashboard() {
     status: 'all',
     search: '',
     position: 'all',
+    month: 'all',
+    year: 'all',
   });
 
   useEffect(() => {
@@ -81,6 +83,24 @@ function Dashboard() {
       filtered = filtered.filter(c => c.position_applied === filters.position);
     }
 
+    // Filter by month
+    if (filters.month !== 'all') {
+      filtered = filtered.filter(c => {
+        const appliedDate = new Date(c.applied_date);
+        const month = (appliedDate.getMonth() + 1).toString().padStart(2, '0');
+        return month === filters.month;
+      });
+    }
+
+    // Filter by year
+    if (filters.year !== 'all') {
+      filtered = filtered.filter(c => {
+        const appliedDate = new Date(c.applied_date);
+        const year = appliedDate.getFullYear().toString();
+        return year === filters.year;
+      });
+    }
+
     setFilteredCandidates(filtered);
   };
 
@@ -128,11 +148,27 @@ function Dashboard() {
     );
   }
 
+  // Get current month and year
+  const getCurrentMonthYear = () => {
+    const now = new Date();
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    return `${months[now.getMonth()]} ${now.getFullYear()}`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Current Month and Year */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">{getCurrentMonthYear()}</h1>
+          <p className="text-gray-600 mt-1">Estatísticas de candidatos</p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <StatsCard title="Total" count={stats.total} color="blue" />
           <StatsCard title="Pendente" count={stats.pending} color="orange" />

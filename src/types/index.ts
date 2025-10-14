@@ -36,6 +36,8 @@ export interface CandidateFilters {
   status: string;
   search: string;
   position: string;
+  month: string;
+  year: string;
 }
 
 export interface CandidateStats {
