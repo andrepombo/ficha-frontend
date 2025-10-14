@@ -19,12 +19,24 @@ function Dashboard() {
     accepted: 0,
     rejected: 0,
   });
-  const [filters, setFilters] = useState<CandidateFilters>({
-    status: 'all',
-    search: '',
-    position: 'all',
-    month: 'all',
-    year: 'all',
+  // Set default filters to current month and year
+  const getDefaultMonthYear = () => {
+    const now = new Date();
+    return {
+      month: (now.getMonth() + 1).toString().padStart(2, '0'),
+      year: now.getFullYear().toString()
+    };
+  };
+
+  const [filters, setFilters] = useState<CandidateFilters>(() => {
+    const { month, year } = getDefaultMonthYear();
+    return {
+      status: 'all',
+      search: '',
+      position: 'all',
+      month: month,
+      year: year,
+    };
   });
 
   useEffect(() => {
@@ -34,6 +46,11 @@ function Dashboard() {
   useEffect(() => {
     applyFilters();
   }, [candidates, filters]);
+
+  // Recalculate stats whenever filtered candidates change
+  useEffect(() => {
+    calculateStats(filteredCandidates);
+  }, [filteredCandidates]);
 
   const fetchCandidates = async () => {
     try {
