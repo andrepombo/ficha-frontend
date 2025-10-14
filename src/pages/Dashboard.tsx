@@ -194,9 +194,9 @@ function Dashboard() {
                 <p className="text-sm text-indigo-600">Estatísticas de candidatos</p>
               </div>
             </div>
-            <div className="hidden sm:flex items-center space-x-2 bg-white rounded-lg px-4 py-2 shadow-sm border border-indigo-100">
+            <div className="hidden sm:flex items-center space-x-2 bg-indigo-100 bg-opacity-60 backdrop-blur-sm rounded-lg px-4 py-2 border border-indigo-300">
               <span className="text-2xl font-bold text-indigo-900">{stats.total}</span>
-              <span className="text-sm text-indigo-600">candidatos</span>
+              <span className="text-sm text-indigo-700">candidatos</span>
             </div>
           </div>
         </div>
