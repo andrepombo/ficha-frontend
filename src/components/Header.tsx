@@ -24,6 +24,18 @@ function Header() {
             >
               Painel
             </Link>
+            <Link
+              to="/analytics"
+              className="px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors font-medium"
+            >
+              Análise
+            </Link>
+            <Link
+              to="/demographics"
+              className="px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors font-medium"
+            >
+              Demografia
+            </Link>
             <a
               href="http://localhost:8080/admin/"
               target="_blank"
