@@ -33,7 +33,7 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
         <div className="floating-label-container">
           <input
             type="text"
-            placeholder=" "
+            placeholder="Nome, email ou cargo..."
             value={filters.search}
             onChange={(e) => onFilterChange({ search: e.target.value })}
             className="input-modern floating-input"
@@ -48,7 +48,7 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
             onChange={(e) => onFilterChange({ status: e.target.value })}
             className={`select-modern floating-select ${filters.status !== 'all' ? 'has-value' : ''}`}
           >
-            <option value="all"></option>
+            <option value="all">Todos os Status</option>
             <option value="pending">Pendente</option>
             <option value="reviewing">Em Análise</option>
             <option value="interviewed">Entrevistado</option>
@@ -65,7 +65,7 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
             onChange={(e) => onFilterChange({ position: e.target.value })}
             className={`select-modern floating-select ${filters.position !== 'all' ? 'has-value' : ''}`}
           >
-            <option value="all"></option>
+            <option value="all">Todos os Cargos</option>
             {positions.map(position => (
               <option key={position} value={position}>{position}</option>
             ))}

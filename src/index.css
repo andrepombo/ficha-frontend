@@ -71,7 +71,8 @@
   .floating-input:not(:placeholder-shown) ~ .floating-label,
   .floating-select:not([value=""]) ~ .floating-label,
   .floating-select:focus ~ .floating-label,
-  .has-value ~ .floating-label {
+  .has-value ~ .floating-label,
+  .floating-input ~ .floating-label {
     @apply -top-2.5 left-2 text-xs text-indigo-600 font-semibold;
   }
 }
