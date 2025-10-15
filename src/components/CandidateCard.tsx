@@ -82,7 +82,7 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
         
         <Link
           to={`/candidate/${candidate.id}`}
-          className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 hover:-translate-y-0.5"
+          className="px-6 py-2.5 bg-white text-indigo-700 border-2 border-indigo-200 rounded-xl text-sm font-semibold hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-300"
         >
           Ver
         </Link>
