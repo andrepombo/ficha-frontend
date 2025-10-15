@@ -168,14 +168,32 @@ function Dashboard() {
     );
   }
 
-  // Get current month and year
-  const getCurrentMonthYear = () => {
-    const now = new Date();
+  // Get filtered month and year display
+  const getFilteredMonthYear = () => {
     const months = [
       'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
-    return `${months[now.getMonth()]} ${now.getFullYear()}`;
+    
+    // If both month and year are selected (not 'all'), show the specific period
+    if (filters.month !== 'all' && filters.year !== 'all') {
+      const monthIndex = parseInt(filters.month) - 1;
+      return `${months[monthIndex]} ${filters.year}`;
+    }
+    
+    // If only year is selected, show just the year
+    if (filters.year !== 'all' && filters.month === 'all') {
+      return `Ano ${filters.year}`;
+    }
+    
+    // If only month is selected, show month with current year
+    if (filters.month !== 'all' && filters.year === 'all') {
+      const monthIndex = parseInt(filters.month) - 1;
+      return `${months[monthIndex]} (Todos os anos)`;
+    }
+    
+    // If both are 'all', show "Todos os períodos"
+    return 'Todos os períodos';
   };
 
   return (
@@ -193,7 +211,7 @@ function Dashboard() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-indigo-900">{getCurrentMonthYear()}</h1>
+                <h1 className="text-xl font-bold text-indigo-900">{getFilteredMonthYear()}</h1>
                 <p className="text-sm text-indigo-600">Estatísticas de candidatos</p>
               </div>
             </div>
