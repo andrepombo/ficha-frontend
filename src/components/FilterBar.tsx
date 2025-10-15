@@ -28,89 +28,79 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
 
   return (
     <div className="card">
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {/* Search */}
-        <div>
-          <label className="block text-sm font-semibold text-indigo-900 mb-2">
-            Buscar
-          </label>
+        <div className="floating-label-container">
           <input
             type="text"
-            placeholder="Nome, email ou cargo..."
+            placeholder=" "
             value={filters.search}
             onChange={(e) => onFilterChange({ search: e.target.value })}
-            className="input-modern"
+            className="input-modern floating-input"
           />
+          <label className="floating-label">Buscar</label>
         </div>
 
         {/* Status Filter */}
-        <div>
-          <label className="block text-sm font-semibold text-indigo-900 mb-2">
-            Status
-          </label>
+        <div className="floating-label-container">
           <select
             value={filters.status}
             onChange={(e) => onFilterChange({ status: e.target.value })}
-            className="select-modern"
+            className={`select-modern floating-select ${filters.status !== 'all' ? 'has-value' : ''}`}
           >
-            <option value="all">Todos os Status</option>
+            <option value="all"></option>
             <option value="pending">Pendente</option>
             <option value="reviewing">Em Análise</option>
             <option value="interviewed">Entrevistado</option>
             <option value="accepted">Aceito</option>
             <option value="rejected">Rejeitado</option>
           </select>
+          <label className="floating-label">Status</label>
         </div>
 
         {/* Position Filter */}
-        <div>
-          <label className="block text-sm font-semibold text-indigo-900 mb-2">
-            Cargo
-          </label>
+        <div className="floating-label-container">
           <select
             value={filters.position}
             onChange={(e) => onFilterChange({ position: e.target.value })}
-            className="select-modern"
+            className={`select-modern floating-select ${filters.position !== 'all' ? 'has-value' : ''}`}
           >
-            <option value="all">Todos os Cargos</option>
+            <option value="all"></option>
             {positions.map(position => (
               <option key={position} value={position}>{position}</option>
             ))}
           </select>
+          <label className="floating-label">Cargo</label>
         </div>
 
         {/* Month Filter */}
-        <div>
-          <label className="block text-sm font-semibold text-indigo-900 mb-2">
-            Mês
-          </label>
+        <div className="floating-label-container">
           <select
             value={filters.month}
             onChange={(e) => onFilterChange({ month: e.target.value })}
-            className="select-modern"
+            className={`select-modern floating-select ${filters.month !== 'all' ? 'has-value' : ''}`}
           >
-            <option value="all">Todos os Meses</option>
+            <option value="all"></option>
             {months.map(month => (
               <option key={month.value} value={month.value}>{month.label}</option>
             ))}
           </select>
+          <label className="floating-label">Mês</label>
         </div>
 
         {/* Year Filter */}
-        <div>
-          <label className="block text-sm font-semibold text-indigo-900 mb-2">
-            Ano
-          </label>
+        <div className="floating-label-container">
           <select
             value={filters.year}
             onChange={(e) => onFilterChange({ year: e.target.value })}
-            className="select-modern"
+            className={`select-modern floating-select ${filters.year !== 'all' ? 'has-value' : ''}`}
           >
-            <option value="all">Todos os Anos</option>
+            <option value="all"></option>
             {years.map(year => (
               <option key={year} value={year.toString()}>{year}</option>
             ))}
           </select>
+          <label className="floating-label">Ano</label>
         </div>
       </div>
     </div>

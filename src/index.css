@@ -30,10 +30,48 @@
   }
   
   .input-modern {
-    @apply w-full px-4 py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white;
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 transition-all duration-200 bg-white hover:border-gray-400;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+  
+  .input-modern:focus {
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+  
+  .input-modern:hover {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
   }
   
   .select-modern {
-    @apply w-full px-4 py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white cursor-pointer;
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 transition-all duration-200 bg-white cursor-pointer appearance-none bg-no-repeat bg-right pr-10 hover:border-gray-400;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-size: 1.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+  
+  .select-modern:focus {
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  }
+  
+  .select-modern:hover {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Floating Label Container */
+  .floating-label-container {
+    @apply relative;
+  }
+  
+  .floating-label {
+    @apply absolute left-3 top-3 text-gray-500 text-sm font-medium transition-all duration-200 pointer-events-none bg-white px-1;
+  }
+  
+  .floating-input:focus ~ .floating-label,
+  .floating-input:not(:placeholder-shown) ~ .floating-label,
+  .floating-select:not([value=""]) ~ .floating-label,
+  .floating-select:focus ~ .floating-label,
+  .has-value ~ .floating-label {
+    @apply -top-2.5 left-2 text-xs text-indigo-600 font-semibold;
   }
 }
