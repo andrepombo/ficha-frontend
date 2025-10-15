@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-50;
+    @apply bg-gray-100;
   }
 }
 
@@ -14,7 +14,7 @@
   }
   
   .btn-secondary {
-    @apply bg-white text-gray-700 px-4 py-2 rounded-lg font-semibold border border-gray-300 hover:bg-gray-50 transition-all duration-200;
+    @apply bg-white text-gray-700 px-4 py-2 rounded-lg font-semibold border border-gray-300 hover:bg-gray-100 transition-all duration-200;
   }
   
   .card {

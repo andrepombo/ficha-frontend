@@ -197,7 +197,7 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -307,7 +307,7 @@ function Dashboard() {
           ) : (
             <div className="overflow-x-auto bg-white shadow-sm border border-gray-200 rounded-lg">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nome</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
@@ -319,7 +319,7 @@ function Dashboard() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {filteredCandidates.map(candidate => (
-                    <tr key={candidate.id} className="hover:bg-gray-50">
+                    <tr key={candidate.id} className="hover:bg-gray-100">
                       <td className="px-4 py-3 text-sm text-gray-900 font-medium">{`${candidate.first_name} ${candidate.last_name}`}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.email}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.position_applied}</td>

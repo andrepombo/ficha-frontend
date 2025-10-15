@@ -162,7 +162,7 @@ function Demographics() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -348,12 +348,12 @@ function Demographics() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Age Details Table */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <div className="px-6 py-4 bg-gray-100 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">Detalhes por Faixa Etária</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Faixa Etária
@@ -368,7 +368,7 @@ function Demographics() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {ageData.map((age, index) => (
-                    <tr key={age.range} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <tr key={age.range} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {age.range} anos
                       </td>
@@ -390,12 +390,12 @@ function Demographics() {
 
           {/* Education Details Table */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <div className="px-6 py-4 bg-gray-100 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-900">Detalhes por Escolaridade</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Nível de Escolaridade
@@ -410,7 +410,7 @@ function Demographics() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {educationData.map((edu, index) => (
-                    <tr key={edu.level} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <tr key={edu.level} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}>
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">
                         {edu.level}
                       </td>
