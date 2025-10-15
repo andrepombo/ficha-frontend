@@ -80,7 +80,7 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
             onChange={(e) => onFilterChange({ month: e.target.value })}
             className={`select-modern floating-select ${filters.month !== 'all' ? 'has-value' : ''}`}
           >
-            <option value="all"></option>
+            <option value="all">Todos os Meses</option>
             {months.map(month => (
               <option key={month.value} value={month.value}>{month.label}</option>
             ))}
@@ -95,7 +95,7 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
             onChange={(e) => onFilterChange({ year: e.target.value })}
             className={`select-modern floating-select ${filters.year !== 'all' ? 'has-value' : ''}`}
           >
-            <option value="all"></option>
+            <option value="all">Todos os Anos</option>
             {years.map(year => (
               <option key={year} value={year.toString()}>{year}</option>
             ))}

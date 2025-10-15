@@ -43,7 +43,7 @@
   }
   
   .select-modern {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 transition-all duration-200 bg-white cursor-pointer appearance-none bg-no-repeat bg-right pr-10 hover:border-gray-400;
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 transition-all duration-200 bg-white cursor-pointer appearance-none bg-no-repeat bg-right pr-10 hover:border-gray-400 font-medium text-gray-700;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-position: right 0.5rem center;
     background-size: 1.5rem;
@@ -56,6 +56,20 @@
   
   .select-modern:hover {
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  }
+  
+  .select-modern option {
+    @apply py-3 px-4 font-medium text-gray-800 bg-white;
+    padding: 12px 16px;
+    line-height: 1.5;
+  }
+  
+  .select-modern option:hover {
+    @apply bg-indigo-50;
+  }
+  
+  .select-modern option:checked {
+    @apply bg-indigo-100 text-indigo-900 font-semibold;
   }
   
   /* Floating Label Container */
