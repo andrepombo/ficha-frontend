@@ -197,57 +197,60 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-purple-50">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Current Month and Year */}
-        <div className="mb-6">
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg shadow-sm border border-indigo-200 p-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg p-2.5 shadow-md">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-indigo-900">{getFilteredMonthYear()}</h1>
-                <p className="text-sm text-indigo-600">Estatísticas de candidatos</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="hidden sm:flex items-center space-x-2 bg-indigo-100 bg-opacity-60 backdrop-blur-sm rounded-lg px-4 py-2 border border-indigo-300">
-                <span className="text-2xl font-bold text-indigo-900">{stats.total}</span>
-                <span className="text-sm text-indigo-700">candidatos</span>
-              </div>
-              {/* View mode toggle */}
-              <div className="flex items-center bg-white border border-indigo-200 rounded-lg overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setViewMode('cards')}
-                  className={`px-3 py-2 text-sm font-medium flex items-center space-x-2 transition-colors ${
-                    viewMode === 'cards' ? 'bg-indigo-600 text-white' : 'text-indigo-700 hover:bg-indigo-50'
-                  }`}
-                  title="Cartões"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h7v7H4V6zm9 0h7v7h-7V6zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z" />
+        <div className="mb-8">
+          <div className="bg-white rounded-2xl shadow-xl border-2 border-purple-100 p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full -mr-32 -mt-32 opacity-50"></div>
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center space-x-4">
+                <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-4 shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span>Cartões</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('list')}
-                  className={`px-3 py-2 text-sm font-medium flex items-center space-x-2 border-l border-indigo-200 transition-colors ${
-                    viewMode === 'list' ? 'bg-indigo-600 text-white' : 'text-indigo-700 hover:bg-indigo-50'
-                  }`}
-                  title="Lista"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                  <span>Lista</span>
-                </button>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-extrabold text-indigo-900">{getFilteredMonthYear()}</h1>
+                  <p className="text-sm text-indigo-600 font-semibold mt-1">Estatísticas de candidatos</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="hidden sm:flex items-center space-x-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl px-6 py-3 border-2 border-indigo-200 shadow-md">
+                  <span className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{stats.total}</span>
+                  <span className="text-sm text-indigo-700 font-bold uppercase">candidatos</span>
+                </div>
+                {/* View mode toggle */}
+                <div className="flex items-center bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl overflow-hidden shadow-md">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('cards')}
+                    className={`px-4 py-2.5 text-sm font-bold flex items-center space-x-2 transition-all duration-300 ${
+                      viewMode === 'cards' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' : 'text-indigo-700 hover:bg-white'
+                    }`}
+                    title="Cartões"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                    <span className="hidden md:inline">Cartões</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('list')}
+                    className={`px-4 py-2.5 text-sm font-bold flex items-center space-x-2 border-l-2 border-indigo-200 transition-all duration-300 ${
+                      viewMode === 'list' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' : 'text-indigo-700 hover:bg-white'
+                    }`}
+                    title="Lista"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <span className="hidden md:inline">Lista</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -307,7 +310,7 @@ function Dashboard() {
           ) : (
             <div className="overflow-x-auto bg-white shadow-sm border border-gray-200 rounded-lg">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-100">
+                <thead className="bg-purple-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nome</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
@@ -319,7 +322,7 @@ function Dashboard() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {filteredCandidates.map(candidate => (
-                    <tr key={candidate.id} className="hover:bg-gray-100">
+                    <tr key={candidate.id} className="hover:bg-purple-50">
                       <td className="px-4 py-3 text-sm text-gray-900 font-medium">{`${candidate.first_name} ${candidate.last_name}`}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.email}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.position_applied}</td>

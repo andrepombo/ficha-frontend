@@ -31,27 +31,27 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Search */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-indigo-900 mb-2">
             Buscar
           </label>
           <input
             type="text"
-            placeholder="Buscar por nome, email ou cargo..."
+            placeholder="Nome, email ou cargo..."
             value={filters.search}
             onChange={(e) => onFilterChange({ search: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="input-modern"
           />
         </div>
 
         {/* Status Filter */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-indigo-900 mb-2">
             Status
           </label>
           <select
             value={filters.status}
             onChange={(e) => onFilterChange({ status: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="select-modern"
           >
             <option value="all">Todos os Status</option>
             <option value="pending">Pendente</option>
@@ -64,13 +64,13 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
 
         {/* Position Filter */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-indigo-900 mb-2">
             Cargo
           </label>
           <select
             value={filters.position}
             onChange={(e) => onFilterChange({ position: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="select-modern"
           >
             <option value="all">Todos os Cargos</option>
             {positions.map(position => (
@@ -81,13 +81,13 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
 
         {/* Month Filter */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-indigo-900 mb-2">
             Mês
           </label>
           <select
             value={filters.month}
             onChange={(e) => onFilterChange({ month: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="select-modern"
           >
             <option value="all">Todos os Meses</option>
             {months.map(month => (
@@ -98,13 +98,13 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
 
         {/* Year Filter */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-indigo-900 mb-2">
             Ano
           </label>
           <select
             value={filters.year}
             onChange={(e) => onFilterChange({ year: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="select-modern"
           >
             <option value="all">Todos os Anos</option>
             {years.map(year => (

@@ -5,19 +5,23 @@ interface StatsCardProps {
 }
 
 const colorClasses = {
-  blue: 'bg-blue-50 text-blue-600 border-blue-200',
-  orange: 'bg-orange-50 text-orange-600 border-orange-200',
-  purple: 'bg-purple-50 text-purple-600 border-purple-200',
-  indigo: 'bg-indigo-50 text-indigo-600 border-indigo-200',
-  green: 'bg-green-50 text-green-600 border-green-200',
-  red: 'bg-red-50 text-red-600 border-red-200',
+  blue: 'from-blue-500 to-blue-600 shadow-blue-200',
+  orange: 'from-orange-500 to-orange-600 shadow-orange-200',
+  purple: 'from-purple-500 to-purple-600 shadow-purple-200',
+  indigo: 'from-indigo-500 to-indigo-600 shadow-indigo-200',
+  green: 'from-green-500 to-green-600 shadow-green-200',
+  red: 'from-red-500 to-red-600 shadow-red-200',
 };
 
 function StatsCard({ title, count, color = 'blue' }: StatsCardProps) {
   return (
-    <div className={`rounded-lg border-2 p-4 ${colorClasses[color]}`}>
-      <p className="text-sm font-semibold uppercase tracking-wide opacity-80">{title}</p>
-      <p className="text-3xl font-bold mt-2">{count}</p>
+    <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${colorClasses[color]} p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-white/20`}>
+      <div className="relative z-10">
+        <p className="text-sm font-bold uppercase tracking-wider text-white/90">{title}</p>
+        <p className="text-4xl font-extrabold mt-3 text-white">{count}</p>
+      </div>
+      <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
+      <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-20 w-20 rounded-full bg-white/10 blur-xl"></div>
     </div>
   );
 }
