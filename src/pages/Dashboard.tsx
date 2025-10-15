@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { candidateAPI } from '../services/api';
 import { Candidate, CandidateFilters, CandidateStats } from '../types';
 import CandidateCard from '../components/CandidateCard';
@@ -9,6 +10,7 @@ import Header from '../components/Header';
 function Dashboard() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<CandidateStats>({
@@ -194,9 +196,40 @@ function Dashboard() {
                 <p className="text-sm text-indigo-600">Estatísticas de candidatos</p>
               </div>
             </div>
-            <div className="hidden sm:flex items-center space-x-2 bg-indigo-100 bg-opacity-60 backdrop-blur-sm rounded-lg px-4 py-2 border border-indigo-300">
-              <span className="text-2xl font-bold text-indigo-900">{stats.total}</span>
-              <span className="text-sm text-indigo-700">candidatos</span>
+            <div className="flex items-center space-x-3">
+              <div className="hidden sm:flex items-center space-x-2 bg-indigo-100 bg-opacity-60 backdrop-blur-sm rounded-lg px-4 py-2 border border-indigo-300">
+                <span className="text-2xl font-bold text-indigo-900">{stats.total}</span>
+                <span className="text-sm text-indigo-700">candidatos</span>
+              </div>
+              {/* View mode toggle */}
+              <div className="flex items-center bg-white border border-indigo-200 rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('cards')}
+                  className={`px-3 py-2 text-sm font-medium flex items-center space-x-2 transition-colors ${
+                    viewMode === 'cards' ? 'bg-indigo-600 text-white' : 'text-indigo-700 hover:bg-indigo-50'
+                  }`}
+                  title="Cartões"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h7v7H4V6zm9 0h7v7h-7V6zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z" />
+                  </svg>
+                  <span>Cartões</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-2 text-sm font-medium flex items-center space-x-2 border-l border-indigo-200 transition-colors ${
+                    viewMode === 'list' ? 'bg-indigo-600 text-white' : 'text-indigo-700 hover:bg-indigo-50'
+                  }`}
+                  title="Lista"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  <span>Lista</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -217,15 +250,32 @@ function Dashboard() {
         />
 
         <div className="mt-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Candidatos ({filteredCandidates.length})
-          </h2>
-          
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Candidatos ({filteredCandidates.length})
+            </h2>
+            {/* Secondary toggle (mobile) */}
+            <div className="sm:hidden">
+              <div className="inline-flex items-center bg-white border border-indigo-200 rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('cards')}
+                  className={`px-3 py-2 text-sm ${viewMode === 'cards' ? 'bg-indigo-600 text-white' : 'text-indigo-700'}`}
+                >Cartões</button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-2 text-sm border-l border-indigo-200 ${viewMode === 'list' ? 'bg-indigo-600 text-white' : 'text-indigo-700'}`}
+                >Lista</button>
+              </div>
+            </div>
+          </div>
+
           {filteredCandidates.length === 0 ? (
             <div className="card text-center py-12">
               <p className="text-gray-500 text-lg">Nenhum candidato encontrado com os filtros selecionados.</p>
             </div>
-          ) : (
+          ) : viewMode === 'cards' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCandidates.map(candidate => (
                 <CandidateCard
@@ -234,6 +284,44 @@ function Dashboard() {
                   onStatusChange={handleStatusChange}
                 />
               ))}
+            </div>
+          ) : (
+            <div className="overflow-x-auto bg-white shadow-sm border border-gray-200 rounded-lg">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nome</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cargo</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aplicado em</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {filteredCandidates.map(candidate => (
+                    <tr key={candidate.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm text-gray-900 font-medium">{`${candidate.first_name} ${candidate.last_name}`}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{candidate.email}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{candidate.position_applied}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                          {candidate.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{new Date(candidate.applied_date).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 text-sm text-right">
+                        <Link
+                          to={`/candidate/${candidate.id}`}
+                          className="inline-flex items-center px-3 py-1.5 border border-indigo-200 text-indigo-700 hover:bg-indigo-50 rounded-md text-sm font-medium"
+                        >
+                          Ver
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
