@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Candidate, CandidateStatus } from '../types';
+import { getTranslatedStatus } from '../utils/statusTranslations';
 
 interface CandidateCardProps {
   candidate: Candidate;
@@ -33,7 +34,7 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
           <p className="text-sm text-gray-600">{candidate.email}</p>
         </div>
         <span className={`status-badge ${statusColors[candidate.status]}`}>
-          {candidate.status}
+          {getTranslatedStatus(candidate.status)}
         </span>
       </div>
 

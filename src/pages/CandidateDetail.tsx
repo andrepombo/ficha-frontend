@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { candidateAPI } from '../services/api';
 import { Candidate, CandidateStatus } from '../types';
+import { getTranslatedStatus } from '../utils/statusTranslations';
 import Header from '../components/Header';
 
 const statusColors: Record<CandidateStatus, string> = {
@@ -148,7 +149,7 @@ function CandidateDetail() {
             </div>
             <div className="text-right">
               <span className={`status-badge ${statusColors[candidate.status]} inline-block mb-3`}>
-                {candidate.status}
+                {getTranslatedStatus(candidate.status)}
               </span>
               <p className="text-sm text-gray-500">
                 Candidatura: {new Date(candidate.applied_date).toLocaleDateString('pt-BR')}

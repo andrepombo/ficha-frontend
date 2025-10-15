@@ -6,6 +6,7 @@ import CandidateCard from '../components/CandidateCard';
 import StatsCard from '../components/StatsCard';
 import FilterBar from '../components/FilterBar';
 import Header from '../components/Header';
+import { getTranslatedStatus } from '../utils/statusTranslations';
 
 function Dashboard() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -306,7 +307,7 @@ function Dashboard() {
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.position_applied}</td>
                       <td className="px-4 py-3 text-sm">
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                          {candidate.status}
+                          {getTranslatedStatus(candidate.status)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700">{new Date(candidate.applied_date).toLocaleDateString()}</td>
