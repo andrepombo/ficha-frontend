@@ -10,7 +10,7 @@ import Demographics from './pages/Demographics'
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename="/painel">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
