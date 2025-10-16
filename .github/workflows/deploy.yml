@@ -1,0 +1,62 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches:
+      - main  # Change to your default branch name if different
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  deploy:
+    name: Build and Deploy to EC2
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build production bundle
+        run: npm run build
+      
+      - name: Deploy to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          source: "dist/*"
+          target: "/var/www/pinte-fichas/frontend/"
+          strip_components: 0
+          overwrite: true
+      
+      - name: Verify Deployment
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            echo "Verifying frontend deployment..."
+            ls -la /var/www/pinte-fichas/frontend/dist/
+            echo "✓ Frontend files deployed successfully!"
+      
+      - name: Notify on Success
+        if: success()
+        run: echo "✓ Frontend deployed successfully to EC2!"
+      
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "✗ Frontend deployment failed!"
+          echo "Check the logs above for details."
