@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  // Use /painel/ base path only in production
-  base: mode === 'production' ? '/painel/' : '/',
+  // Always use /painel/ base path for deployment
+  base: '/painel/',
   server: {
     host: '0.0.0.0',
     port: 5173,
