@@ -17,7 +17,8 @@ export default defineConfig(({ mode }) => ({
     ],
     proxy: {
       '/api': {
-        target: 'http://backend:8000',
+        // Use localhost for local development, backend for Docker/production
+        target: mode === 'development' ? 'http://localhost:8000' : 'http://backend:8000',
         changeOrigin: true,
         secure: false,
       },

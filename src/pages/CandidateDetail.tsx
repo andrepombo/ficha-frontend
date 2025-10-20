@@ -142,10 +142,11 @@ function CandidateDetail() {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {candidate.first_name} {candidate.last_name}
+                {candidate.full_name}
               </h1>
-              <p className="text-gray-600">{candidate.email}</p>
+              <p className="text-gray-600">{candidate.email || 'Email não informado'}</p>
               <p className="text-gray-600">{candidate.phone_number}</p>
+              <p className="text-sm text-gray-500 mt-1">CPF: {candidate.cpf}</p>
             </div>
             <div className="text-right">
               <span className={`status-badge ${statusColors[candidate.status]} inline-block mb-3`}>
@@ -154,6 +155,11 @@ function CandidateDetail() {
               <p className="text-sm text-gray-500">
                 Candidatura: {new Date(candidate.applied_date).toLocaleDateString('pt-BR')}
               </p>
+              {candidate.access_code && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Código: {candidate.access_code}
+                </p>
+              )}
             </div>
           </div>
 
@@ -176,20 +182,93 @@ function CandidateDetail() {
         </div>
 
         <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Informações Profissionais</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Cargo Pretendido" value={candidate.position_applied} />
-            <InfoItem label="Anos de Experiência" value={`${candidate.years_of_experience} anos`} />
-            <InfoItem label="Empresa Atual" value={candidate.current_company || 'N/A'} />
-            <InfoItem label="Cargo Atual" value={candidate.current_position || 'N/A'} />
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Informações Pessoais</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <InfoItem label="Data de Nascimento" value={candidate.date_of_birth ? new Date(candidate.date_of_birth).toLocaleDateString('pt-BR') : 'N/A'} />
+            <InfoItem label="Sexo" value={candidate.gender === 'masculino' ? 'Masculino' : candidate.gender === 'feminino' ? 'Feminino' : candidate.gender === 'prefiro_nao_informar' ? 'Prefiro não informar' : 'N/A'} />
+            <InfoItem label="PCD" value={
+              candidate.disability === 'sem_deficiencia' ? 'Sem deficiência' :
+              candidate.disability === 'fisica' ? 'Física' :
+              candidate.disability === 'auditiva' ? 'Auditiva' :
+              candidate.disability === 'visual' ? 'Visual' :
+              candidate.disability === 'mental' ? 'Mental' :
+              candidate.disability === 'multipla' ? 'Múltipla' :
+              candidate.disability === 'reabilitado' ? 'Reabilitado' : 'N/A'
+            } />
+            <InfoItem label="Transporte Próprio" value={candidate.has_own_transportation === 'sim' ? 'Sim' : candidate.has_own_transportation === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Escolaridade" value={
+              candidate.highest_education === 'analfabeto' ? 'Analfabeto' :
+              candidate.highest_education === 'fundamental_incompleto' ? 'Ensino fundamental incompleto' :
+              candidate.highest_education === 'fundamental_completo' ? 'Ensino fundamental completo' :
+              candidate.highest_education === 'medio_incompleto' ? 'Ensino Médio incompleto' :
+              candidate.highest_education === 'medio_completo' ? 'Ensino Médio completo' :
+              candidate.highest_education === 'tecnica_incompleta' ? 'Educação Técnica incompleta' :
+              candidate.highest_education === 'tecnica_completa' ? 'Educação Técnica completa' :
+              candidate.highest_education === 'superior_incompleta' ? 'Educação Superior incompleta' :
+              candidate.highest_education === 'superior_completa' ? 'Educação Superior completa' : 'N/A'
+            } />
           </div>
         </div>
 
         <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Educação</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Informações Profissionais</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Nível de Educação" value={candidate.highest_education || 'N/A'} />
-            <InfoItem label="Área de Estudo" value={candidate.field_of_study || 'N/A'} />
+            <InfoItem label="Cargo Pretendido" value={candidate.position_applied || 'N/A'} />
+            <InfoItem label="Anos de Experiência" value={candidate.years_of_experience ? `${candidate.years_of_experience} anos` : 'N/A'} />
+            <InfoItem label="Empresa Atual" value={candidate.current_company || 'N/A'} />
+            <InfoItem label="Cargo Atual" value={candidate.current_position || 'N/A'} />
+            <InfoItem label="Atualmente Empregado" value={candidate.currently_employed === 'sim' ? 'Sim' : candidate.currently_employed === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Disponibilidade para Início" value={
+              candidate.availability_start === 'imediato' ? 'De imediato' :
+              candidate.availability_start === '15_dias' ? '15 dias' :
+              candidate.availability_start === '30_dias' ? '30 dias' : 'N/A'
+            } />
+            <InfoItem label="Disponibilidade para Viagens" value={candidate.travel_availability === 'sim' ? 'Sim' : candidate.travel_availability === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Pintura em Altura" value={candidate.height_painting === 'sim' ? 'Sim' : candidate.height_painting === 'nao' ? 'Não' : 'N/A'} />
+          </div>
+        </div>
+
+        {candidate.professional_experiences && candidate.professional_experiences.length > 0 && (
+          <div className="card mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Experiências Profissionais</h2>
+            <div className="space-y-4">
+              {candidate.professional_experiences.map((exp) => (
+                <div key={exp.id} className="border-l-4 border-indigo-500 pl-4 py-2">
+                  <h3 className="font-semibold text-lg text-gray-900">{exp.cargo}</h3>
+                  <p className="text-gray-700 font-medium">{exp.empresa}</p>
+                  {(exp.data_admissao || exp.data_desligamento) && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {exp.data_admissao ? new Date(exp.data_admissao).toLocaleDateString('pt-BR') : '?'} - {exp.data_desligamento ? new Date(exp.data_desligamento).toLocaleDateString('pt-BR') : 'Atual'}
+                    </p>
+                  )}
+                  {exp.descricao_atividades && (
+                    <p className="text-gray-600 mt-2">{exp.descricao_atividades}</p>
+                  )}
+                  {exp.motivo_saida && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      <span className="font-medium">Motivo da saída:</span> {exp.motivo_saida}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="card mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação e Referências</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
+            <InfoItem label="Como Soube da Vaga" value={
+              candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
+              candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
+              candidate.how_found_vacancy === 'instagram' ? 'Instagram' :
+              candidate.how_found_vacancy === 'linkedin' ? 'LinkedIn' :
+              candidate.how_found_vacancy === 'sine' ? 'Sine' :
+              candidate.how_found_vacancy === 'outros' ? `Outros: ${candidate.how_found_vacancy_other || ''}` : 'N/A'
+            } />
+            <InfoItem label="Trabalhou na Pinte Antes" value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} />
           </div>
         </div>
 
@@ -200,8 +279,7 @@ function CandidateDetail() {
             <InfoItem label="Cidade" value={candidate.city || 'N/A'} />
             <InfoItem label="Estado" value={candidate.state || 'N/A'} />
             <InfoItem label="CEP" value={candidate.postal_code || 'N/A'} />
-            <InfoItem label="País" value={candidate.country} />
-            <InfoItem label="Data de Nascimento" value={candidate.date_of_birth ? new Date(candidate.date_of_birth).toLocaleDateString('pt-BR') : 'N/A'} />
+            <InfoItem label="País" value={candidate.country || 'N/A'} />
           </div>
         </div>
 
@@ -210,22 +288,6 @@ function CandidateDetail() {
           <div className="space-y-4">
             <InfoItem label="Habilidades" value={candidate.skills || 'N/A'} />
             <InfoItem label="Certificações" value={candidate.certifications || 'N/A'} />
-            {candidate.linkedin_url && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">LinkedIn</p>
-                <a href={candidate.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
-                  {candidate.linkedin_url}
-                </a>
-              </div>
-            )}
-            {candidate.portfolio_url && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Portfolio</p>
-                <a href={candidate.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
-                  {candidate.portfolio_url}
-                </a>
-              </div>
-            )}
             {candidate.resume && (
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-1">Currículo</p>
