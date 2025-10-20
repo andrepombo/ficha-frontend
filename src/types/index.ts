@@ -69,3 +69,51 @@ export interface CandidateStats {
   accepted: number;
   rejected: number;
 }
+
+export interface Interview {
+  id: number;
+  candidate: number;
+  candidate_name: string;
+  candidate_email: string;
+  candidate_phone: string;
+  candidate_position?: string;
+  interviewer: number | null;
+  interviewer_name: string | null;
+  title: string;
+  interview_type: InterviewType;
+  scheduled_date: string;
+  scheduled_time: string;
+  duration_minutes: number;
+  location?: string;
+  description?: string;
+  status: InterviewStatus;
+  status_color: string;
+  feedback?: string;
+  rating?: number;
+  candidate_notified: boolean;
+  reminder_sent: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by?: number;
+  created_by_name?: string;
+}
+
+export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled' | 'rescheduled' | 'no_show';
+export type InterviewType = 'phone' | 'video' | 'in_person' | 'technical' | 'hr';
+
+export interface InterviewStats {
+  total: number;
+  upcoming: number;
+  today: number;
+  by_status: {
+    [key: string]: number;
+  };
+}
+
+export interface User {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}

@@ -7,6 +7,7 @@ import CandidateDetail from './pages/CandidateDetail'
 import Analytics from './pages/Analytics'
 import Demographics from './pages/Demographics'
 import Insights from './pages/Insights'
+import Calendar from './pages/Calendar'
 
 function App() {
   return (
@@ -44,6 +45,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Insights />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <ProtectedRoute>
+                <Calendar />
               </ProtectedRoute>
             }
           />

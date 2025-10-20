@@ -51,6 +51,12 @@ function Header() {
             >
               Insights
             </Link>
+            <Link
+              to="/calendar"
+              className="px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors font-medium"
+            >
+              📅 Calendário
+            </Link>
             <a
               href="http://localhost:8000/admin/"
               target="_blank"

@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { candidateAPI } from '../services/api';
-import { Candidate, CandidateStatus } from '../types';
+import { Candidate, CandidateStatus, Interview } from '../types';
 import { getTranslatedStatus } from '../utils/statusTranslations';
 import Header from '../components/Header';
+import InterviewModal from '../components/InterviewModal';
+import FeedbackModal from '../components/FeedbackModal';
+import InterviewCard from '../components/InterviewCard';
 
 const statusColors: Record<CandidateStatus, string> = {
   pending: 'bg-orange-100 text-orange-800',
@@ -35,10 +38,18 @@ function CandidateDetail() {
   const [error, setError] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  
+  // Interview state
+  const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [loadingInterviews, setLoadingInterviews] = useState(false);
+  const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
 
   useEffect(() => {
     if (id) {
       fetchCandidate(parseInt(id));
+      fetchInterviews(parseInt(id));
     }
   }, [id]);
 
@@ -54,6 +65,18 @@ function CandidateDetail() {
       console.error('Error fetching candidate:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchInterviews = async (candidateId: number) => {
+    try {
+      setLoadingInterviews(true);
+      const data = await candidateAPI.getInterviews(candidateId);
+      setInterviews(data);
+    } catch (err) {
+      console.error('Error fetching interviews:', err);
+    } finally {
+      setLoadingInterviews(false);
     }
   };
 
@@ -99,6 +122,44 @@ function CandidateDetail() {
     } catch (err) {
       console.error('Error deleting candidate:', err);
       alert('Failed to delete candidate. Please try again.');
+    }
+  };
+
+  const handleScheduleInterview = () => {
+    setSelectedInterview(null);
+    setIsInterviewModalOpen(true);
+  };
+
+  const handleEditInterview = (interview: Interview) => {
+    setSelectedInterview(interview);
+    setIsInterviewModalOpen(true);
+  };
+
+  const handleDeleteInterview = async (interviewId: number) => {
+    if (!id) return;
+    try {
+      await import('../services/api').then(({ interviewAPI }) => interviewAPI.delete(interviewId));
+      fetchInterviews(parseInt(id));
+    } catch (err) {
+      console.error('Error deleting interview:', err);
+      alert('Failed to delete interview. Please try again.');
+    }
+  };
+
+  const handleAddFeedback = (interview: Interview) => {
+    setSelectedInterview(interview);
+    setIsFeedbackModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsInterviewModalOpen(false);
+    setIsFeedbackModalOpen(false);
+    setSelectedInterview(null);
+  };
+
+  const handleInterviewSuccess = () => {
+    if (id) {
+      fetchInterviews(parseInt(id));
     }
   };
 
@@ -330,6 +391,56 @@ function CandidateDetail() {
           </button>
         </div>
 
+        {/* Interviews Section */}
+        <div className="card mb-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">📅 Entrevistas</h2>
+            <button
+              onClick={handleScheduleInterview}
+              className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-medium shadow-lg hover:shadow-xl flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Agendar Entrevista
+            </button>
+          </div>
+
+          {loadingInterviews ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-600"></div>
+            </div>
+          ) : interviews.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-xl">
+              <div className="text-6xl mb-4">📅</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Nenhuma entrevista agendada
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Agende a primeira entrevista com este candidato.
+              </p>
+              <button
+                onClick={handleScheduleInterview}
+                className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-medium shadow-lg hover:shadow-xl"
+              >
+                Agendar Primeira Entrevista
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {interviews.map(interview => (
+                <InterviewCard
+                  key={interview.id}
+                  interview={interview}
+                  onEdit={handleEditInterview}
+                  onDelete={handleDeleteInterview}
+                  onAddFeedback={handleAddFeedback}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="card border-red-200">
           <h2 className="text-xl font-bold text-red-600 mb-4">Zona de Perigo</h2>
           <p className="text-gray-600 mb-4">
@@ -343,6 +454,23 @@ function CandidateDetail() {
           </button>
         </div>
       </div>
+
+      {/* Modals */}
+      <InterviewModal
+        isOpen={isInterviewModalOpen}
+        onClose={handleModalClose}
+        onSuccess={handleInterviewSuccess}
+        candidateId={candidate.id}
+        candidateName={candidate.full_name}
+        interview={selectedInterview}
+      />
+
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={handleModalClose}
+        onSuccess={handleInterviewSuccess}
+        interview={selectedInterview}
+      />
     </div>
   );
 }

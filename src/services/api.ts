@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Candidate, CandidateStats } from '../types';
+import { Candidate, CandidateStats, Interview, InterviewStats, User } from '../types';
 import { authService } from './auth';
 
 const API_BASE_URL = '/api';
@@ -80,6 +80,70 @@ export const candidateAPI = {
 
   getStats: async (): Promise<CandidateStats> => {
     const response = await api.get<CandidateStats>('/candidates/stats/');
+    return response.data;
+  },
+
+  getInterviews: async (candidateId: number): Promise<Interview[]> => {
+    const response = await api.get<Interview[]>(`/candidates/${candidateId}/interviews/`);
+    return response.data;
+  },
+};
+
+export const interviewAPI = {
+  getAll: async (params = {}): Promise<Interview[]> => {
+    const response = await api.get<Interview[]>('/interviews/', { params });
+    return response.data;
+  },
+
+  getById: async (id: number): Promise<Interview> => {
+    const response = await api.get<Interview>(`/interviews/${id}/`);
+    return response.data;
+  },
+
+  create: async (data: Partial<Interview>): Promise<Interview> => {
+    const response = await api.post<Interview>('/interviews/', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: Partial<Interview>): Promise<Interview> => {
+    const response = await api.patch<Interview>(`/interviews/${id}/`, data);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/interviews/${id}/`);
+  },
+
+  updateStatus: async (id: number, status: string): Promise<Interview> => {
+    const response = await api.patch<Interview>(`/interviews/${id}/update_status/`, { status });
+    return response.data;
+  },
+
+  addFeedback: async (id: number, feedback: string, rating?: number): Promise<Interview> => {
+    const response = await api.patch<Interview>(`/interviews/${id}/add_feedback/`, { feedback, rating });
+    return response.data;
+  },
+
+  getUpcoming: async (): Promise<Interview[]> => {
+    const response = await api.get<Interview[]>('/interviews/upcoming/');
+    return response.data;
+  },
+
+  getCalendar: async (month?: number, year?: number): Promise<Interview[]> => {
+    const params = month && year ? { month, year } : {};
+    const response = await api.get<Interview[]>('/interviews/calendar/', { params });
+    return response.data;
+  },
+
+  getStats: async (): Promise<InterviewStats> => {
+    const response = await api.get<InterviewStats>('/interviews/stats/');
+    return response.data;
+  },
+};
+
+export const userAPI = {
+  getAll: async (): Promise<User[]> => {
+    const response = await api.get<User[]>('/users/');
     return response.data;
   },
 };
