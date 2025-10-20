@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import CandidateDetail from './pages/CandidateDetail'
 import Analytics from './pages/Analytics'
 import Demographics from './pages/Demographics'
+import Insights from './pages/Insights'
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Demographics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/insights"
+            element={
+              <ProtectedRoute>
+                <Insights />
               </ProtectedRoute>
             }
           />

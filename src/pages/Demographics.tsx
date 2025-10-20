@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { candidateAPI } from '../services/api';
 import { Candidate } from '../types';
 import Header from '../components/Header';
+
+interface ChartData {
+  name: string;
+  value: number;
+  [key: string]: string | number;
+}
 
 interface AgeGroup {
   range: string;
@@ -20,12 +26,23 @@ function Demographics() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [ageData, setAgeData] = useState<AgeGroup[]>([]);
   const [educationData, setEducationData] = useState<EducationData[]>([]);
+  const [genderData, setGenderData] = useState<ChartData[]>([]);
+  const [disabilityData, setDisabilityData] = useState<ChartData[]>([]);
+  const [transportationData, setTransportationData] = useState<ChartData[]>([]);
+  const [referralData, setReferralData] = useState<ChartData[]>([]);
+  const [availabilityData, setAvailabilityData] = useState<ChartData[]>([]);
+  const [travelData, setTravelData] = useState<ChartData[]>([]);
+  const [heightPaintingData, setHeightPaintingData] = useState<ChartData[]>([]);
+  const [employmentData, setEmploymentData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Colors for charts
   const AGE_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1'];
   const EDUCATION_COLORS = ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+  const GENDER_COLORS = ['#3b82f6', '#ec4899', '#94a3b8'];
+  const DISABILITY_COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444'];
+  const BINARY_COLORS = ['#10b981', '#ef4444'];
 
   useEffect(() => {
     fetchCandidates();
@@ -35,6 +52,14 @@ function Demographics() {
     if (candidates.length > 0) {
       processAgeData();
       processEducationData();
+      processGenderData();
+      processDisabilityData();
+      processTransportationData();
+      processReferralData();
+      processAvailabilityData();
+      processTravelData();
+      processHeightPaintingData();
+      processEmploymentData();
     }
   }, [candidates]);
 
@@ -122,6 +147,161 @@ function Demographics() {
       .sort((a, b) => b.count - a.count);
 
     setEducationData(data);
+  };
+
+  const processGenderData = () => {
+    const genderCounts: { [key: string]: number } = {
+      'Masculino': 0,
+      'Feminino': 0,
+      'Prefiro não informar': 0,
+    };
+
+    candidates.forEach(candidate => {
+      if (candidate.gender === 'masculino') genderCounts['Masculino']++;
+      else if (candidate.gender === 'feminino') genderCounts['Feminino']++;
+      else if (candidate.gender === 'prefiro_nao_informar') genderCounts['Prefiro não informar']++;
+    });
+
+    const data: ChartData[] = Object.entries(genderCounts)
+      .filter(([_, count]) => count > 0)
+      .map(([name, value]) => ({ name, value }));
+
+    setGenderData(data);
+  };
+
+  const processDisabilityData = () => {
+    const disabilityCounts: { [key: string]: number } = {};
+    
+    const disabilityLabels: { [key: string]: string } = {
+      'sem_deficiencia': 'Sem deficiência',
+      'fisica': 'Física',
+      'auditiva': 'Auditiva',
+      'visual': 'Visual',
+      'mental': 'Mental',
+      'multipla': 'Múltipla',
+      'reabilitado': 'Reabilitado',
+    };
+
+    candidates.forEach(candidate => {
+      if (candidate.disability) {
+        const label = disabilityLabels[candidate.disability] || candidate.disability;
+        disabilityCounts[label] = (disabilityCounts[label] || 0) + 1;
+      }
+    });
+
+    const data: ChartData[] = Object.entries(disabilityCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+
+    setDisabilityData(data);
+  };
+
+  const processTransportationData = () => {
+    const counts = { 'Sim': 0, 'Não': 0 };
+
+    candidates.forEach(candidate => {
+      if (candidate.has_own_transportation === 'sim') counts['Sim']++;
+      else if (candidate.has_own_transportation === 'nao') counts['Não']++;
+    });
+
+    const data: ChartData[] = Object.entries(counts)
+      .filter(([_, value]) => value > 0)
+      .map(([name, value]) => ({ name, value }));
+
+    setTransportationData(data);
+  };
+
+  const processReferralData = () => {
+    const referralCounts: { [key: string]: number } = {};
+    
+    const referralLabels: { [key: string]: string } = {
+      'facebook': 'Facebook',
+      'indicacao_colaborador': 'Indicação de colaborador',
+      'instagram': 'Instagram',
+      'linkedin': 'LinkedIn',
+      'sine': 'Sine',
+      'outros': 'Outros',
+    };
+
+    candidates.forEach(candidate => {
+      if (candidate.how_found_vacancy) {
+        const label = referralLabels[candidate.how_found_vacancy] || candidate.how_found_vacancy;
+        referralCounts[label] = (referralCounts[label] || 0) + 1;
+      }
+    });
+
+    const data: ChartData[] = Object.entries(referralCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+
+    setReferralData(data);
+  };
+
+  const processAvailabilityData = () => {
+    const availabilityCounts: { [key: string]: number } = {};
+    
+    const availabilityLabels: { [key: string]: string } = {
+      'imediato': 'Imediato',
+      '15_dias': '15 dias',
+      '30_dias': '30 dias',
+    };
+
+    candidates.forEach(candidate => {
+      if (candidate.availability_start) {
+        const label = availabilityLabels[candidate.availability_start] || candidate.availability_start;
+        availabilityCounts[label] = (availabilityCounts[label] || 0) + 1;
+      }
+    });
+
+    const data: ChartData[] = Object.entries(availabilityCounts)
+      .map(([name, value]) => ({ name, value }));
+
+    setAvailabilityData(data);
+  };
+
+  const processTravelData = () => {
+    const counts = { 'Sim': 0, 'Não': 0 };
+
+    candidates.forEach(candidate => {
+      if (candidate.travel_availability === 'sim') counts['Sim']++;
+      else if (candidate.travel_availability === 'nao') counts['Não']++;
+    });
+
+    const data: ChartData[] = Object.entries(counts)
+      .filter(([_, value]) => value > 0)
+      .map(([name, value]) => ({ name, value }));
+
+    setTravelData(data);
+  };
+
+  const processHeightPaintingData = () => {
+    const counts = { 'Sim': 0, 'Não': 0 };
+
+    candidates.forEach(candidate => {
+      if (candidate.height_painting === 'sim') counts['Sim']++;
+      else if (candidate.height_painting === 'nao') counts['Não']++;
+    });
+
+    const data: ChartData[] = Object.entries(counts)
+      .filter(([_, value]) => value > 0)
+      .map(([name, value]) => ({ name, value }));
+
+    setHeightPaintingData(data);
+  };
+
+  const processEmploymentData = () => {
+    const counts = { 'Sim': 0, 'Não': 0 };
+
+    candidates.forEach(candidate => {
+      if (candidate.currently_employed === 'sim') counts['Sim']++;
+      else if (candidate.currently_employed === 'nao') counts['Não']++;
+    });
+
+    const data: ChartData[] = Object.entries(counts)
+      .filter(([_, value]) => value > 0)
+      .map(([name, value]) => ({ name, value }));
+
+    setEmploymentData(data);
   };
 
   const totalCandidates = candidates.length;

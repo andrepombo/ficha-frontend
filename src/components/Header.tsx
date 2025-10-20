@@ -45,6 +45,12 @@ function Header() {
             >
               Demografia
             </Link>
+            <Link
+              to="/insights"
+              className="px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors font-medium"
+            >
+              Insights
+            </Link>
             <a
               href="http://localhost:8000/admin/"
               target="_blank"
