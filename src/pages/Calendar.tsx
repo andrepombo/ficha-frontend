@@ -126,15 +126,15 @@ const Calendar: React.FC = () => {
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 mb-8 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-5 mb-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
           
           <div className="relative">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-4xl font-bold text-white mb-2">📅 Calendário de Entrevistas</h1>
-                <p className="text-indigo-100 text-lg">
+                <h1 className="text-2xl font-bold text-white mb-1">📅 Calendário de Entrevistas</h1>
+                <p className="text-indigo-100 text-sm">
                   {getMonthName(selectedMonth)} {selectedYear}
                 </p>
               </div>
