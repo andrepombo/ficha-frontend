@@ -12,7 +12,7 @@ function Header() {
 
   return (
     <header className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center space-x-3">
             <div className="bg-white rounded-lg p-2">
@@ -21,8 +21,7 @@ function Header() {
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Ficha</h1>
-              <p className="text-sm opacity-90">Painel do Empregador</p>
+              <h1 className="text-2xl font-bold">Painel do Empregador</h1>
             </div>
           </Link>
           
@@ -57,14 +56,14 @@ function Header() {
             >
               📅 Calendário
             </Link>
-            <a
+            {/* <a
               href="http://localhost:8000/admin/"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 bg-white text-primary-600 rounded-lg hover:bg-opacity-90 transition-colors font-medium"
             >
               Admin Django
-            </a>
+            </a> */}
             
             {/* User Info & Logout */}
             <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-white border-opacity-30">
