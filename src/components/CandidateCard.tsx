@@ -10,6 +10,7 @@ interface CandidateCardProps {
 const statusColors: Record<CandidateStatus, string> = {
   pending: 'bg-gradient-to-r from-orange-500 to-orange-600 text-white',
   reviewing: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white',
+  shortlisted: 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white',
   interviewed: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white',
   accepted: 'bg-gradient-to-r from-green-500 to-green-600 text-white',
   rejected: 'bg-gradient-to-r from-red-500 to-red-600 text-white',
@@ -26,16 +27,18 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
 
   return (
     <div className="card group">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1 min-w-0 mr-3">
-          <h3 className="text-lg font-bold text-indigo-900 group-hover:text-indigo-700 transition-colors truncate">
-            {candidate.full_name}
-          </h3>
-          <p className="text-sm text-indigo-600 font-medium mt-1 truncate">{candidate.email || 'Email não informado'}</p>
+      <div className="mb-4">
+        <div className="flex justify-between items-start mb-2">
+          <span className="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">
+            ID: {candidate.id}
+          </span>
+          <span className={`status-badge ${statusColors[candidate.status]} flex-shrink-0`}>
+            {getTranslatedStatus(candidate.status)}
+          </span>
         </div>
-        <span className={`status-badge ${statusColors[candidate.status]} flex-shrink-0`}>
-          {getTranslatedStatus(candidate.status)}
-        </span>
+        <p className="text-sm text-indigo-600 font-medium">
+          {candidate.full_name}
+        </p>
       </div>
 
       <div className="space-y-3 mb-5">
@@ -75,6 +78,7 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
         >
           <option value="pending">Pendente</option>
           <option value="reviewing">Em Análise</option>
+          <option value="shortlisted">Selecionado para Entrevista</option>
           <option value="interviewed">Entrevistado</option>
           <option value="accepted">Aceito</option>
           <option value="rejected">Rejeitado</option>

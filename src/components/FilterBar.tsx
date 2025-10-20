@@ -51,6 +51,7 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
             <option value="all">Todos os Status</option>
             <option value="pending">Pendente</option>
             <option value="reviewing">Em Análise</option>
+            <option value="shortlisted">Selecionado para Entrevista</option>
             <option value="interviewed">Entrevistado</option>
             <option value="accepted">Aceito</option>
             <option value="rejected">Rejeitado</option>

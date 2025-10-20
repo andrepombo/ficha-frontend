@@ -1,13 +1,14 @@
 interface StatsCardProps {
   title: string;
   count: number;
-  color?: 'blue' | 'orange' | 'purple' | 'indigo' | 'green' | 'red';
+  color?: 'blue' | 'orange' | 'purple' | 'cyan' | 'indigo' | 'green' | 'red';
 }
 
 const colorClasses = {
   blue: 'from-blue-500 to-blue-600 shadow-blue-200',
   orange: 'from-orange-500 to-orange-600 shadow-orange-200',
   purple: 'from-purple-500 to-purple-600 shadow-purple-200',
+  cyan: 'from-cyan-500 to-cyan-600 shadow-cyan-200',
   indigo: 'from-indigo-500 to-indigo-600 shadow-indigo-200',
   green: 'from-green-500 to-green-600 shadow-green-200',
   red: 'from-red-500 to-red-600 shadow-red-200',

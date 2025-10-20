@@ -18,6 +18,7 @@ function Dashboard() {
     total: 0,
     pending: 0,
     reviewing: 0,
+    shortlisted: 0,
     interviewed: 0,
     accepted: 0,
     rejected: 0,
@@ -75,6 +76,7 @@ function Dashboard() {
       total: data.length,
       pending: data.filter(c => c.status === 'pending').length,
       reviewing: data.filter(c => c.status === 'reviewing').length,
+      shortlisted: data.filter(c => c.status === 'shortlisted').length,
       interviewed: data.filter(c => c.status === 'interviewed').length,
       accepted: data.filter(c => c.status === 'accepted').length,
       rejected: data.filter(c => c.status === 'rejected').length,
@@ -256,10 +258,11 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
           <StatsCard title="Total" count={stats.total} color="blue" />
           <StatsCard title="Pendente" count={stats.pending} color="orange" />
           <StatsCard title="Em Análise" count={stats.reviewing} color="purple" />
+          <StatsCard title="Selecionado" count={stats.shortlisted} color="cyan" />
           <StatsCard title="Entrevistado" count={stats.interviewed} color="indigo" />
           <StatsCard title="Aceito" count={stats.accepted} color="green" />
           <StatsCard title="Rejeitado" count={stats.rejected} color="red" />
