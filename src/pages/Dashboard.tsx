@@ -94,10 +94,9 @@ function Dashboard() {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       filtered = filtered.filter(c =>
-        c.first_name.toLowerCase().includes(searchLower) ||
-        c.last_name.toLowerCase().includes(searchLower) ||
-        c.email.toLowerCase().includes(searchLower) ||
-        c.position_applied.toLowerCase().includes(searchLower)
+        c.full_name?.toLowerCase().includes(searchLower) ||
+        c.email?.toLowerCase().includes(searchLower) ||
+        c.position_applied?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -144,7 +143,7 @@ function Dashboard() {
     setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
-  const positions = [...new Set(candidates.map(c => c.position_applied))];
+  const positions = [...new Set(candidates.map(c => c.position_applied).filter(Boolean))] as string[];
 
   if (loading) {
     return (
@@ -326,7 +325,7 @@ function Dashboard() {
                 <tbody className="bg-white divide-y divide-gray-100">
                   {filteredCandidates.map(candidate => (
                     <tr key={candidate.id} className="hover:bg-purple-50">
-                      <td className="px-4 py-3 text-sm text-gray-900 font-medium">{`${candidate.first_name} ${candidate.last_name}`}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900 font-medium">{candidate.full_name}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.email}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.position_applied}</td>
                       <td className="px-4 py-3 text-sm">
