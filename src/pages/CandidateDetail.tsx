@@ -211,20 +211,30 @@ function CandidateDetail() {
         </div>
 
         <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Informações Profissionais</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Contato e Endereço</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Cargo Pretendido" value={candidate.position_applied || 'N/A'} />
-            <InfoItem label="Anos de Experiência" value={candidate.years_of_experience ? `${candidate.years_of_experience} anos` : 'N/A'} />
-            <InfoItem label="Empresa Atual" value={candidate.current_company || 'N/A'} />
-            <InfoItem label="Cargo Atual" value={candidate.current_position || 'N/A'} />
-            <InfoItem label="Atualmente Empregado" value={candidate.currently_employed === 'sim' ? 'Sim' : candidate.currently_employed === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Disponibilidade para Início" value={
-              candidate.availability_start === 'imediato' ? 'De imediato' :
-              candidate.availability_start === '15_dias' ? '15 dias' :
-              candidate.availability_start === '30_dias' ? '30 dias' : 'N/A'
+            <InfoItem label="Endereço" value={candidate.address || 'N/A'} />
+            <InfoItem label="Cidade" value={candidate.city || 'N/A'} />
+            <InfoItem label="Estado" value={candidate.state || 'N/A'} />
+            <InfoItem label="CEP" value={candidate.postal_code || 'N/A'} />
+            <InfoItem label="País" value={candidate.country || 'N/A'} />
+          </div>
+        </div>
+
+        <div className="card mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Trabalhou na Pinte Antes" value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
+            <InfoItem label="Como Soube da Vaga" value={
+              candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
+              candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
+              candidate.how_found_vacancy === 'instagram' ? 'Instagram' :
+              candidate.how_found_vacancy === 'linkedin' ? 'LinkedIn' :
+              candidate.how_found_vacancy === 'sine' ? 'Sine' :
+              candidate.how_found_vacancy === 'outros' ? `Outros: ${candidate.how_found_vacancy_other || ''}` : 'N/A'
             } />
-            <InfoItem label="Disponibilidade para Viagens" value={candidate.travel_availability === 'sim' ? 'Sim' : candidate.travel_availability === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Pintura em Altura" value={candidate.height_painting === 'sim' ? 'Sim' : candidate.height_painting === 'nao' ? 'Não' : 'N/A'} />
           </div>
         </div>
 
@@ -256,68 +266,50 @@ function CandidateDetail() {
         )}
 
         <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação e Referências</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Informações Extras</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
-            <InfoItem label="Como Soube da Vaga" value={
-              candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
-              candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
-              candidate.how_found_vacancy === 'instagram' ? 'Instagram' :
-              candidate.how_found_vacancy === 'linkedin' ? 'LinkedIn' :
-              candidate.how_found_vacancy === 'sine' ? 'Sine' :
-              candidate.how_found_vacancy === 'outros' ? `Outros: ${candidate.how_found_vacancy_other || ''}` : 'N/A'
+            <InfoItem label="Atualmente Empregado" value={candidate.currently_employed === 'sim' ? 'Sim' : candidate.currently_employed === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Disponibilidade para Início" value={
+              candidate.availability_start === 'imediato' ? 'De imediato' :
+              candidate.availability_start === '15_dias' ? '15 dias' :
+              candidate.availability_start === '30_dias' ? '30 dias' : 'N/A'
             } />
-            <InfoItem label="Trabalhou na Pinte Antes" value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Disponibilidade para Viagens" value={candidate.travel_availability === 'sim' ? 'Sim' : candidate.travel_availability === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Pintura em Altura (Balancim/Cadeirinha/Andaimes)" value={candidate.height_painting === 'sim' ? 'Sim' : candidate.height_painting === 'nao' ? 'Não' : 'N/A'} />
           </div>
         </div>
 
         <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Contato e Endereço</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Endereço" value={candidate.address || 'N/A'} />
-            <InfoItem label="Cidade" value={candidate.city || 'N/A'} />
-            <InfoItem label="Estado" value={candidate.state || 'N/A'} />
-            <InfoItem label="CEP" value={candidate.postal_code || 'N/A'} />
-            <InfoItem label="País" value={candidate.country || 'N/A'} />
-          </div>
-        </div>
-
-        <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Habilidades e Informações Adicionais</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Habilidades e Qualificações</h2>
           <div className="space-y-4">
-            <InfoItem label="Habilidades" value={candidate.skills || 'N/A'} />
-            <InfoItem label="Certificações" value={candidate.certifications || 'N/A'} />
-            {candidate.resume && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">Currículo</p>
-                <a href={candidate.resume} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
-                  Baixar Currículo
-                </a>
-              </div>
+            {candidate.skills && candidate.skills !== '' ? (
+              <InfoItem label="Habilidades" value={candidate.skills} />
+            ) : (
+              <p className="text-gray-500">Nenhuma habilidade informada</p>
             )}
           </div>
         </div>
 
-        {candidate.cover_letter && (
-          <div className="card mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Carta de Apresentação</h2>
-            <p className="text-gray-700 whitespace-pre-wrap">{candidate.cover_letter}</p>
-          </div>
-        )}
-
         <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Disponibilidade</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem 
-              label="Data de Início" 
-              value={candidate.available_start_date ? new Date(candidate.available_start_date).toLocaleDateString('pt-BR') : 'N/A'} 
-            />
-            <InfoItem 
-              label="Salário Esperado" 
-              value={candidate.expected_salary ? `R$ ${parseFloat(candidate.expected_salary).toLocaleString('pt-BR')}` : 'N/A'} 
-            />
-          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Documentos</h2>
+          {candidate.resume ? (
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Currículo</p>
+              <a 
+                href={candidate.resume} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Baixar Currículo
+              </a>
+            </div>
+          ) : (
+            <p className="text-gray-500">Nenhum currículo enviado</p>
+          )}
         </div>
 
         <div className="card mb-6">
