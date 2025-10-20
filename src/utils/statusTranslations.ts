@@ -4,6 +4,7 @@ import { CandidateStatus } from '../types';
 export const statusTranslations: Record<CandidateStatus, string> = {
   pending: 'Pendente',
   reviewing: 'Em Análise',
+  shortlisted: 'Selecionado para Entrevista',
   interviewed: 'Entrevistado',
   accepted: 'Aceito',
   rejected: 'Rejeitado',

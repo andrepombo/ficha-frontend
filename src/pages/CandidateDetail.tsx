@@ -11,6 +11,7 @@ import InterviewCard from '../components/InterviewCard';
 const statusColors: Record<CandidateStatus, string> = {
   pending: 'bg-orange-100 text-orange-800',
   reviewing: 'bg-blue-100 text-blue-800',
+  shortlisted: 'bg-cyan-100 text-cyan-800',
   interviewed: 'bg-purple-100 text-purple-800',
   accepted: 'bg-green-100 text-green-800',
   rejected: 'bg-red-100 text-red-800',

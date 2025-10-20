@@ -51,7 +51,7 @@ export interface ProfessionalExperience {
   motivo_saida?: string;
 }
 
-export type CandidateStatus = 'pending' | 'reviewing' | 'interviewed' | 'accepted' | 'rejected';
+export type CandidateStatus = 'pending' | 'reviewing' | 'shortlisted' | 'interviewed' | 'accepted' | 'rejected';
 
 export interface CandidateFilters {
   status: string;
@@ -65,6 +65,7 @@ export interface CandidateStats {
   total: number;
   pending: number;
   reviewing: number;
+  shortlisted: number;
   interviewed: number;
   accepted: number;
   rejected: number;
