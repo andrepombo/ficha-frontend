@@ -19,6 +19,7 @@ function Header() {
     if (path === '/analytics') return 'Análise de Dados';
     if (path === '/demographics') return 'Demografia';
     if (path === '/insights') return 'Insights';
+    if (path === '/scoring') return 'Sistema de Pontuação';
     if (path === '/calendar') return 'Calendário de Entrevistas';
     return 'Painel do Empregador';
   };

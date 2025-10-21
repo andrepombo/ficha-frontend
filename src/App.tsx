@@ -9,6 +9,7 @@ import CandidateDetail from './pages/CandidateDetail'
 import Analytics from './pages/Analytics'
 import Demographics from './pages/Demographics'
 import Insights from './pages/Insights'
+import Scoring from './pages/Scoring'
 import Calendar from './pages/Calendar'
 
 function App() {
@@ -55,6 +56,16 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Insights />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/scoring"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Scoring />
                 </Layout>
               </ProtectedRoute>
             }
