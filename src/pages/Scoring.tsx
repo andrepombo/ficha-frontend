@@ -224,7 +224,7 @@ const Scoring: React.FC = () => {
           {categories.map((category) => {
             const Icon = category.icon;
             return (
-              <div key={category.key} className="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow">
+              <div key={category.key} className="bg-gray-50 border border-gray-300 rounded-xl p-5 hover:shadow-md transition-shadow hover:bg-white">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-xl bg-${category.color}-100 flex-shrink-0`}>
                     <Icon className={`text-${category.color}-600`} size={28} />
