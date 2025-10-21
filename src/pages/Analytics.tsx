@@ -146,12 +146,7 @@ function Analytics() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Análise de Candidaturas</h1>
-              <p className="mt-2 text-gray-600">Visualize as estatísticas de candidaturas ao longo do tempo</p>
-            </div>
-            
+          <div className="flex items-center justify-end">
             {/* Year Selector and Export Buttons */}
             <div className="flex items-center space-x-3">
               <label htmlFor="year-select" className="text-sm font-medium text-gray-700">

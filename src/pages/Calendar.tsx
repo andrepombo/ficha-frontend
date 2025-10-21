@@ -129,14 +129,38 @@ const Calendar: React.FC = () => {
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
           
           <div className="relative">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-white mb-1">📅 Calendário de Entrevistas</h1>
-                <p className="text-indigo-100 text-sm">
-                  {getMonthName(selectedMonth)} {selectedYear}
+            <div className="flex items-center justify-between">
+              {/* Month/Year Display and Selectors */}
+              <div className="flex items-center gap-4">
+                <p className="text-white text-2xl font-bold">
+                  📅 {getMonthName(selectedMonth)} {selectedYear}
                 </p>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                  className="px-4 py-2 rounded-xl border-2 border-white bg-white text-gray-900 font-medium focus:ring-2 focus:ring-indigo-300 transition-all"
+                >
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
+                    <option key={month} value={month}>
+                      {getMonthName(month)}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                  className="px-4 py-2 rounded-xl border-2 border-white bg-white text-gray-900 font-medium focus:ring-2 focus:ring-indigo-300 transition-all"
+                >
+                  {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 1 + i).map(year => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
               </div>
               
+              {/* View Mode Buttons */}
               <div className="flex gap-2">
                 <button
                   onClick={() => setViewMode('list')}
@@ -159,33 +183,6 @@ const Calendar: React.FC = () => {
                   Calendário
                 </button>
               </div>
-            </div>
-
-            {/* Month/Year Selector */}
-            <div className="flex gap-4">
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                className="px-4 py-2 rounded-xl border-2 border-white bg-white text-gray-900 font-medium focus:ring-2 focus:ring-indigo-300 transition-all"
-              >
-                {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
-                  <option key={month} value={month}>
-                    {getMonthName(month)}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                className="px-4 py-2 rounded-xl border-2 border-white bg-white text-gray-900 font-medium focus:ring-2 focus:ring-indigo-300 transition-all"
-              >
-                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 1 + i).map(year => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
         </div>

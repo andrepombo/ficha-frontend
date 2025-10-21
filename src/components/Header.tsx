@@ -24,7 +24,7 @@ function Header() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
+    <header className="bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border-b border-indigo-100 shadow-sm">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Page Title */}

@@ -169,11 +169,6 @@ function Insights() {
     <div className="bg-purple-50">
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Insights dos Candidatos</h1>
-          <p className="mt-2 text-gray-600">Análise detalhada das características e preferências dos candidatos</p>
-        </div>
-
         {/* Top Priority Charts - Availability & Skills */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="card">
