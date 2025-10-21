@@ -4,7 +4,6 @@ import { Interview } from '../types';
 import InterviewModal from '../components/InterviewModal';
 import FeedbackModal from '../components/FeedbackModal';
 import InterviewCard from '../components/InterviewCard';
-import Header from '../components/Header';
 
 const Calendar: React.FC = () => {
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -122,8 +121,7 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-purple-50">
-      <Header />
+    <div className="bg-purple-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-5 mb-6 relative overflow-hidden">

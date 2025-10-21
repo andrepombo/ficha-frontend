@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { candidateAPI } from '../services/api';
 import { Candidate, CandidateStatus, Interview } from '../types';
 import { getTranslatedStatus } from '../utils/statusTranslations';
-import Header from '../components/Header';
 import InterviewModal from '../components/InterviewModal';
 import FeedbackModal from '../components/FeedbackModal';
 import InterviewCard from '../components/InterviewCard';
@@ -189,8 +188,7 @@ function CandidateDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-purple-50">
-      <Header />
+    <div className="bg-purple-50">
       
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link to="/dashboard" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-6">

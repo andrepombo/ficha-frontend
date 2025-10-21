@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { candidateAPI } from '../services/api';
 import { Candidate } from '../types';
-import Header from '../components/Header';
 
 interface ChartData {
   name: string;
@@ -342,8 +341,7 @@ function Demographics() {
   }
 
   return (
-    <div className="min-h-screen bg-purple-50">
-      <Header />
+    <div className="bg-purple-50">
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}

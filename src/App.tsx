@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import Layout from './components/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import CandidateDetail from './pages/CandidateDetail'
@@ -20,7 +21,9 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Layout>
+                  <Dashboard />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -28,7 +31,9 @@ function App() {
             path="/analytics"
             element={
               <ProtectedRoute>
-                <Analytics />
+                <Layout>
+                  <Analytics />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -36,7 +41,9 @@ function App() {
             path="/demographics"
             element={
               <ProtectedRoute>
-                <Demographics />
+                <Layout>
+                  <Demographics />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -44,7 +51,9 @@ function App() {
             path="/insights"
             element={
               <ProtectedRoute>
-                <Insights />
+                <Layout>
+                  <Insights />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -52,7 +61,9 @@ function App() {
             path="/calendar"
             element={
               <ProtectedRoute>
-                <Calendar />
+                <Layout>
+                  <Calendar />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -60,7 +71,9 @@ function App() {
             path="/candidate/:id"
             element={
               <ProtectedRoute>
-                <CandidateDetail />
+                <Layout>
+                  <CandidateDetail />
+                </Layout>
               </ProtectedRoute>
             }
           />

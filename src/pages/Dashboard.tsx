@@ -5,7 +5,6 @@ import { Candidate, CandidateFilters, CandidateStats } from '../types';
 import CandidateCard from '../components/CandidateCard';
 import StatsCard from '../components/StatsCard';
 import FilterBar from '../components/FilterBar';
-import Header from '../components/Header';
 import AdvancedSearchModal from '../components/AdvancedSearchModal';
 import { getTranslatedStatus } from '../utils/statusTranslations';
 import { downloadFile } from '../utils/downloadFile';
@@ -239,10 +238,7 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-purple-50">
-      <Header />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Current Month and Year */}
         <div className="mb-8">
           <div className="bg-white rounded-2xl shadow-xl border-2 border-purple-100 p-6 relative overflow-hidden">
@@ -416,16 +412,15 @@ function Dashboard() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Advanced Search Modal */}
-      <AdvancedSearchModal
-        isOpen={isAdvancedSearchOpen}
-        onClose={() => setIsAdvancedSearchOpen(false)}
-        onApplyFilters={handleAdvancedFiltersApply}
-        currentFilters={advancedFilters}
-      />
-    </div>
+        {/* Advanced Search Modal */}
+        <AdvancedSearchModal
+          isOpen={isAdvancedSearchOpen}
+          onClose={() => setIsAdvancedSearchOpen(false)}
+          onApplyFilters={handleAdvancedFiltersApply}
+          currentFilters={advancedFilters}
+        />
+      </div>
   );
 }
 
