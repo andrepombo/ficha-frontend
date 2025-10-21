@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { Candidate, CandidateStatus } from '../types';
 import { getTranslatedStatus } from '../utils/statusTranslations';
+import ScoreBadge from './ScoreBadge';
+import ScoreBreakdownModal from './ScoreBreakdownModal';
 
 interface CandidateCardProps {
   candidate: Candidate;
@@ -17,6 +20,8 @@ const statusColors: Record<CandidateStatus, string> = {
 };
 
 function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
+  const [showScoreModal, setShowScoreModal] = useState(false);
+
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault();
     const newStatus = e.target.value;
@@ -32,9 +37,18 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
           <span className="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">
             ID: {candidate.id}
           </span>
-          <span className={`status-badge ${statusColors[candidate.status]} flex-shrink-0`}>
-            {getTranslatedStatus(candidate.status)}
-          </span>
+          <div className="flex items-center gap-2">
+            {candidate.score !== undefined && candidate.score > 0 && (
+              <ScoreBadge 
+                candidate={candidate} 
+                size="sm" 
+                onClick={() => setShowScoreModal(true)}
+              />
+            )}
+            <span className={`status-badge ${statusColors[candidate.status]} flex-shrink-0`}>
+              {getTranslatedStatus(candidate.status)}
+            </span>
+          </div>
         </div>
         <p className="text-sm text-indigo-600 font-medium">
           {candidate.full_name}
@@ -91,6 +105,13 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
           Ver
         </Link>
       </div>
+
+      {/* Score Breakdown Modal */}
+      <ScoreBreakdownModal
+        candidate={candidate}
+        isOpen={showScoreModal}
+        onClose={() => setShowScoreModal(false)}
+      />
     </div>
   );
 }

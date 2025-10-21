@@ -39,6 +39,19 @@ export interface Candidate {
   notes?: string;
   access_code?: string;
   professional_experiences?: ProfessionalExperience[];
+  score?: number;
+  score_grade?: string;
+  score_color?: string;
+  score_breakdown?: ScoreBreakdown;
+  score_updated_at?: string;
+}
+
+export interface ScoreBreakdown {
+  experience_skills: number;
+  education: number;
+  availability_logistics: number;
+  profile_completeness: number;
+  interview_performance: number;
 }
 
 export interface ProfessionalExperience {

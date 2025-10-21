@@ -131,6 +131,23 @@ export const candidateAPI = {
     });
     return response.data;
   },
+
+  calculateScore: async (id: number): Promise<any> => {
+    const response = await api.post(`/candidates/${id}/calculate_score/`);
+    return response.data;
+  },
+
+  recalculateAllScores: async (): Promise<any> => {
+    const response = await api.post('/candidates/recalculate_all_scores/');
+    return response.data;
+  },
+
+  getScoreDistribution: async (filters?: any): Promise<any> => {
+    const response = await api.get('/candidates/score_distribution/', {
+      params: filters || {},
+    });
+    return response.data;
+  },
 };
 
 export const interviewAPI = {
