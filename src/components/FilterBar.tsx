@@ -3,10 +3,11 @@ import { CandidateFilters } from '../types';
 interface FilterBarProps {
   filters: CandidateFilters;
   onFilterChange: (filters: Partial<CandidateFilters>) => void;
-  positions: string[];
+  onAdvancedSearchClick: () => void;
+  hasActiveAdvancedFilters: boolean;
 }
 
-function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
+function FilterBar({ filters, onFilterChange, onAdvancedSearchClick, hasActiveAdvancedFilters }: FilterBarProps) {
   // Generate year options (current year and 5 years back)
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
@@ -59,19 +60,26 @@ function FilterBar({ filters, onFilterChange, positions }: FilterBarProps) {
           <label className="floating-label">Status</label>
         </div>
 
-        {/* Position Filter */}
-        <div className="floating-label-container">
-          <select
-            value={filters.position}
-            onChange={(e) => onFilterChange({ position: e.target.value })}
-            className={`select-modern floating-select ${filters.position !== 'all' ? 'has-value' : ''}`}
+        {/* Advanced Search Button */}
+        <div className="flex items-end">
+          <button
+            onClick={onAdvancedSearchClick}
+            className={`w-full px-4 py-3 text-sm font-bold flex items-center justify-center space-x-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg ${
+              hasActiveAdvancedFilters
+                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white'
+                : 'bg-white text-indigo-700 border-2 border-indigo-200 hover:bg-indigo-50'
+            }`}
           >
-            <option value="all">Todos os Cargos</option>
-            {positions.map(position => (
-              <option key={position} value={position}>{position}</option>
-            ))}
-          </select>
-          <label className="floating-label">Cargo</label>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            <span>Busca Avançada</span>
+            {hasActiveAdvancedFilters && (
+              <span className="bg-white text-purple-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                Ativo
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Month Filter */}

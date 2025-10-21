@@ -56,7 +56,7 @@ export type CandidateStatus = 'pending' | 'reviewing' | 'shortlisted' | 'intervi
 export interface CandidateFilters {
   status: string;
   search: string;
-  position: string;
+  position?: string;
   month: string;
   year: string;
 }

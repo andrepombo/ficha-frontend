@@ -119,6 +119,11 @@ export const candidateAPI = {
     });
     return response.data;
   },
+
+  getFilterOptions: async (): Promise<any> => {
+    const response = await api.get('/candidates/filter_options/');
+    return response.data;
+  },
 };
 
 export const interviewAPI = {

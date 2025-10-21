@@ -6,6 +6,7 @@ import CandidateCard from '../components/CandidateCard';
 import StatsCard from '../components/StatsCard';
 import FilterBar from '../components/FilterBar';
 import Header from '../components/Header';
+import AdvancedSearchModal from '../components/AdvancedSearchModal';
 import { getTranslatedStatus } from '../utils/statusTranslations';
 import { downloadFile } from '../utils/downloadFile';
 
@@ -38,30 +39,54 @@ function Dashboard() {
     return {
       status: 'all',
       search: '',
-      position: 'all',
       month: month,
       year: year,
     };
   });
 
+  const [advancedFilters, setAdvancedFilters] = useState<any>({
+    gender: 'all',
+    disability: 'all',
+    education: 'all',
+    transportation: 'all',
+    currently_employed: 'all',
+    availability: 'all',
+    travel_availability: 'all',
+    height_painting: 'all',
+    city: 'all',
+    how_found_vacancy: 'all',
+    date_from: '',
+    date_until: '',
+  });
+
+  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
+
   useEffect(() => {
     fetchCandidates();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [candidates, filters]);
-
-  // Recalculate stats whenever filtered candidates change
-  useEffect(() => {
-    calculateStats(filteredCandidates);
-  }, [filteredCandidates]);
+  }, [filters, advancedFilters]);
 
   const fetchCandidates = async () => {
     try {
       setLoading(true);
-      const data = await candidateAPI.getAll();
+      // Build query parameters including advanced filters
+      const params: any = {
+        status: filters.status !== 'all' ? filters.status : undefined,
+        search: filters.search || undefined,
+        month: filters.month !== 'all' ? filters.month : undefined,
+        year: filters.year !== 'all' ? filters.year : undefined,
+        ...advancedFilters,
+      };
+      
+      // Remove 'all' values and empty strings
+      Object.keys(params).forEach(key => {
+        if (params[key] === 'all' || params[key] === '' || params[key] === undefined) {
+          delete params[key];
+        }
+      });
+      
+      const data = await candidateAPI.getAll(params);
       setCandidates(data);
+      setFilteredCandidates(data);
       calculateStats(data);
       setError(null);
     } catch (err) {
@@ -85,46 +110,7 @@ function Dashboard() {
     setStats(newStats);
   };
 
-  const applyFilters = () => {
-    let filtered = [...candidates];
 
-    if (filters.status !== 'all') {
-      filtered = filtered.filter(c => c.status === filters.status);
-    }
-
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(c =>
-        c.full_name?.toLowerCase().includes(searchLower) ||
-        c.email?.toLowerCase().includes(searchLower) ||
-        c.position_applied?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    if (filters.position !== 'all') {
-      filtered = filtered.filter(c => c.position_applied === filters.position);
-    }
-
-    // Filter by month
-    if (filters.month !== 'all') {
-      filtered = filtered.filter(c => {
-        const appliedDate = new Date(c.applied_date);
-        const month = (appliedDate.getMonth() + 1).toString().padStart(2, '0');
-        return month === filters.month;
-      });
-    }
-
-    // Filter by year
-    if (filters.year !== 'all') {
-      filtered = filtered.filter(c => {
-        const appliedDate = new Date(c.applied_date);
-        const year = appliedDate.getFullYear().toString();
-        return year === filters.year;
-      });
-    }
-
-    setFilteredCandidates(filtered);
-  };
 
   const handleStatusChange = async (id: number, newStatus: string) => {
     try {
@@ -142,6 +128,19 @@ function Dashboard() {
 
   const handleFilterChange = (newFilters: Partial<CandidateFilters>) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
+  };
+
+  const handleAdvancedFiltersApply = (newAdvancedFilters: any) => {
+    setAdvancedFilters(newAdvancedFilters);
+  };
+
+  const hasActiveAdvancedFilters = () => {
+    return Object.entries(advancedFilters).some(([key, value]) => {
+      if (key === 'date_from' || key === 'date_until') {
+        return value !== '';
+      }
+      return value !== 'all';
+    });
   };
 
   const handleExportPDF = async () => {
@@ -166,7 +165,7 @@ function Dashboard() {
     }
   };
 
-  const positions = [...new Set(candidates.map(c => c.position_applied).filter(Boolean))] as string[];
+
 
   if (loading) {
     return (
@@ -318,7 +317,8 @@ function Dashboard() {
         <FilterBar
           filters={filters}
           onFilterChange={handleFilterChange}
-          positions={positions}
+          onAdvancedSearchClick={() => setIsAdvancedSearchOpen(true)}
+          hasActiveAdvancedFilters={hasActiveAdvancedFilters()}
         />
 
         <div className="mt-6">
@@ -398,6 +398,14 @@ function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* Advanced Search Modal */}
+      <AdvancedSearchModal
+        isOpen={isAdvancedSearchOpen}
+        onClose={() => setIsAdvancedSearchOpen(false)}
+        onApplyFilters={handleAdvancedFiltersApply}
+        currentFilters={advancedFilters}
+      />
     </div>
   );
 }
