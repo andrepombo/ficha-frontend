@@ -34,7 +34,7 @@ function FilterBar({ filters, onFilterChange, onAdvancedSearchClick, hasActiveAd
         <div className="floating-label-container">
           <input
             type="text"
-            placeholder="Nome, email ou cargo..."
+            placeholder="Nome, telefone ou CPF..."
             value={filters.search}
             onChange={(e) => onFilterChange({ search: e.target.value })}
             className="input-modern floating-input"

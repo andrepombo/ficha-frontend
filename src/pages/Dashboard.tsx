@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { candidateAPI } from '../services/api';
 import { Candidate, CandidateFilters, CandidateStats } from '../types';
@@ -61,9 +61,28 @@ function Dashboard() {
 
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
 
+  // Fetch candidates when filters change (excluding search - that's client-side)
   useEffect(() => {
     fetchCandidates();
-  }, [filters, advancedFilters]);
+  }, [filters.status, filters.month, filters.year, advancedFilters]);
+
+  // Client-side search filtering - instant, no API calls
+  useEffect(() => {
+    if (!filters.search || filters.search.trim() === '') {
+      setFilteredCandidates(candidates);
+      return;
+    }
+
+    const searchLower = filters.search.toLowerCase().trim();
+    const filtered = candidates.filter(candidate => {
+      const nameMatch = candidate.full_name?.toLowerCase().includes(searchLower);
+      const phoneMatch = candidate.phone_number?.toLowerCase().includes(searchLower);
+      const cpfMatch = candidate.cpf?.toLowerCase().includes(searchLower);
+      return nameMatch || phoneMatch || cpfMatch;
+    });
+
+    setFilteredCandidates(filtered);
+  }, [filters.search, candidates]);
 
   const fetchCandidates = async () => {
     try {
@@ -126,9 +145,9 @@ function Dashboard() {
     }
   };
 
-  const handleFilterChange = (newFilters: Partial<CandidateFilters>) => {
+  const handleFilterChange = useCallback((newFilters: Partial<CandidateFilters>) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
-  };
+  }, []);
 
   const handleAdvancedFiltersApply = (newAdvancedFilters: any) => {
     setAdvancedFilters(newAdvancedFilters);
