@@ -7,6 +7,7 @@ import StatsCard from '../components/StatsCard';
 import FilterBar from '../components/FilterBar';
 import Header from '../components/Header';
 import { getTranslatedStatus } from '../utils/statusTranslations';
+import { downloadFile } from '../utils/downloadFile';
 
 function Dashboard() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -143,6 +144,28 @@ function Dashboard() {
     setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
+  const handleExportPDF = async () => {
+    try {
+      const blob = await candidateAPI.exportPDF(filters);
+      const filename = `candidatos_${new Date().toISOString().split('T')[0]}.pdf`;
+      downloadFile(blob, filename);
+    } catch (err) {
+      console.error('Error exporting PDF:', err);
+      alert('Falha ao exportar PDF. Por favor, tente novamente.');
+    }
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      const blob = await candidateAPI.exportExcel(filters);
+      const filename = `candidatos_${new Date().toISOString().split('T')[0]}.xlsx`;
+      downloadFile(blob, filename);
+    } catch (err) {
+      console.error('Error exporting Excel:', err);
+      alert('Falha ao exportar Excel. Por favor, tente novamente.');
+    }
+  };
+
   const positions = [...new Set(candidates.map(c => c.position_applied).filter(Boolean))] as string[];
 
   if (loading) {
@@ -222,6 +245,31 @@ function Dashboard() {
                 <div className="hidden sm:flex items-center space-x-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl px-6 py-3 border-2 border-indigo-200 shadow-md">
                   <span className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{stats.total}</span>
                   <span className="text-sm text-indigo-700 font-bold uppercase">candidatos</span>
+                </div>
+                {/* Export buttons */}
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={handleExportPDF}
+                    className="px-4 py-2.5 text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                    title="Exportar PDF"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    <span className="hidden lg:inline">PDF</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleExportExcel}
+                    className="px-4 py-2.5 text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                    title="Exportar Excel"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span className="hidden lg:inline">Excel</span>
+                  </button>
                 </div>
                 {/* View mode toggle */}
                 <div className="flex items-center bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl overflow-hidden shadow-md">
@@ -315,8 +363,8 @@ function Dashboard() {
                 <thead className="bg-purple-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nome</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Cargo</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Telefone</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">CPF</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aplicado em</th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
@@ -326,8 +374,8 @@ function Dashboard() {
                   {filteredCandidates.map(candidate => (
                     <tr key={candidate.id} className="hover:bg-purple-50">
                       <td className="px-4 py-3 text-sm text-gray-900 font-medium">{candidate.full_name}</td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{candidate.email}</td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{candidate.position_applied}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{candidate.phone_number || 'N/A'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{candidate.cpf || 'N/A'}</td>
                       <td className="px-4 py-3 text-sm">
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                           {getTranslatedStatus(candidate.status)}

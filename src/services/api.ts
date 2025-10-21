@@ -87,6 +87,38 @@ export const candidateAPI = {
     const response = await api.get<Interview[]>(`/candidates/${candidateId}/interviews/`);
     return response.data;
   },
+
+  exportPDF: async (filters: any): Promise<Blob> => {
+    const response = await api.get('/candidates/export_pdf/', {
+      params: filters,
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
+  exportExcel: async (filters: any): Promise<Blob> => {
+    const response = await api.get('/candidates/export_excel/', {
+      params: filters,
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
+  exportAnalyticsPDF: async (year?: string): Promise<Blob> => {
+    const response = await api.get('/candidates/export_analytics_pdf/', {
+      params: year ? { year } : {},
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
+  exportAnalyticsExcel: async (year?: string): Promise<Blob> => {
+    const response = await api.get('/candidates/export_analytics_excel/', {
+      params: year ? { year } : {},
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };
 
 export const interviewAPI = {

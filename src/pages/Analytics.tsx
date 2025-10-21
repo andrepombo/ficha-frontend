@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { candidateAPI } from '../services/api';
 import { Candidate } from '../types';
 import Header from '../components/Header';
+import { downloadFile } from '../utils/downloadFile';
 
 interface MonthlyData {
   month: string;
@@ -94,6 +95,28 @@ function Analytics() {
   const totalAccepted = monthlyData.reduce((sum, month) => sum + month.accepted, 0);
   const totalRejected = monthlyData.reduce((sum, month) => sum + month.rejected, 0);
 
+  const handleExportPDF = async () => {
+    try {
+      const blob = await candidateAPI.exportAnalyticsPDF(selectedYear !== 'all' ? selectedYear : undefined);
+      const filename = `analytics_${selectedYear}_${new Date().toISOString().split('T')[0]}.pdf`;
+      downloadFile(blob, filename);
+    } catch (err) {
+      console.error('Error exporting PDF:', err);
+      alert('Falha ao exportar PDF. Por favor, tente novamente.');
+    }
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      const blob = await candidateAPI.exportAnalyticsExcel(selectedYear !== 'all' ? selectedYear : undefined);
+      const filename = `analytics_${selectedYear}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      downloadFile(blob, filename);
+    } catch (err) {
+      console.error('Error exporting Excel:', err);
+      alert('Falha ao exportar Excel. Por favor, tente novamente.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -131,7 +154,7 @@ function Analytics() {
               <p className="mt-2 text-gray-600">Visualize as estatísticas de candidaturas ao longo do tempo</p>
             </div>
             
-            {/* Year Selector */}
+            {/* Year Selector and Export Buttons */}
             <div className="flex items-center space-x-3">
               <label htmlFor="year-select" className="text-sm font-medium text-gray-700">
                 Ano:
@@ -146,6 +169,30 @@ function Analytics() {
                   <option key={year} value={year}>{year}</option>
                 ))}
               </select>
+              
+              {/* Export buttons */}
+              <button
+                type="button"
+                onClick={handleExportPDF}
+                className="px-4 py-2 text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                title="Exportar PDF"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <span>PDF</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleExportExcel}
+                className="px-4 py-2 text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                title="Exportar Excel"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Excel</span>
+              </button>
             </div>
           </div>
         </div>
