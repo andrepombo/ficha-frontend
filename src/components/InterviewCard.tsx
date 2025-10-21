@@ -59,10 +59,10 @@ const InterviewCard: React.FC<InterviewCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-5 border border-gray-100 group">
-      <div className="flex justify-between items-start mb-3">
+    <div className="bg-gradient-to-br from-white to-purple-50 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border-2 border-purple-200 group hover:border-purple-300">
+      <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+          <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors">
             {interview.title}
           </h3>
           <div className="flex items-center gap-2 mb-2">
