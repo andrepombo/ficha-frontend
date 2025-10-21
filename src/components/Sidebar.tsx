@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useSidebar } from '../contexts/SidebarContext';
 
 function Sidebar() {
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isCollapsed, toggleSidebar } = useSidebar();
 
   const navItems = [
     {
@@ -77,7 +77,7 @@ function Sidebar() {
           </Link>
         )}
         <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={toggleSidebar}
           className="p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors"
           title={isCollapsed ? 'Expandir' : 'Recolher'}
         >

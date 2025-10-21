@@ -1,27 +1,14 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { useSidebar } from '../contexts/SidebarContext';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 function Layout({ children }: LayoutProps) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
-  // Listen for sidebar collapse state changes
-  useEffect(() => {
-    const handleResize = () => {
-      // Auto-collapse on mobile
-      if (window.innerWidth < 768) {
-        setIsSidebarCollapsed(true);
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const { isCollapsed } = useSidebar();
 
   return (
     <div className="flex h-screen bg-purple-50 overflow-hidden">
@@ -29,7 +16,10 @@ function Layout({ children }: LayoutProps) {
       <Sidebar />
       
       {/* Main Content Area - responsive margin based on sidebar */}
-      <div className="flex-1 flex flex-col transition-all duration-300" style={{ marginLeft: '256px' }}>
+      <div 
+        className="flex-1 flex flex-col transition-all duration-300" 
+        style={{ marginLeft: isCollapsed ? '80px' : '256px' }}
+      >
         {/* Header */}
         <Header />
         

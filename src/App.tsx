@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
+import { SidebarProvider } from './contexts/SidebarContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -13,7 +14,8 @@ import Calendar from './pages/Calendar'
 function App() {
   return (
     <AuthProvider>
-      <Router basename="/painel">
+      <SidebarProvider>
+        <Router basename="/painel">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -78,7 +80,8 @@ function App() {
             }
           />
         </Routes>
-      </Router>
+        </Router>
+      </SidebarProvider>
     </AuthProvider>
   )
 }
