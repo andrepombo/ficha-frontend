@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Award, TrendingUp, GraduationCap, MapPin, FileText, MessageSquare, Info, BarChart3, RefreshCw } from 'lucide-react';
+import { Award, TrendingUp, GraduationCap, MapPin, FileText, MessageSquare, Info, BarChart3, RefreshCw, Edit2, Save, X, RotateCcw } from 'lucide-react';
 import { candidateAPI } from '../services/api';
+import CriterionEditModal from '../components/CriterionEditModal';
 
 interface ScoreDistribution {
   total: number;
@@ -13,10 +14,67 @@ interface ScoreDistribution {
   top_candidates: any[];
 }
 
+interface ScoringWeights {
+  experience_skills: {
+    years_of_experience: number;
+    skills: number;
+    certifications: number;
+  };
+  education: {
+    education_level: number;
+    courses: number;
+  };
+  availability_logistics: {
+    immediate_availability: number;
+    own_transportation: number;
+    travel_availability: number;
+  };
+  profile_completeness: {
+    essential_fields: number;
+    professional_fields: number;
+    additional_info: number;
+  };
+  interview_performance: {
+    average_rating: number;
+    feedback_quality: number;
+  };
+}
+
 const Scoring: React.FC = () => {
   const [distribution, setDistribution] = useState<ScoreDistribution | null>(null);
   const [loading, setLoading] = useState(true);
   const [recalculating, setRecalculating] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [weights, setWeights] = useState<ScoringWeights>({
+    experience_skills: {
+      years_of_experience: 15,
+      skills: 8,
+      certifications: 7,
+    },
+    education: {
+      education_level: 18,
+      courses: 2,
+    },
+    availability_logistics: {
+      immediate_availability: 8,
+      own_transportation: 6,
+      travel_availability: 6,
+    },
+    profile_completeness: {
+      essential_fields: 8,
+      professional_fields: 4.5,
+      additional_info: 2.5,
+    },
+    interview_performance: {
+      average_rating: 12,
+      feedback_quality: 3,
+    },
+  });
+  const [editedWeights, setEditedWeights] = useState<ScoringWeights>(weights);
+  const [isCustom, setIsCustom] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<keyof ScoringWeights | null>(null);
 
   const fetchDistribution = async () => {
     try {
@@ -27,6 +85,17 @@ const Scoring: React.FC = () => {
       console.error('Error fetching score distribution:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchScoringConfig = async () => {
+    try {
+      const config = await candidateAPI.getScoringConfig();
+      setWeights(config.weights);
+      setEditedWeights(config.weights);
+      setIsCustom(config.is_custom);
+    } catch (error) {
+      console.error('Error fetching scoring config:', error);
     }
   };
 
@@ -48,9 +117,127 @@ const Scoring: React.FC = () => {
     }
   };
 
+  const handleEditWeights = () => {
+    setEditedWeights(weights);
+    setEditMode(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditedWeights(weights);
+    setEditMode(false);
+  };
+
+  const handleOpenCategoryModal = (categoryKey: keyof ScoringWeights) => {
+    if (editMode) {
+      setSelectedCategory(categoryKey);
+      setModalOpen(true);
+    }
+  };
+
+  const handleSaveCategoryWeights = (categoryKey: keyof ScoringWeights, updatedCriteria: Record<string, number>) => {
+    console.log('Saving category weights:', categoryKey, updatedCriteria);
+    const newWeights = {
+      ...editedWeights,
+      [categoryKey]: updatedCriteria as any,
+    };
+    console.log('New weights after update:', newWeights);
+    setEditedWeights(newWeights);
+  };
+
+  const calculateTotal = () => {
+    let total = 0;
+    Object.values(editedWeights).forEach((categoryWeights) => {
+      if (typeof categoryWeights === 'object' && categoryWeights !== null) {
+        total += (Object.values(categoryWeights) as number[]).reduce((sum, val) => sum + val, 0);
+      }
+    });
+    return total;
+  };
+
+  const getCategoryTotal = (categoryKey: keyof ScoringWeights, weightsObj: ScoringWeights) => {
+    const categoryWeights = weightsObj[categoryKey];
+    if (typeof categoryWeights === 'object' && categoryWeights !== null) {
+      return (Object.values(categoryWeights) as number[]).reduce((sum, val) => sum + val, 0);
+    }
+    return 0;
+  };
+
+  const handleSaveWeights = async () => {
+    const total = calculateTotal();
+    // Allow small floating point differences
+    if (Math.abs(total - 100) > 0.1) {
+      alert(`O total deve ser 100 pontos. Total atual: ${total.toFixed(1)}`);
+      return;
+    }
+
+    try {
+      setSaving(true);
+      console.log('Saving weights:', editedWeights);
+      await candidateAPI.updateScoringConfig(editedWeights);
+      setWeights(editedWeights);
+      setIsCustom(true);
+      setEditMode(false);
+      alert('Pesos atualizados com sucesso! Recalcule as pontuações para aplicar as mudanças.');
+    } catch (error: any) {
+      console.error('Error saving weights:', error);
+      console.error('Error details:', error.response?.data);
+      alert(error.response?.data?.error || 'Erro ao salvar pesos. Tente novamente.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleResetWeights = async () => {
+    if (!confirm('Resetar para os pesos padrão? Isso não afetará as pontuações já calculadas até que você recalcule.')) {
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const response = await candidateAPI.resetScoringConfig();
+      setWeights(response.weights);
+      setEditedWeights(response.weights);
+      setIsCustom(false);
+      setEditMode(false);
+      alert('Pesos resetados para os valores padrão!');
+    } catch (error) {
+      console.error('Error resetting weights:', error);
+      alert('Erro ao resetar pesos. Tente novamente.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   useEffect(() => {
     fetchDistribution();
+    fetchScoringConfig();
   }, []);
+
+  const criterionLabels: Record<string, Record<string, { label: string; description: string }>> = {
+    experience_skills: {
+      years_of_experience: { label: 'Anos de experiência', description: '6+ anos: máximo | 4-5 anos: 87% | 2-3 anos: 67% | 1 ano: 33%' },
+      skills: { label: 'Habilidades listadas', description: '5+ habilidades: máximo | 3-4: 75% | 1-2: 50%' },
+      certifications: { label: 'Certificações', description: '3+ certificações: máximo | 2: 71% | 1: 43%' },
+    },
+    education: {
+      education_level: { label: 'Nível educacional', description: 'Pós-graduação: máximo | Superior: 95% | Técnico: 80%' },
+      courses: { label: 'Cursos adicionais', description: '0.5 pontos por curso listado (máximo configurável)' },
+    },
+    availability_logistics: {
+      immediate_availability: { label: 'Disponibilidade imediata', description: 'Imediato: máximo | 15 dias: 75% | 30 dias: 50%' },
+      own_transportation: { label: 'Transporte próprio', description: 'Sim: máximo | Não: 0%' },
+      travel_availability: { label: 'Disponibilidade para viagens', description: 'Sim: máximo | Ocasionalmente: 50%' },
+    },
+    profile_completeness: {
+      essential_fields: { label: 'Campos essenciais', description: 'Email, telefone, endereço, cidade' },
+      professional_fields: { label: 'Campos profissionais', description: 'Posição, empresa, habilidades' },
+      additional_info: { label: 'Informações adicionais', description: 'Educação, certificações, indicação' },
+    },
+    interview_performance: {
+      average_rating: { label: 'Avaliação média', description: 'Baseado em avaliações de 1-5 estrelas' },
+      feedback_quality: { label: 'Qualidade do feedback', description: 'Baseado na porcentagem de entrevistas com feedback' },
+    },
+  };
 
   const categories = [
     {
@@ -136,20 +323,80 @@ const Scoring: React.FC = () => {
             <div className="flex items-center gap-3 mb-2">
               <Award size={32} />
               <h1 className="text-3xl font-bold">Sistema de Pontuação</h1>
+              {isCustom && !editMode && (
+                <span className="px-3 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-full">
+                  Personalizado
+                </span>
+              )}
             </div>
             <p className="text-indigo-100 text-lg">
               Entenda como os candidatos são avaliados de forma objetiva e consistente
             </p>
           </div>
-          <button
-            onClick={handleRecalculateScores}
-            disabled={recalculating}
-            className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <RefreshCw size={20} className={recalculating ? 'animate-spin' : ''} />
-            {recalculating ? 'Recalculando...' : 'Recalcular Pontuações'}
-          </button>
+          <div className="flex gap-3">
+            {!editMode ? (
+              <>
+                <button
+                  onClick={handleEditWeights}
+                  className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 hover:scale-105"
+                >
+                  <Edit2 size={20} />
+                  Editar Pesos
+                </button>
+                <button
+                  onClick={handleRecalculateScores}
+                  disabled={recalculating}
+                  className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 rounded-xl font-semibold hover:shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw size={20} className={recalculating ? 'animate-spin' : ''} />
+                  {recalculating ? 'Recalculando...' : 'Recalcular'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleResetWeights}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-6 py-3 bg-yellow-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50"
+                >
+                  <RotateCcw size={20} />
+                  Resetar
+                </button>
+                <button
+                  onClick={handleCancelEdit}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50"
+                >
+                  <X size={20} />
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSaveWeights}
+                  disabled={saving || calculateTotal() !== 100}
+                  className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Save size={20} />
+                  {saving ? 'Salvando...' : 'Salvar'}
+                </button>
+              </>
+            )}
+          </div>
         </div>
+        {editMode && (
+          <div className="mt-4 p-4 bg-white bg-opacity-20 rounded-xl">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold">Total de Pontos:</span>
+              <span className={`text-2xl font-bold ${calculateTotal() === 100 ? 'text-green-300' : 'text-red-300'}`}>
+                {calculateTotal()} / 100
+              </span>
+            </div>
+            {calculateTotal() !== 100 && (
+              <p className="text-sm text-yellow-200 mt-2">
+                ⚠️ O total deve ser exatamente 100 pontos para salvar
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Overview Cards */}
@@ -224,7 +471,11 @@ const Scoring: React.FC = () => {
           {categories.map((category) => {
             const Icon = category.icon;
             return (
-              <div key={category.key} className="bg-gray-50 border border-gray-300 rounded-xl p-5 hover:shadow-md transition-shadow hover:bg-white">
+              <div 
+                key={category.key} 
+                className={`bg-gray-50 border border-gray-300 rounded-xl p-5 hover:shadow-md transition-shadow hover:bg-white ${editMode ? 'cursor-pointer hover:border-indigo-400' : ''}`}
+                onClick={() => handleOpenCategoryModal(category.key as keyof ScoringWeights)}
+              >
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-xl bg-${category.color}-100 flex-shrink-0`}>
                     <Icon className={`text-${category.color}-600`} size={28} />
@@ -232,18 +483,26 @@ const Scoring: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex justify-between items-start mb-3">
                       <h3 className="text-lg font-bold text-gray-800">{category.label}</h3>
-                      <span className="text-2xl font-bold text-gray-700">{category.maxScore} pts</span>
+                      <span className="text-2xl font-bold text-gray-700">
+                        {getCategoryTotal(category.key as keyof ScoringWeights, editMode ? editedWeights : weights)} pts
+                      </span>
                     </div>
                     <div className="space-y-2">
-                      {category.criteria.map((criterion, idx) => (
-                        <div key={idx} className="flex justify-between items-start text-sm">
-                          <div className="flex-1">
-                            <span className="font-semibold text-gray-700">{criterion.label}</span>
-                            <span className="text-indigo-600 font-bold ml-2">({criterion.points})</span>
-                            <p className="text-gray-600 text-xs mt-1">{criterion.details}</p>
+                      {Object.entries(criterionLabels[category.key] || {}).map(([criterionKey, { label, description }]) => {
+                        const categoryWeights = weights[category.key as keyof ScoringWeights];
+                        const points = typeof categoryWeights === 'object' && categoryWeights !== null 
+                          ? (categoryWeights as any)[criterionKey] 
+                          : 0;
+                        return (
+                          <div key={criterionKey} className="flex justify-between items-start text-sm">
+                            <div className="flex-1">
+                              <span className="font-semibold text-gray-700">{label}</span>
+                              <span className="text-indigo-600 font-bold ml-2">({points} pontos)</span>
+                              <p className="text-gray-600 text-xs mt-1">{description}</p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -287,6 +546,23 @@ const Scoring: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Criterion Edit Modal */}
+      {selectedCategory && (
+        <CriterionEditModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSave={(updatedCriteria) => handleSaveCategoryWeights(selectedCategory, updatedCriteria)}
+          categoryName={categories.find(c => c.key === selectedCategory)?.label || ''}
+          categoryIcon={
+            categories.find(c => c.key === selectedCategory)?.icon ? 
+            React.createElement(categories.find(c => c.key === selectedCategory)!.icon, { size: 28 }) : 
+            null
+          }
+          criteria={editedWeights[selectedCategory] as Record<string, number>}
+          criteriaLabels={criterionLabels[selectedCategory]}
+        />
+      )}
     </div>
   );
 };

@@ -148,6 +148,21 @@ export const candidateAPI = {
     });
     return response.data;
   },
+
+  getScoringConfig: async (): Promise<any> => {
+    const response = await api.get('/candidates/scoring_config/');
+    return response.data;
+  },
+
+  updateScoringConfig: async (weights: any): Promise<any> => {
+    const response = await api.post('/candidates/update_scoring_config/', { weights });
+    return response.data;
+  },
+
+  resetScoringConfig: async (): Promise<any> => {
+    const response = await api.post('/candidates/reset_scoring_config/');
+    return response.data;
+  },
 };
 
 export const interviewAPI = {
