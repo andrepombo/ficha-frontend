@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { candidateAPI } from '../services/api';
 import { Candidate } from '../types';
 import { downloadFile } from '../utils/downloadFile';
+import ConversionFunnel from '../components/ConversionFunnel';
 
 interface MonthlyData {
   month: string;
@@ -240,6 +241,11 @@ function Analytics() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Conversion Funnel */}
+        <div className="mb-8">
+          <ConversionFunnel selectedYear={selectedYear} />
         </div>
 
         {/* Bar Chart */}

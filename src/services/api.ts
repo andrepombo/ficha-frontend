@@ -124,6 +124,13 @@ export const candidateAPI = {
     const response = await api.get('/candidates/filter_options/');
     return response.data;
   },
+
+  getFunnelStats: async (year?: string): Promise<any> => {
+    const response = await api.get('/candidates/funnel_stats/', {
+      params: year ? { year } : {},
+    });
+    return response.data;
+  },
 };
 
 export const interviewAPI = {
