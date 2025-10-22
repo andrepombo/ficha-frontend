@@ -61,13 +61,13 @@ const ScoreBadge: React.FC<ScoreBadgeProps> = ({
       onClick={handleClick}
       title={`Score: ${score.toFixed(1)}/100 (Grade: ${grade})`}
     >
-      <span className="font-bold">{score.toFixed(1)}</span>
       {showGrade && (
         <>
-          <span className="opacity-70">•</span>
           <span className="font-bold">{grade}</span>
+          <span className="opacity-70">•</span>
         </>
       )}
+      <span className="font-bold">{score.toFixed(1)}</span>
     </div>
   );
 };
