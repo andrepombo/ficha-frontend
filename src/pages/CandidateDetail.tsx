@@ -267,7 +267,7 @@ function CandidateDetail() {
             </div>
 
             {/* Contact Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="flex items-center gap-3 bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-100">
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,6 +289,18 @@ function CandidateDetail() {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">Telefone</p>
                   <p className="text-gray-900 font-medium">{candidate.phone_number}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-100">
+                <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">Data de Nascimento</p>
+                  <p className="text-gray-900 font-medium">{candidate.date_of_birth ? new Date(candidate.date_of_birth).toLocaleDateString('pt-BR') : 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -359,10 +371,10 @@ function CandidateDetail() {
                   <div className="text-2xl font-extrabold text-blue-700">{(candidate.score_breakdown.experience_skills || 0).toFixed(1)}</div>
                   <div className="text-xs font-semibold text-blue-600">/ {scoringConfig ? scoringConfig.experience_skills.years_of_experience : 20} pts</div>
                 </div>
-                <div className="mt-2 bg-blue-200 rounded-full h-1.5">
+                <div className="mt-2 bg-blue-200 rounded-full h-1.5 overflow-hidden">
                   <div 
                     className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${((candidate.score_breakdown.experience_skills || 0) / 20) * 100}%` }}
+                    style={{ width: `${Math.min(((candidate.score_breakdown.experience_skills || 0) / (scoringConfig ? scoringConfig.experience_skills.years_of_experience : 20)) * 100, 100)}%` }}
                   />
                 </div>
               </div>
@@ -381,10 +393,10 @@ function CandidateDetail() {
                   <div className="text-2xl font-extrabold text-purple-700">{(candidate.score_breakdown.education || 0).toFixed(1)}</div>
                   <div className="text-xs font-semibold text-purple-600">/ {scoringConfig ? (scoringConfig.education.education_level + scoringConfig.education.courses + (scoringConfig.education.skills || 0) + (scoringConfig.education.certifications || 0)) : 29} pts</div>
                 </div>
-                <div className="mt-2 bg-purple-200 rounded-full h-1.5">
+                <div className="mt-2 bg-purple-200 rounded-full h-1.5 overflow-hidden">
                   <div 
                     className="bg-gradient-to-r from-purple-500 to-pink-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${((candidate.score_breakdown.education || 0) / 29) * 100}%` }}
+                    style={{ width: `${Math.min(((candidate.score_breakdown.education || 0) / (scoringConfig ? (scoringConfig.education.education_level + scoringConfig.education.courses + (scoringConfig.education.skills || 0) + (scoringConfig.education.certifications || 0)) : 29)) * 100, 100)}%` }}
                   />
                 </div>
               </div>
@@ -403,10 +415,10 @@ function CandidateDetail() {
                   <div className="text-2xl font-extrabold text-green-700">{(candidate.score_breakdown.availability_logistics || 0).toFixed(1)}</div>
                   <div className="text-xs font-semibold text-green-600">/ {scoringConfig ? (scoringConfig.availability_logistics.immediate_availability + scoringConfig.availability_logistics.own_transportation + scoringConfig.availability_logistics.travel_availability + (scoringConfig.availability_logistics.height_painting || 0)) : 23} pts</div>
                 </div>
-                <div className="mt-2 bg-green-200 rounded-full h-1.5">
+                <div className="mt-2 bg-green-200 rounded-full h-1.5 overflow-hidden">
                   <div 
                     className="bg-gradient-to-r from-green-500 to-teal-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${((candidate.score_breakdown.availability_logistics || 0) / 23) * 100}%` }}
+                    style={{ width: `${Math.min(((candidate.score_breakdown.availability_logistics || 0) / (scoringConfig ? (scoringConfig.availability_logistics.immediate_availability + scoringConfig.availability_logistics.own_transportation + scoringConfig.availability_logistics.travel_availability + (scoringConfig.availability_logistics.height_painting || 0)) : 23)) * 100, 100)}%` }}
                   />
                 </div>
               </div>
@@ -426,43 +438,16 @@ function CandidateDetail() {
                   <div className="text-2xl font-extrabold text-amber-700">{(candidate.score_breakdown.interview_performance || 0).toFixed(1)}</div>
                   <div className="text-xs font-semibold text-amber-600">/ {scoringConfig ? (scoringConfig.interview_performance.average_rating + scoringConfig.interview_performance.feedback_quality) : 30} pts</div>
                 </div>
-                <div className="mt-2 bg-amber-200 rounded-full h-1.5">
+                <div className="mt-2 bg-amber-200 rounded-full h-1.5 overflow-hidden">
                   <div 
                     className="bg-gradient-to-r from-amber-500 to-yellow-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${((candidate.score_breakdown.interview_performance || 0) / 30) * 100}%` }}
+                    style={{ width: `${Math.min(((candidate.score_breakdown.interview_performance || 0) / (scoringConfig ? (scoringConfig.interview_performance.average_rating + scoringConfig.interview_performance.feedback_quality) : 30)) * 100, 100)}%` }}
                   />
                 </div>
               </div>
             </div>
           </div>
         )}
-
-        {/* Personal Information Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Informações Pessoais</h2>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <InfoItem label="Data de Nascimento" value={candidate.date_of_birth ? new Date(candidate.date_of_birth).toLocaleDateString('pt-BR') : 'N/A'} />
-            <InfoItem label="Sexo" value={candidate.gender === 'masculino' ? 'Masculino' : candidate.gender === 'feminino' ? 'Feminino' : candidate.gender === 'prefiro_nao_informar' ? 'Prefiro não informar' : 'N/A'} />
-            <InfoItem label="PCD" value={
-              candidate.disability === 'sem_deficiencia' ? 'Sem deficiência' :
-              candidate.disability === 'fisica' ? 'Física' :
-              candidate.disability === 'auditiva' ? 'Auditiva' :
-              candidate.disability === 'visual' ? 'Visual' :
-              candidate.disability === 'mental' ? 'Mental' :
-              candidate.disability === 'multipla' ? 'Múltipla' :
-              candidate.disability === 'reabilitado' ? 'Reabilitado' : 'N/A'
-            } />
-          </div>
-        </div>
 
         {/* Experiências Profissionais Section */}
         {candidate.professional_experiences && candidate.professional_experiences.length > 0 && (
@@ -627,13 +612,13 @@ function CandidateDetail() {
                 const skills = candidate.skills || '';
                 if (!skills.trim()) return 0;
                 const skillCount = skills.split(',').map((s: string) => s.trim()).filter((s: string) => s).length;
-                const skillsMax = scoringConfig.experience_skills.skills;
+                const skillsMax = scoringConfig.education.skills || 0;
                 if (skillCount >= 5) return skillsMax;
                 if (skillCount >= 3) return skillsMax * 0.75;
                 if (skillCount >= 1) return skillsMax * 0.5;
                 return 0;
               })() : undefined}
-              maxScore={scoringConfig?.experience_skills.skills}
+              maxScore={scoringConfig?.education.skills}
             />
             <InfoItem 
               label="Certificações" 
@@ -647,13 +632,13 @@ function CandidateDetail() {
                 const certs = candidate.certifications || '';
                 if (!certs.trim()) return 0;
                 const certCount = certs.split(',').map((c: string) => c.trim()).filter((c: string) => c).length;
-                const certMax = scoringConfig.experience_skills.certifications;
+                const certMax = scoringConfig.education.certifications || 0;
                 if (certCount >= 3) return certMax;
                 if (certCount >= 2) return certMax * 0.71;
                 if (certCount >= 1) return certMax * 0.43;
                 return 0;
               })() : undefined}
-              maxScore={scoringConfig?.experience_skills.certifications}
+              maxScore={scoringConfig?.education.certifications}
             />
           </div>
         </div>
@@ -713,122 +698,6 @@ function CandidateDetail() {
               maxScore={scoringConfig?.availability_logistics.height_painting}
             />
           </div>
-        </div>
-
-        {/* Contact and Address Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Contato e Endereço</h2>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Endereço" value={candidate.address || 'N/A'} />
-            <InfoItem label="Cidade" value={candidate.city || 'N/A'} />
-            <InfoItem label="Estado" value={candidate.state || 'N/A'} />
-            <InfoItem label="CEP" value={candidate.postal_code || 'N/A'} />
-            <InfoItem label="País" value={candidate.country || 'N/A'} />
-          </div>
-        </div>
-
-        <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Trabalhou na Pinte Antes" value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
-            <InfoItem label="Como Soube da Vaga" value={
-              candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
-              candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
-              candidate.how_found_vacancy === 'instagram' ? 'Instagram' :
-              candidate.how_found_vacancy === 'linkedin' ? 'LinkedIn' :
-              candidate.how_found_vacancy === 'sine' ? 'Sine' :
-              candidate.how_found_vacancy === 'outros' ? `Outros: ${candidate.how_found_vacancy_other || ''}` : 'N/A'
-            } />
-          </div>
-        </div>
-
-        {/* Informações Extras Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Informações Extras</h2>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Atualmente Empregado" value={candidate.currently_employed === 'sim' ? 'Sim' : candidate.currently_employed === 'nao' ? 'Não' : 'N/A'} />
-          </div>
-        </div>
-
-        <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Documentos</h2>
-          {candidate.resume ? (
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Currículo</p>
-              <a 
-                href={candidate.resume} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Baixar Currículo
-              </a>
-            </div>
-          ) : (
-            <p className="text-gray-500">Nenhum currículo enviado</p>
-          )}
-        </div>
-
-        {/* Internal Notes Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900">Notas Internas</h2>
-          </div>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={6}
-            className="w-full px-5 py-4 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm hover:border-purple-300 transition-all font-medium resize-none"
-            placeholder="✍️ Adicione notas internas sobre este candidato..."
-          />
-          <button
-            onClick={handleSaveNotes}
-            disabled={saving}
-            className="mt-4 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {saving ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                Salvando...
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Salvar Notas
-              </>
-            )}
-          </button>
         </div>
 
         {/* Interviews Section */}
@@ -891,6 +760,148 @@ function CandidateDetail() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Contact and Address Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Contato e Endereço</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Endereço" value={candidate.address || 'N/A'} />
+            <InfoItem label="Cidade" value={candidate.city || 'N/A'} />
+            <InfoItem label="Estado" value={candidate.state || 'N/A'} />
+            <InfoItem label="CEP" value={candidate.postal_code || 'N/A'} />
+            <InfoItem label="País" value={candidate.country || 'N/A'} />
+          </div>
+        </div>
+
+        <div className="card mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Trabalhou na Pinte Antes" value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
+            <InfoItem label="Como Soube da Vaga" value={
+              candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
+              candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
+              candidate.how_found_vacancy === 'instagram' ? 'Instagram' :
+              candidate.how_found_vacancy === 'linkedin' ? 'LinkedIn' :
+              candidate.how_found_vacancy === 'sine' ? 'Sine' :
+              candidate.how_found_vacancy === 'outros' ? `Outros: ${candidate.how_found_vacancy_other || ''}` : 'N/A'
+            } />
+          </div>
+        </div>
+
+        {/* Informações Extras Section */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Informações Extras</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Atualmente Empregado" value={candidate.currently_employed === 'sim' ? 'Sim' : candidate.currently_employed === 'nao' ? 'Não' : 'N/A'} />
+          </div>
+        </div>
+
+        {/* Personal Information Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Informações Pessoais</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Sexo" value={candidate.gender === 'masculino' ? 'Masculino' : candidate.gender === 'feminino' ? 'Feminino' : candidate.gender === 'prefiro_nao_informar' ? 'Prefiro não informar' : 'N/A'} />
+            <InfoItem label="PCD" value={
+              candidate.disability === 'sem_deficiencia' ? 'Sem deficiência' :
+              candidate.disability === 'fisica' ? 'Física' :
+              candidate.disability === 'auditiva' ? 'Auditiva' :
+              candidate.disability === 'visual' ? 'Visual' :
+              candidate.disability === 'mental' ? 'Mental' :
+              candidate.disability === 'multipla' ? 'Múltipla' :
+              candidate.disability === 'reabilitado' ? 'Reabilitado' : 'N/A'
+            } />
+          </div>
+        </div>
+
+        <div className="card mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Documentos</h2>
+          {candidate.resume ? (
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Currículo</p>
+              <a 
+                href={candidate.resume} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Baixar Currículo
+              </a>
+            </div>
+          ) : (
+            <p className="text-gray-500">Nenhum currículo enviado</p>
+          )}
+        </div>
+
+        {/* Internal Notes Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Notas Internas</h2>
+          </div>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={6}
+            className="w-full px-5 py-4 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm hover:border-purple-300 transition-all font-medium resize-none"
+            placeholder="✍️ Adicione notas internas sobre este candidato..."
+          />
+          <button
+            onClick={handleSaveNotes}
+            disabled={saving}
+            className="mt-4 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {saving ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                Salvando...
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Salvar Notas
+              </>
+            )}
+          </button>
         </div>
 
         {/* Danger Zone Card */}
