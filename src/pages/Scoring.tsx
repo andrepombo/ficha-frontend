@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Award, TrendingUp, GraduationCap, MapPin, FileText, MessageSquare, Info, BarChart3, RefreshCw, Edit2, Save, X, RotateCcw } from 'lucide-react';
+import { Award, TrendingUp, GraduationCap, MapPin, MessageSquare, Info, BarChart3, RefreshCw, Edit2, Save, X, RotateCcw } from 'lucide-react';
 import { candidateAPI } from '../services/api';
 import CriterionEditModal from '../components/CriterionEditModal';
 
@@ -30,11 +30,6 @@ interface ScoringWeights {
     travel_availability: number;
     height_painting: number;
   };
-  profile_completeness: {
-    essential_fields: number;
-    professional_fields: number;
-    additional_info: number;
-  };
   interview_performance: {
     average_rating: number;
     feedback_quality: number;
@@ -61,11 +56,6 @@ const Scoring: React.FC = () => {
       own_transportation: 6,
       travel_availability: 6,
       height_painting: 0,
-    },
-    profile_completeness: {
-      essential_fields: 8,
-      professional_fields: 4.5,
-      additional_info: 2.5,
     },
     interview_performance: {
       average_rating: 12,
@@ -252,11 +242,6 @@ const Scoring: React.FC = () => {
       travel_availability: { label: 'Disponibilidade para viagens', description: 'Sim: máximo | Ocasionalmente: 50%' },
       height_painting: { label: 'Pintura em altura', description: 'Sim: máximo | Não: 0%' },
     },
-    profile_completeness: {
-      essential_fields: { label: 'Campos essenciais', description: 'Email, telefone, endereço, cidade' },
-      professional_fields: { label: 'Campos profissionais', description: 'Posição, empresa, habilidades' },
-      additional_info: { label: 'Informações adicionais', description: 'Educação, certificações, indicação' },
-    },
     interview_performance: {
       average_rating: { label: 'Avaliação média', description: 'Baseado em avaliações de 1-5 estrelas' },
       feedback_quality: { label: 'Qualidade do feedback', description: 'Baseado na porcentagem de entrevistas com feedback' },
@@ -298,18 +283,6 @@ const Scoring: React.FC = () => {
         { label: 'Transporte próprio', points: '6 pontos', details: 'Sim: 6pts | Não: 0pts' },
         { label: 'Disponibilidade para viagens', points: '6 pontos', details: 'Sim: 6pts | Ocasionalmente: 3pts' },
         { label: 'Pintura em altura', points: '0 pontos', details: 'Sim: pontos configuráveis | Não: 0pts' },
-      ],
-    },
-    {
-      key: 'profile_completeness',
-      label: 'Completude do Perfil',
-      icon: FileText,
-      maxScore: 15,
-      color: 'green',
-      criteria: [
-        { label: 'Campos essenciais', points: '8 pontos', details: 'Email, telefone, endereço, cidade (2pts cada)' },
-        { label: 'Campos profissionais', points: '4.5 pontos', details: 'Posição, empresa, habilidades (1.5pts cada)' },
-        { label: 'Informações adicionais', points: '1.5 pontos', details: 'Educação, certificações, indicação (0.5pts cada)' },
       ],
     },
     {
@@ -514,12 +487,12 @@ const Scoring: React.FC = () => {
                     </div>
                     <div className="space-y-2">
                       {Object.entries(criterionLabels[category.key] || {}).map(([criterionKey, { label, description }]) => {
-                        // Special handling: "skills" is displayed in education but stored in experience_skills
+                        // Special handling: "skills" and "certifications" are displayed in education but stored in experience_skills
                         let points = 0;
-                        if (category.key === 'education' && criterionKey === 'skills') {
-                          // Get skills points from experience_skills
+                        if (category.key === 'education' && (criterionKey === 'skills' || criterionKey === 'certifications')) {
+                          // Get skills/certifications points from experience_skills
                           const weightsToUse = editMode ? editedWeights : weights;
-                          points = weightsToUse.experience_skills.skills;
+                          points = weightsToUse.experience_skills[criterionKey as 'skills' | 'certifications'];
                         } else {
                           const categoryWeights = (editMode ? editedWeights : weights)[category.key as keyof ScoringWeights];
                           points = typeof categoryWeights === 'object' && categoryWeights !== null 

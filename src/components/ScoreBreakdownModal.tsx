@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, TrendingUp, GraduationCap, MapPin, FileText, MessageSquare } from 'lucide-react';
+import { X, TrendingUp, GraduationCap, MapPin, MessageSquare } from 'lucide-react';
 import { Candidate, ScoreBreakdown } from '../types';
 
 interface ScoreBreakdownModalProps {
@@ -41,14 +41,6 @@ const ScoreBreakdownModal: React.FC<ScoreBreakdownModalProps> = ({ candidate, is
       maxScore: 20,
       description: 'Disponibilidade imediata, transporte e viagens',
       color: 'blue',
-    },
-    {
-      key: 'profile_completeness',
-      label: 'Completude do Perfil',
-      icon: FileText,
-      maxScore: 15,
-      description: 'Preenchimento completo das informações',
-      color: 'green',
     },
     {
       key: 'interview_performance',

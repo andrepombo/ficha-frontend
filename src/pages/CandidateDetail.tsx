@@ -493,6 +493,96 @@ function CandidateDetail() {
           </div>
         </div>
 
+        {/* Experiências Profissionais Section */}
+        {candidate.professional_experiences && candidate.professional_experiences.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Experiências Profissionais</h2>
+              </div>
+              {candidate.score_breakdown && candidate.score_breakdown.experience_skills > 0 && scoringConfig && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
+                  <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Experiência</div>
+                  <div className="text-lg font-bold text-blue-700">
+                    {(candidate.score_breakdown.experience_skills || 0).toFixed(1)}/
+                    {scoringConfig.experience_skills.years_of_experience + scoringConfig.experience_skills.skills + scoringConfig.experience_skills.certifications}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Experience Summary with Score Breakdown */}
+            {scoringConfig && (
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
+                <InfoItem 
+                  label="Anos de Experiência" 
+                  value={(() => {
+                    const totalDays = candidate.professional_experiences.reduce((total, exp) => {
+                      if (exp.data_admissao) {
+                        const endDate = exp.data_desligamento ? new Date(exp.data_desligamento) : new Date();
+                        const startDate = new Date(exp.data_admissao);
+                        if (endDate >= startDate) {
+                          return total + (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                        }
+                      }
+                      return total;
+                    }, 0);
+                    const years = Math.round((totalDays / 365.25) * 10) / 10;
+                    return `${years} ano${years !== 1 ? 's' : ''}`;
+                  })()}
+                  score={scoringConfig ? (() => {
+                    const totalDays = candidate.professional_experiences.reduce((total, exp) => {
+                      if (exp.data_admissao) {
+                        const endDate = exp.data_desligamento ? new Date(exp.data_desligamento) : new Date();
+                        const startDate = new Date(exp.data_admissao);
+                        if (endDate >= startDate) {
+                          return total + (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                        }
+                      }
+                      return total;
+                    }, 0);
+                    const years = totalDays / 365.25;
+                    const yearsMax = scoringConfig.experience_skills.years_of_experience;
+                    if (years >= 6) return yearsMax;
+                    if (years >= 4) return yearsMax * 0.87;
+                    if (years >= 2) return yearsMax * 0.67;
+                    if (years >= 1) return yearsMax * 0.33;
+                    return yearsMax * 0.13;
+                  })() : undefined}
+                  maxScore={scoringConfig?.experience_skills.years_of_experience}
+                />
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {candidate.professional_experiences.map((exp) => (
+                <div key={exp.id} className="border-l-4 border-indigo-500 pl-4 py-2">
+                  <h3 className="font-semibold text-lg text-gray-900">{exp.cargo}</h3>
+                  <p className="text-gray-700 font-medium">{exp.empresa}</p>
+                  {(exp.data_admissao || exp.data_desligamento) && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {exp.data_admissao ? new Date(exp.data_admissao).toLocaleDateString('pt-BR') : '?'} - {exp.data_desligamento ? new Date(exp.data_desligamento).toLocaleDateString('pt-BR') : 'Atual'}
+                    </p>
+                  )}
+                  {exp.descricao_atividades && (
+                    <p className="text-gray-600 mt-2">{exp.descricao_atividades}</p>
+                  )}
+                  {exp.motivo_saida && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      <span className="font-medium">Motivo da saída:</span> {exp.motivo_saida}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Educação & Qualificações Section */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
           <div className="flex items-center justify-between mb-6">
@@ -597,150 +687,6 @@ function CandidateDetail() {
           </div>
         </div>
 
-        {/* Contact and Address Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Contato e Endereço</h2>
-            </div>
-            {candidate.score_breakdown && candidate.score_breakdown.profile_completeness > 0 && (
-              <div className="bg-gradient-to-r from-cyan-50 to-blue-50 px-4 py-2 rounded-xl border border-cyan-200">
-                <div className="text-xs font-semibold text-cyan-600 uppercase tracking-wide">Pontuação Perfil</div>
-                <div className="text-lg font-bold text-cyan-700">{(candidate.score_breakdown.profile_completeness || 0).toFixed(1)}/15</div>
-              </div>
-            )}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem 
-              label="Endereço" 
-              value={candidate.address || 'N/A'}
-              score={scoringConfig && candidate.address ? scoringConfig.profile_completeness.essential_fields / 4 : 0}
-              maxScore={scoringConfig ? scoringConfig.profile_completeness.essential_fields / 4 : undefined}
-            />
-            <InfoItem 
-              label="Cidade" 
-              value={candidate.city || 'N/A'}
-              score={scoringConfig && candidate.city ? scoringConfig.profile_completeness.essential_fields / 4 : 0}
-              maxScore={scoringConfig ? scoringConfig.profile_completeness.essential_fields / 4 : undefined}
-            />
-            <InfoItem label="Estado" value={candidate.state || 'N/A'} />
-            <InfoItem label="CEP" value={candidate.postal_code || 'N/A'} />
-            <InfoItem label="País" value={candidate.country || 'N/A'} />
-          </div>
-        </div>
-
-        <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Trabalhou na Pinte Antes" value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
-            <InfoItem label="Como Soube da Vaga" value={
-              candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
-              candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
-              candidate.how_found_vacancy === 'instagram' ? 'Instagram' :
-              candidate.how_found_vacancy === 'linkedin' ? 'LinkedIn' :
-              candidate.how_found_vacancy === 'sine' ? 'Sine' :
-              candidate.how_found_vacancy === 'outros' ? `Outros: ${candidate.how_found_vacancy_other || ''}` : 'N/A'
-            } />
-          </div>
-        </div>
-
-        {candidate.professional_experiences && candidate.professional_experiences.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900">Experiências Profissionais</h2>
-              </div>
-              {candidate.score_breakdown && candidate.score_breakdown.experience_skills > 0 && scoringConfig && (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
-                  <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Experiência</div>
-                  <div className="text-lg font-bold text-blue-700">
-                    {(candidate.score_breakdown.experience_skills || 0).toFixed(1)}/
-                    {scoringConfig.experience_skills.years_of_experience + scoringConfig.experience_skills.skills + scoringConfig.experience_skills.certifications}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Experience Summary with Score Breakdown */}
-            {scoringConfig && (
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
-                <InfoItem 
-                  label="Anos de Experiência" 
-                  value={(() => {
-                    const totalDays = candidate.professional_experiences.reduce((total, exp) => {
-                      if (exp.data_admissao) {
-                        const endDate = exp.data_desligamento ? new Date(exp.data_desligamento) : new Date();
-                        const startDate = new Date(exp.data_admissao);
-                        if (endDate >= startDate) {
-                          return total + (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-                        }
-                      }
-                      return total;
-                    }, 0);
-                    const years = Math.round((totalDays / 365.25) * 10) / 10;
-                    return `${years} ano${years !== 1 ? 's' : ''}`;
-                  })()}
-                  score={scoringConfig ? (() => {
-                    const totalDays = candidate.professional_experiences.reduce((total, exp) => {
-                      if (exp.data_admissao) {
-                        const endDate = exp.data_desligamento ? new Date(exp.data_desligamento) : new Date();
-                        const startDate = new Date(exp.data_admissao);
-                        if (endDate >= startDate) {
-                          return total + (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-                        }
-                      }
-                      return total;
-                    }, 0);
-                    const years = totalDays / 365.25;
-                    const yearsMax = scoringConfig.experience_skills.years_of_experience;
-                    if (years >= 6) return yearsMax;
-                    if (years >= 4) return yearsMax * 0.87;
-                    if (years >= 2) return yearsMax * 0.67;
-                    if (years >= 1) return yearsMax * 0.33;
-                    return yearsMax * 0.13;
-                  })() : undefined}
-                  maxScore={scoringConfig?.experience_skills.years_of_experience}
-                />
-              </div>
-            )}
-
-            <div className="space-y-4">
-              {candidate.professional_experiences.map((exp) => (
-                <div key={exp.id} className="border-l-4 border-indigo-500 pl-4 py-2">
-                  <h3 className="font-semibold text-lg text-gray-900">{exp.cargo}</h3>
-                  <p className="text-gray-700 font-medium">{exp.empresa}</p>
-                  {(exp.data_admissao || exp.data_desligamento) && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      {exp.data_admissao ? new Date(exp.data_admissao).toLocaleDateString('pt-BR') : '?'} - {exp.data_desligamento ? new Date(exp.data_desligamento).toLocaleDateString('pt-BR') : 'Atual'}
-                    </p>
-                  )}
-                  {exp.descricao_atividades && (
-                    <p className="text-gray-600 mt-2">{exp.descricao_atividades}</p>
-                  )}
-                  {exp.motivo_saida && (
-                    <p className="text-sm text-gray-500 mt-2">
-                      <span className="font-medium">Motivo da saída:</span> {exp.motivo_saida}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Disponibilidade & Logística Section */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
           <div className="flex items-center justify-between mb-6">
@@ -795,6 +741,45 @@ function CandidateDetail() {
               score={scoringConfig && candidate.height_painting === 'sim' ? scoringConfig.availability_logistics.height_painting : 0}
               maxScore={scoringConfig?.availability_logistics.height_painting}
             />
+          </div>
+        </div>
+
+        {/* Contact and Address Card */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Contato e Endereço</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Endereço" value={candidate.address || 'N/A'} />
+            <InfoItem label="Cidade" value={candidate.city || 'N/A'} />
+            <InfoItem label="Estado" value={candidate.state || 'N/A'} />
+            <InfoItem label="CEP" value={candidate.postal_code || 'N/A'} />
+            <InfoItem label="País" value={candidate.country || 'N/A'} />
+          </div>
+        </div>
+
+        <div className="card mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Trabalhou na Pinte Antes" value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
+            <InfoItem label="Como Soube da Vaga" value={
+              candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
+              candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
+              candidate.how_found_vacancy === 'instagram' ? 'Instagram' :
+              candidate.how_found_vacancy === 'linkedin' ? 'LinkedIn' :
+              candidate.how_found_vacancy === 'sine' ? 'Sine' :
+              candidate.how_found_vacancy === 'outros' ? `Outros: ${candidate.how_found_vacancy_other || ''}` : 'N/A'
+            } />
           </div>
         </div>
 
