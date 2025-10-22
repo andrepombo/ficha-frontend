@@ -29,7 +29,7 @@ function FilterBar({ filters, onFilterChange, onAdvancedSearchClick, hasActiveAd
 
   return (
     <div className="card">
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
         {/* Search */}
         <div className="floating-label-container">
           <input
@@ -58,6 +58,23 @@ function FilterBar({ filters, onFilterChange, onAdvancedSearchClick, hasActiveAd
             <option value="rejected">Rejeitado</option>
           </select>
           <label className="floating-label">Status</label>
+        </div>
+
+        {/* Score Range Filter */}
+        <div className="floating-label-container">
+          <select
+            value={filters.score_range || 'all'}
+            onChange={(e) => onFilterChange({ score_range: e.target.value })}
+            className={`select-modern floating-select ${filters.score_range && filters.score_range !== 'all' ? 'has-value' : ''}`}
+          >
+            <option value="all">Todas as Pontuações</option>
+            <option value="excellent">Excelente (80-100)</option>
+            <option value="good">Bom (60-79)</option>
+            <option value="average">Médio (40-59)</option>
+            <option value="poor">Baixo (0-39)</option>
+            <option value="not_scored">Sem Pontuação</option>
+          </select>
+          <label className="floating-label">Pontuação</label>
         </div>
 
         {/* Advanced Search Button */}

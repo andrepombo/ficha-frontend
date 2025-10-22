@@ -28,6 +28,7 @@ interface ScoringWeights {
     immediate_availability: number;
     own_transportation: number;
     travel_availability: number;
+    height_painting: number;
   };
   profile_completeness: {
     essential_fields: number;
@@ -59,6 +60,7 @@ const Scoring: React.FC = () => {
       immediate_availability: 8,
       own_transportation: 6,
       travel_availability: 6,
+      height_painting: 0,
     },
     profile_completeness: {
       essential_fields: 8,
@@ -227,6 +229,7 @@ const Scoring: React.FC = () => {
       immediate_availability: { label: 'Disponibilidade imediata', description: 'Imediato: máximo | 15 dias: 75% | 30 dias: 50%' },
       own_transportation: { label: 'Transporte próprio', description: 'Sim: máximo | Não: 0%' },
       travel_availability: { label: 'Disponibilidade para viagens', description: 'Sim: máximo | Ocasionalmente: 50%' },
+      height_painting: { label: 'Pintura em altura', description: 'Sim: máximo | Não: 0%' },
     },
     profile_completeness: {
       essential_fields: { label: 'Campos essenciais', description: 'Email, telefone, endereço, cidade' },
@@ -273,6 +276,7 @@ const Scoring: React.FC = () => {
         { label: 'Disponibilidade imediata', points: '8 pontos', details: 'Imediato: 8pts | 15 dias: 6pts | 30 dias: 4pts' },
         { label: 'Transporte próprio', points: '6 pontos', details: 'Sim: 6pts | Não: 0pts' },
         { label: 'Disponibilidade para viagens', points: '6 pontos', details: 'Sim: 6pts | Ocasionalmente: 3pts' },
+        { label: 'Pintura em altura', points: '0 pontos', details: 'Sim: pontos configuráveis | Não: 0pts' },
       ],
     },
     {

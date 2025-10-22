@@ -538,6 +538,22 @@ function CandidateDetail() {
               ) : undefined}
               maxScore={scoringConfig?.education.education_level}
             />
+            <InfoItem 
+              label="Cursos Adicionais" 
+              value={(() => {
+                const courses = (candidate as any).courses || '';
+                if (!courses || !courses.trim()) return 'Nenhum';
+                const courseList = courses.split(',').map((c: string) => c.trim()).filter((c: string) => c);
+                return `${courseList.length} curso${courseList.length !== 1 ? 's' : ''}`;
+              })()}
+              score={scoringConfig ? (() => {
+                const courses = (candidate as any).courses || '';
+                if (!courses || !courses.trim()) return 0;
+                const courseCount = courses.split(',').map((c: string) => c.trim()).filter((c: string) => c).length;
+                return Math.min(courseCount * 0.5, scoringConfig.education.courses);
+              })() : undefined}
+              maxScore={scoringConfig?.education.courses}
+            />
           </div>
         </div>
 

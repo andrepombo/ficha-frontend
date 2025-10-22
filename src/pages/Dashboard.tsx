@@ -40,6 +40,7 @@ function Dashboard() {
       search: '',
       month: month,
       year: year,
+      score_range: 'all',
     };
   });
 
@@ -63,7 +64,7 @@ function Dashboard() {
   // Fetch candidates when filters change (excluding search - that's client-side)
   useEffect(() => {
     fetchCandidates();
-  }, [filters.status, filters.month, filters.year, advancedFilters]);
+  }, [filters.status, filters.month, filters.year, filters.score_range, advancedFilters]);
 
   // Client-side search filtering - instant, no API calls
   useEffect(() => {
@@ -92,6 +93,7 @@ function Dashboard() {
         search: filters.search || undefined,
         month: filters.month !== 'all' ? filters.month : undefined,
         year: filters.year !== 'all' ? filters.year : undefined,
+        score_range: filters.score_range !== 'all' ? filters.score_range : undefined,
         ...advancedFilters,
       };
       

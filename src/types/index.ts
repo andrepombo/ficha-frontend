@@ -72,6 +72,7 @@ export interface CandidateFilters {
   position?: string;
   month: string;
   year: string;
+  score_range?: string;
 }
 
 export interface CandidateStats {
