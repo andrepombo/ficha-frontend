@@ -19,13 +19,20 @@ const statusColors: Record<CandidateStatus, string> = {
 interface InfoItemProps {
   label: string;
   value: string | number;
+  score?: number;
+  maxScore?: number;
 }
 
-function InfoItem({ label, value }: InfoItemProps) {
+function InfoItem({ label, value, score, maxScore }: InfoItemProps) {
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-100">
+    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-100 relative">
+      {score !== undefined && maxScore !== undefined && (
+        <div className="absolute top-2 right-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
+          {score.toFixed(1)}/{maxScore}
+        </div>
+      )}
       <p className="text-xs font-semibold text-indigo-600 mb-1 uppercase tracking-wide">{label}</p>
-      <p className="text-gray-900 font-medium text-lg">{value}</p>
+      <p className="text-gray-900 font-medium text-lg pr-16">{value}</p>
     </div>
   );
 }
@@ -38,6 +45,7 @@ function CandidateDetail() {
   const [error, setError] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [scoringConfig, setScoringConfig] = useState<any>(null);
   
   // Interview state
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -50,15 +58,41 @@ function CandidateDetail() {
     if (id) {
       fetchCandidate(parseInt(id));
       fetchInterviews(parseInt(id));
+      fetchScoringConfig();
     }
   }, [id]);
+
+  const fetchScoringConfig = async () => {
+    try {
+      const config = await candidateAPI.getScoringConfig();
+      setScoringConfig(config.weights);
+    } catch (err) {
+      console.error('Error fetching scoring config:', err);
+    }
+  };
 
   const fetchCandidate = async (candidateId: number) => {
     try {
       setLoading(true);
       const data = await candidateAPI.getById(candidateId);
-      setCandidate(data);
-      setNotes(data.notes || '');
+      console.log('Candidate data received:', data);
+      console.log('Professional experiences:', data.professional_experiences);
+      
+      // Always recalculate score to ensure it's up to date with current config
+      console.log('Recalculating score to match current configuration...');
+      try {
+        await candidateAPI.calculateScore(candidateId);
+        // Fetch again to get updated score
+        const updatedData = await candidateAPI.getById(candidateId);
+        setCandidate(updatedData);
+        setNotes(updatedData.notes || '');
+      } catch (scoreErr) {
+        console.error('Error calculating score:', scoreErr);
+        // Still set the candidate data even if score calculation fails
+        setCandidate(data);
+        setNotes(data.notes || '');
+      }
+      
       setError(null);
     } catch (err) {
       setError('Failed to load candidate details.');
@@ -224,10 +258,19 @@ function CandidateDetail() {
                 </div>
               </div>
               
-              <div>
+              <div className="flex flex-col items-end gap-3">
                 <span className={`status-badge ${statusColors[candidate.status]} inline-block text-sm px-5 py-2 rounded-xl font-semibold shadow-md`}>
                   {getTranslatedStatus(candidate.status)}
                 </span>
+                {candidate.score !== undefined && candidate.score !== null && (
+                  <div className="bg-gradient-to-br from-amber-400 to-orange-500 px-6 py-3 rounded-xl shadow-lg">
+                    <div className="text-center">
+                      <div className="text-xs font-bold text-white uppercase tracking-wide mb-1">Pontuação Total</div>
+                      <div className="text-3xl font-black text-white">{Number(candidate.score).toFixed(1)}</div>
+                      <div className="text-xs font-semibold text-white/90">de 100 pontos</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -297,15 +340,152 @@ function CandidateDetail() {
           </div>
         </div>
 
+        {/* Score Breakdown Card */}
+        {candidate.score_breakdown && (
+          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Detalhamento da Pontuação</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Experience & Skills */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border-2 border-blue-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-blue-900">Experiência & Habilidades</h3>
+                </div>
+                <div className="flex items-end justify-between">
+                  <div className="text-3xl font-black text-blue-700">{(candidate.score_breakdown.experience_skills || 0).toFixed(1)}</div>
+                  <div className="text-sm font-semibold text-blue-600">/ 19 pts</div>
+                </div>
+                <div className="mt-2 bg-blue-200 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all"
+                    style={{ width: `${((candidate.score_breakdown.experience_skills || 0) / 30) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Education */}
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border-2 border-purple-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-purple-900">Educação</h3>
+                </div>
+                <div className="flex items-end justify-between">
+                  <div className="text-3xl font-black text-purple-700">{(candidate.score_breakdown.education || 0).toFixed(1)}</div>
+                  <div className="text-sm font-semibold text-purple-600">/ 30 pts</div>
+                </div>
+                <div className="mt-2 bg-purple-200 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 h-2 rounded-full transition-all"
+                    style={{ width: `${((candidate.score_breakdown.education || 0) / 20) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Availability & Logistics */}
+              <div className="bg-gradient-to-br from-green-50 to-teal-50 p-5 rounded-xl border-2 border-green-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-green-900">Disponibilidade</h3>
+                </div>
+                <div className="flex items-end justify-between">
+                  <div className="text-3xl font-black text-green-700">{(candidate.score_breakdown.availability_logistics || 0).toFixed(1)}</div>
+                  <div className="text-sm font-semibold text-green-600">/ 26 pts</div>
+                </div>
+                <div className="mt-2 bg-green-200 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-green-500 to-teal-600 h-2 rounded-full transition-all"
+                    style={{ width: `${((candidate.score_breakdown.availability_logistics || 0) / 20) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Profile Completeness */}
+              <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-5 rounded-xl border-2 border-cyan-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-cyan-900">Completude do Perfil</h3>
+                </div>
+                <div className="flex items-end justify-between">
+                  <div className="text-3xl font-black text-cyan-700">{(candidate.score_breakdown.profile_completeness || 0).toFixed(1)}</div>
+                  <div className="text-sm font-semibold text-cyan-600">/ 15 pts</div>
+                </div>
+                <div className="mt-2 bg-cyan-200 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-cyan-500 to-blue-600 h-2 rounded-full transition-all"
+                    style={{ width: `${((candidate.score_breakdown.profile_completeness || 0) / 15) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Interview Performance */}
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 p-5 rounded-xl border-2 border-amber-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-amber-900">Desempenho em Entrevistas</h3>
+                </div>
+                <div className="flex items-end justify-between">
+                  <div className="text-3xl font-black text-amber-700">{(candidate.score_breakdown.interview_performance || 0).toFixed(1)}</div>
+                  <div className="text-sm font-semibold text-amber-600">/ 15 pts</div>
+                </div>
+                <div className="mt-2 bg-amber-200 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-amber-500 to-yellow-600 h-2 rounded-full transition-all"
+                    style={{ width: `${((candidate.score_breakdown.interview_performance || 0) / 15) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Personal Information Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Informações Pessoais</h2>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Informações Pessoais</h2>
+            {candidate.score_breakdown && (candidate.score_breakdown.availability_logistics > 0 || candidate.score_breakdown.education > 0) && (
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-2 rounded-xl border border-purple-200">
+                <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Contribui para Pontuação</div>
+                <div className="text-lg font-bold text-purple-700">
+                  {((candidate.score_breakdown.education || 0) + (candidate.score_breakdown.availability_logistics || 0)).toFixed(1)}/56
+                </div>
+                <div className="text-xs text-purple-600">Educação + Disponibilidade</div>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <InfoItem label="Data de Nascimento" value={candidate.date_of_birth ? new Date(candidate.date_of_birth).toLocaleDateString('pt-BR') : 'N/A'} />
@@ -319,35 +499,73 @@ function CandidateDetail() {
               candidate.disability === 'multipla' ? 'Múltipla' :
               candidate.disability === 'reabilitado' ? 'Reabilitado' : 'N/A'
             } />
-            <InfoItem label="Transporte Próprio" value={candidate.has_own_transportation === 'sim' ? 'Sim' : candidate.has_own_transportation === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Escolaridade" value={
-              candidate.highest_education === 'analfabeto' ? 'Analfabeto' :
-              candidate.highest_education === 'fundamental_incompleto' ? 'Ensino fundamental incompleto' :
-              candidate.highest_education === 'fundamental_completo' ? 'Ensino fundamental completo' :
-              candidate.highest_education === 'medio_incompleto' ? 'Ensino Médio incompleto' :
-              candidate.highest_education === 'medio_completo' ? 'Ensino Médio completo' :
-              candidate.highest_education === 'tecnica_incompleta' ? 'Educação Técnica incompleta' :
-              candidate.highest_education === 'tecnica_completa' ? 'Educação Técnica completa' :
-              candidate.highest_education === 'superior_incompleta' ? 'Educação Superior incompleta' :
-              candidate.highest_education === 'superior_completa' ? 'Educação Superior completa' : 'N/A'
-            } />
+            <InfoItem 
+              label="Transporte Próprio" 
+              value={candidate.has_own_transportation === 'sim' ? 'Sim' : candidate.has_own_transportation === 'nao' ? 'Não' : 'N/A'}
+              score={scoringConfig && candidate.has_own_transportation === 'sim' ? scoringConfig.availability_logistics.own_transportation : 0}
+              maxScore={scoringConfig?.availability_logistics.own_transportation}
+            />
+            <InfoItem 
+              label="Escolaridade" 
+              value={
+                candidate.highest_education === 'analfabeto' ? 'Analfabeto' :
+                candidate.highest_education === 'fundamental_incompleto' ? 'Ensino fundamental incompleto' :
+                candidate.highest_education === 'fundamental_completo' ? 'Ensino fundamental completo' :
+                candidate.highest_education === 'medio_incompleto' ? 'Ensino Médio incompleto' :
+                candidate.highest_education === 'medio_completo' ? 'Ensino Médio completo' :
+                candidate.highest_education === 'tecnica_incompleta' ? 'Educação Técnica incompleta' :
+                candidate.highest_education === 'tecnica_completa' ? 'Educação Técnica completa' :
+                candidate.highest_education === 'superior_incompleta' ? 'Educação Superior incompleta' :
+                candidate.highest_education === 'superior_completa' ? 'Educação Superior completa' : 'N/A'
+              }
+              score={scoringConfig ? (
+                candidate.highest_education === 'fundamental_incompleto' ? 0.2 * scoringConfig.education.education_level :
+                candidate.highest_education === 'fundamental_completo' ? 0.3 * scoringConfig.education.education_level :
+                candidate.highest_education === 'medio_incompleto' ? 0.5 * scoringConfig.education.education_level :
+                candidate.highest_education === 'medio_completo' ? 0.6 * scoringConfig.education.education_level :
+                candidate.highest_education === 'tecnica_incompleta' ? 0.7 * scoringConfig.education.education_level :
+                candidate.highest_education === 'tecnica_completa' ? 0.8 * scoringConfig.education.education_level :
+                candidate.highest_education === 'superior_incompleta' ? 0.85 * scoringConfig.education.education_level :
+                candidate.highest_education === 'superior_completa' ? 0.95 * scoringConfig.education.education_level :
+                candidate.highest_education === 'pos_graduacao' ? 1.0 * scoringConfig.education.education_level : 0
+              ) : undefined}
+              maxScore={scoringConfig?.education.education_level}
+            />
           </div>
         </div>
 
         {/* Contact and Address Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Contato e Endereço</h2>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Contato e Endereço</h2>
+            {candidate.score_breakdown && candidate.score_breakdown.profile_completeness > 0 && (
+              <div className="bg-gradient-to-r from-cyan-50 to-blue-50 px-4 py-2 rounded-xl border border-cyan-200">
+                <div className="text-xs font-semibold text-cyan-600 uppercase tracking-wide">Pontuação Perfil</div>
+                <div className="text-lg font-bold text-cyan-700">{(candidate.score_breakdown.profile_completeness || 0).toFixed(1)}/15</div>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Endereço" value={candidate.address || 'N/A'} />
-            <InfoItem label="Cidade" value={candidate.city || 'N/A'} />
+            <InfoItem 
+              label="Endereço" 
+              value={candidate.address || 'N/A'}
+              score={scoringConfig && candidate.address ? scoringConfig.profile_completeness.essential_fields / 4 : 0}
+              maxScore={scoringConfig ? scoringConfig.profile_completeness.essential_fields / 4 : undefined}
+            />
+            <InfoItem 
+              label="Cidade" 
+              value={candidate.city || 'N/A'}
+              score={scoringConfig && candidate.city ? scoringConfig.profile_completeness.essential_fields / 4 : 0}
+              maxScore={scoringConfig ? scoringConfig.profile_completeness.essential_fields / 4 : undefined}
+            />
             <InfoItem label="Estado" value={candidate.state || 'N/A'} />
             <InfoItem label="CEP" value={candidate.postal_code || 'N/A'} />
             <InfoItem label="País" value={candidate.country || 'N/A'} />
@@ -372,8 +590,23 @@ function CandidateDetail() {
         </div>
 
         {candidate.professional_experiences && candidate.professional_experiences.length > 0 && (
-          <div className="card mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Experiências Profissionais</h2>
+          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Experiências Profissionais</h2>
+              </div>
+              {candidate.score_breakdown && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
+                  <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Experiência</div>
+                  <div className="text-lg font-bold text-blue-700">{(candidate.score_breakdown.experience_skills || 0).toFixed(1)}/19</div>
+                </div>
+              )}
+            </div>
             <div className="space-y-4">
               {candidate.professional_experiences.map((exp) => (
                 <div key={exp.id} className="border-l-4 border-indigo-500 pl-4 py-2">
@@ -398,25 +631,82 @@ function CandidateDetail() {
           </div>
         )}
 
-        <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Informações Extras</h2>
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Informações Extras</h2>
+            </div>
+            {candidate.score_breakdown && candidate.score_breakdown.availability_logistics > 0 && (
+              <div className="bg-gradient-to-r from-green-50 to-teal-50 px-4 py-2 rounded-xl border border-green-200">
+                <div className="text-xs font-semibold text-green-600 uppercase tracking-wide">Pontuação Disponibilidade</div>
+                <div className="text-lg font-bold text-green-700">{(candidate.score_breakdown.availability_logistics || 0).toFixed(1)}</div>
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem label="Atualmente Empregado" value={candidate.currently_employed === 'sim' ? 'Sim' : candidate.currently_employed === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Disponibilidade para Início" value={
-              candidate.availability_start === 'imediato' ? 'De imediato' :
-              candidate.availability_start === '15_dias' ? '15 dias' :
-              candidate.availability_start === '30_dias' ? '30 dias' : 'N/A'
-            } />
-            <InfoItem label="Disponibilidade para Viagens" value={candidate.travel_availability === 'sim' ? 'Sim' : candidate.travel_availability === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Pintura em Altura (Balancim/Cadeirinha/Andaimes)" value={candidate.height_painting === 'sim' ? 'Sim' : candidate.height_painting === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem 
+              label="Disponibilidade para Início" 
+              value={
+                candidate.availability_start === 'imediato' ? 'De imediato' :
+                candidate.availability_start === '15_dias' ? '15 dias' :
+                candidate.availability_start === '30_dias' ? '30 dias' : 'N/A'
+              }
+              score={scoringConfig ? (
+                candidate.availability_start === 'imediato' ? scoringConfig.availability_logistics.immediate_availability :
+                candidate.availability_start === '15_dias' ? scoringConfig.availability_logistics.immediate_availability * 0.75 :
+                candidate.availability_start === '30_dias' ? scoringConfig.availability_logistics.immediate_availability * 0.5 : 0
+              ) : undefined}
+              maxScore={scoringConfig?.availability_logistics.immediate_availability}
+            />
+            <InfoItem 
+              label="Disponibilidade para Viagens" 
+              value={candidate.travel_availability === 'sim' ? 'Sim' : candidate.travel_availability === 'nao' ? 'Não' : 'N/A'}
+              score={scoringConfig ? (
+                candidate.travel_availability === 'sim' ? scoringConfig.availability_logistics.travel_availability :
+                candidate.travel_availability === 'ocasionalmente' ? scoringConfig.availability_logistics.travel_availability * 0.5 : 0
+              ) : undefined}
+              maxScore={scoringConfig?.availability_logistics.travel_availability}
+            />
+            <InfoItem 
+              label="Pintura em Altura (Balancim/Cadeirinha/Andaimes)" 
+              value={candidate.height_painting === 'sim' ? 'Sim' : candidate.height_painting === 'nao' ? 'Não' : 'N/A'}
+              score={scoringConfig && candidate.height_painting === 'sim' ? scoringConfig.availability_logistics.height_painting : 0}
+              maxScore={scoringConfig?.availability_logistics.height_painting}
+            />
           </div>
         </div>
 
-        <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Habilidades e Qualificações</h2>
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Habilidades e Qualificações</h2>
+            </div>
+            {candidate.score_breakdown && candidate.score_breakdown.experience_skills > 0 && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
+                <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Habilidades</div>
+                <div className="text-lg font-bold text-blue-700">{(candidate.score_breakdown.experience_skills || 0).toFixed(1)}/19</div>
+              </div>
+            )}
+          </div>
           <div className="space-y-4">
             {candidate.skills && candidate.skills !== '' ? (
-              <InfoItem label="Habilidades" value={candidate.skills} />
+              <InfoItem 
+                label="Habilidades" 
+                value={candidate.skills}
+                score={scoringConfig && candidate.skills ? scoringConfig.experience_skills.skills : 0}
+                maxScore={scoringConfig?.experience_skills.skills}
+              />
             ) : (
               <p className="text-gray-500">Nenhuma habilidade informada</p>
             )}
