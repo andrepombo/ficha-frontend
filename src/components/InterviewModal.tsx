@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Interview, User, InterviewType, InterviewStatus } from '../types';
-import { interviewAPI, userAPI } from '../services/api';
+import { interviewAPI, userAPI, candidateAPI } from '../services/api';
 
 interface InterviewModalProps {
   isOpen: boolean;
@@ -33,6 +33,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
     description: '',
     interviewer: null as number | null,
     status: 'scheduled' as InterviewStatus,
+    rating: null as number | null,
   });
 
   useEffect(() => {
@@ -49,6 +50,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
           description: interview.description || '',
           interviewer: interview.interviewer,
           status: interview.status,
+          rating: interview.rating || null,
         });
       } else {
         // Reset form for new interview
@@ -62,6 +64,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
           description: '',
           interviewer: null,
           status: 'scheduled',
+          rating: null,
         });
       }
     }
@@ -86,10 +89,20 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
       const data = {
         ...formData,
         candidate: candidateId,
+        rating: formData.rating || undefined,
       };
 
       if (interview) {
         await interviewAPI.update(interview.id, data);
+        
+        // If rating was provided and status is completed, recalculate the candidate's score
+        if (formData.rating && formData.status === 'completed') {
+          try {
+            await candidateAPI.calculateScore(candidateId);
+          } catch (scoreErr) {
+            console.error('Error recalculating score:', scoreErr);
+          }
+        }
       } else {
         await interviewAPI.create(data);
       }
@@ -281,6 +294,56 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
                 <option value="rescheduled">Reagendada</option>
                 <option value="no_show">Candidato não compareceu</option>
               </select>
+            </div>
+          )}
+
+          {interview && (
+            <div>
+              <label className="block text-sm font-semibold text-indigo-900 mb-2">
+                Avaliação do Candidato
+              </label>
+              <p className="text-xs text-gray-600 mb-3">
+                Selecione de 1 a 5 estrelas para avaliar o desempenho na entrevista
+              </p>
+              <div className="flex items-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
+                    className="focus:outline-none transition-transform hover:scale-110"
+                  >
+                    <svg
+                      className={`w-10 h-10 ${
+                        formData.rating !== null && formData.rating !== undefined && star <= formData.rating
+                          ? 'text-yellow-400 fill-yellow-400'
+                          : 'text-gray-300 fill-gray-300'
+                      }`}
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </button>
+                ))}
+                {formData.rating && (
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, rating: null }))}
+                    className="ml-2 text-sm text-gray-500 hover:text-gray-700 underline"
+                  >
+                    Limpar
+                  </button>
+                )}
+              </div>
+              {formData.rating && (
+                <p className="mt-2 text-sm text-amber-700">
+                  {formData.rating === 5 && '⭐⭐⭐⭐⭐ Excelente'}
+                  {formData.rating === 4 && '⭐⭐⭐⭐ Muito Bom'}
+                  {formData.rating === 3 && '⭐⭐⭐ Bom'}
+                  {formData.rating === 2 && '⭐⭐ Regular'}
+                  {formData.rating === 1 && '⭐ Insuficiente'}
+                </p>
+              )}
             </div>
           )}
 

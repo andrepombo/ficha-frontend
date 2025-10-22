@@ -225,8 +225,7 @@ const Scoring: React.FC = () => {
       height_painting: { label: 'Pintura em altura', description: 'Sim: máximo | Não: 0%' },
     },
     interview_performance: {
-      average_rating: { label: 'Avaliação média', description: 'Baseado em avaliações de 1-5 estrelas' },
-      feedback_quality: { label: 'Qualidade do feedback', description: 'Baseado na porcentagem de entrevistas com feedback' },
+      average_rating: { label: 'Avaliação média', description: 'Baseado em avaliações de 1-5 estrelas (representa o desempenho completo da entrevista)' },
     },
   };
 
@@ -271,11 +270,10 @@ const Scoring: React.FC = () => {
       key: 'interview_performance',
       label: 'Desempenho em Entrevistas',
       icon: MessageSquare,
-      maxScore: 15,
+      maxScore: 30,
       color: 'amber',
       criteria: [
-        { label: 'Avaliação média', points: '12 pontos', details: 'Baseado em avaliações de 1-5 estrelas' },
-        { label: 'Qualidade do feedback', points: '3 pontos', details: 'Baseado na porcentagem de entrevistas com feedback' },
+        { label: 'Avaliação média', points: '30 pontos', details: 'Baseado em avaliações de 1-5 estrelas (representa o desempenho completo da entrevista)' },
       ],
     },
   ];

@@ -194,6 +194,7 @@ function CandidateDetail() {
   const handleInterviewSuccess = () => {
     if (id) {
       fetchInterviews(parseInt(id));
+      fetchCandidate(parseInt(id)); // Refresh candidate data to get updated score
     }
   };
 
