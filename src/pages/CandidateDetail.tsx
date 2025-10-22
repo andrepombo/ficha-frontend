@@ -293,8 +293,8 @@ function CandidateDetail() {
               </div>
             </div>
 
-            {/* CPF and Access Code */}
-            <div className="flex items-center gap-3 mb-6">
+            {/* CPF, Access Code, and Status Change */}
+            <div className="flex flex-wrap items-center gap-3 mb-6">
               <div className="flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2.5 rounded-xl font-medium border border-purple-200">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -309,25 +309,25 @@ function CandidateDetail() {
                   <span>Código: {candidate.access_code}</span>
                 </div>
               )}
-            </div>
-
-            {/* Status Change Section */}
-            <div className="pt-6 border-t border-gray-200">
-              <label className="block text-sm font-semibold text-indigo-600 mb-3 uppercase tracking-wide">
-                Alterar Status
-              </label>
-              <select
-                value={candidate.status}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className="select-modern w-full md:w-96 px-5 py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-sm hover:border-purple-300 transition-all font-medium"
-              >
-                <option value="pending">🟡 Pendente</option>
-                <option value="reviewing">🔵 Em Análise</option>
-                <option value="shortlisted">🟢 Selecionado para Entrevista</option>
-                <option value="interviewed">🟣 Entrevistado</option>
-                <option value="accepted">✅ Aceito</option>
-                <option value="rejected">❌ Rejeitado</option>
-              </select>
+              
+              {/* Inline Status Change - pushed to the right */}
+              <div className="flex items-center gap-2 ml-auto">
+                <label className="text-sm font-semibold text-indigo-600 whitespace-nowrap">
+                  Alterar Status:
+                </label>
+                <select
+                  value={candidate.status}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className="select-modern pl-4 pr-10 py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-sm hover:border-purple-300 transition-all font-medium appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.5em] bg-[right_0.5rem_center] bg-no-repeat"
+                >
+                  <option value="pending">🟡 Pendente</option>
+                  <option value="reviewing">🔵 Em Análise</option>
+                  <option value="shortlisted">🟢 Selecionado para Entrevista</option>
+                  <option value="interviewed">🟣 Entrevistado</option>
+                  <option value="accepted">✅ Aceito</option>
+                  <option value="rejected">❌ Rejeitado</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
