@@ -477,15 +477,6 @@ function CandidateDetail() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Informações Pessoais</h2>
             </div>
-            {candidate.score_breakdown && (candidate.score_breakdown.availability_logistics > 0 || candidate.score_breakdown.education > 0) && (
-              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-2 rounded-xl border border-purple-200">
-                <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Contribui para Pontuação</div>
-                <div className="text-lg font-bold text-purple-700">
-                  {((candidate.score_breakdown.education || 0) + (candidate.score_breakdown.availability_logistics || 0)).toFixed(1)}/56
-                </div>
-                <div className="text-xs text-purple-600">Educação + Disponibilidade</div>
-              </div>
-            )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <InfoItem label="Data de Nascimento" value={candidate.date_of_birth ? new Date(candidate.date_of_birth).toLocaleDateString('pt-BR') : 'N/A'} />
