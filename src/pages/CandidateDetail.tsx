@@ -255,15 +255,28 @@ function CandidateDetail() {
                 <span className={`status-badge ${statusColors[candidate.status]} inline-block text-sm px-5 py-2 rounded-xl font-semibold shadow-md`}>
                   {getTranslatedStatus(candidate.status)}
                 </span>
-                {candidate.score !== undefined && candidate.score !== null && (
-                  <div className="bg-gradient-to-br from-amber-400 to-orange-500 px-6 py-3 rounded-xl shadow-lg">
-                    <div className="text-center">
-                      <div className="text-xs font-bold text-white uppercase tracking-wide mb-1">Pontuação Total</div>
-                      <div className="text-3xl font-black text-white">{Number(candidate.score).toFixed(1)}</div>
-                      <div className="text-xs font-semibold text-white/90">de 100 pontos</div>
+                {candidate.score !== undefined && candidate.score !== null && (() => {
+                  const score = Number(candidate.score);
+                  let bgGradient = 'from-red-500 to-red-600'; // Default for low scores
+                  
+                  if (score >= 80) {
+                    bgGradient = 'from-green-500 to-green-600'; // Excellent
+                  } else if (score >= 60) {
+                    bgGradient = 'from-yellow-400 to-yellow-500'; // Good
+                  } else if (score >= 40) {
+                    bgGradient = 'from-orange-400 to-orange-500'; // Fair
+                  }
+                  
+                  return (
+                    <div className={`bg-gradient-to-br ${bgGradient} px-6 py-3 rounded-xl shadow-lg`}>
+                      <div className="text-center">
+                        <div className="text-xs font-bold text-white uppercase tracking-wide mb-1">Pontuação Total</div>
+                        <div className="text-3xl font-black text-white">{score.toFixed(1)}</div>
+                        <div className="text-xs font-semibold text-white/90">de 100 pontos</div>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             </div>
 
