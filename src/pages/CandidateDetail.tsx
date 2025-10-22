@@ -554,6 +554,46 @@ function CandidateDetail() {
               })() : undefined}
               maxScore={scoringConfig?.education.courses}
             />
+            <InfoItem 
+              label="Habilidades" 
+              value={(() => {
+                const skills = candidate.skills || '';
+                if (!skills.trim()) return 'Nenhuma';
+                const skillList = skills.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+                return `${skillList.length} habilidade${skillList.length !== 1 ? 's' : ''}`;
+              })()}
+              score={scoringConfig ? (() => {
+                const skills = candidate.skills || '';
+                if (!skills.trim()) return 0;
+                const skillCount = skills.split(',').map((s: string) => s.trim()).filter((s: string) => s).length;
+                const skillsMax = scoringConfig.experience_skills.skills;
+                if (skillCount >= 5) return skillsMax;
+                if (skillCount >= 3) return skillsMax * 0.75;
+                if (skillCount >= 1) return skillsMax * 0.5;
+                return 0;
+              })() : undefined}
+              maxScore={scoringConfig?.experience_skills.skills}
+            />
+            <InfoItem 
+              label="Certificações" 
+              value={(() => {
+                const certs = candidate.certifications || '';
+                if (!certs.trim()) return 'Nenhuma';
+                const certList = certs.split(',').map((c: string) => c.trim()).filter((c: string) => c);
+                return `${certList.length} certificação${certList.length !== 1 ? 'ões' : ''}`;
+              })()}
+              score={scoringConfig ? (() => {
+                const certs = candidate.certifications || '';
+                if (!certs.trim()) return 0;
+                const certCount = certs.split(',').map((c: string) => c.trim()).filter((c: string) => c).length;
+                const certMax = scoringConfig.experience_skills.certifications;
+                if (certCount >= 3) return certMax;
+                if (certCount >= 2) return certMax * 0.71;
+                if (certCount >= 1) return certMax * 0.43;
+                return 0;
+              })() : undefined}
+              maxScore={scoringConfig?.experience_skills.certifications}
+            />
           </div>
         </div>
 
@@ -623,7 +663,60 @@ function CandidateDetail() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900">Experiências Profissionais</h2>
               </div>
+              {candidate.score_breakdown && candidate.score_breakdown.experience_skills > 0 && scoringConfig && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
+                  <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Experiência</div>
+                  <div className="text-lg font-bold text-blue-700">
+                    {(candidate.score_breakdown.experience_skills || 0).toFixed(1)}/
+                    {scoringConfig.experience_skills.years_of_experience + scoringConfig.experience_skills.skills + scoringConfig.experience_skills.certifications}
+                  </div>
+                </div>
+              )}
             </div>
+            
+            {/* Experience Summary with Score Breakdown */}
+            {scoringConfig && (
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
+                <InfoItem 
+                  label="Anos de Experiência" 
+                  value={(() => {
+                    const totalDays = candidate.professional_experiences.reduce((total, exp) => {
+                      if (exp.data_admissao) {
+                        const endDate = exp.data_desligamento ? new Date(exp.data_desligamento) : new Date();
+                        const startDate = new Date(exp.data_admissao);
+                        if (endDate >= startDate) {
+                          return total + (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                        }
+                      }
+                      return total;
+                    }, 0);
+                    const years = Math.round((totalDays / 365.25) * 10) / 10;
+                    return `${years} ano${years !== 1 ? 's' : ''}`;
+                  })()}
+                  score={scoringConfig ? (() => {
+                    const totalDays = candidate.professional_experiences.reduce((total, exp) => {
+                      if (exp.data_admissao) {
+                        const endDate = exp.data_desligamento ? new Date(exp.data_desligamento) : new Date();
+                        const startDate = new Date(exp.data_admissao);
+                        if (endDate >= startDate) {
+                          return total + (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                        }
+                      }
+                      return total;
+                    }, 0);
+                    const years = totalDays / 365.25;
+                    const yearsMax = scoringConfig.experience_skills.years_of_experience;
+                    if (years >= 6) return yearsMax;
+                    if (years >= 4) return yearsMax * 0.87;
+                    if (years >= 2) return yearsMax * 0.67;
+                    if (years >= 1) return yearsMax * 0.33;
+                    return yearsMax * 0.13;
+                  })() : undefined}
+                  maxScore={scoringConfig?.experience_skills.years_of_experience}
+                />
+              </div>
+            )}
+
             <div className="space-y-4">
               {candidate.professional_experiences.map((exp) => (
                 <div key={exp.id} className="border-l-4 border-indigo-500 pl-4 py-2">
@@ -719,56 +812,6 @@ function CandidateDetail() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem label="Atualmente Empregado" value={candidate.currently_employed === 'sim' ? 'Sim' : candidate.currently_employed === 'nao' ? 'Não' : 'N/A'} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Habilidades e Qualificações</h2>
-            </div>
-            {scoringConfig && (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
-                <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Habilidades</div>
-                <div className="text-lg font-bold text-blue-700">
-                  {(() => {
-                    let score = 0;
-                    // Skills score
-                    if (candidate.skills && candidate.skills.trim()) {
-                      const skillCount = candidate.skills.split(',').filter(s => s.trim()).length;
-                      if (skillCount >= 5) score += scoringConfig.experience_skills.skills;
-                      else if (skillCount >= 3) score += scoringConfig.experience_skills.skills * 0.75;
-                      else if (skillCount >= 1) score += scoringConfig.experience_skills.skills * 0.5;
-                    }
-                    // Certifications score
-                    if (candidate.certifications && candidate.certifications.trim()) {
-                      const certCount = candidate.certifications.split(',').filter(c => c.trim()).length;
-                      if (certCount >= 3) score += scoringConfig.experience_skills.certifications;
-                      else if (certCount >= 2) score += scoringConfig.experience_skills.certifications * 0.71;
-                      else if (certCount >= 1) score += scoringConfig.experience_skills.certifications * 0.43;
-                    }
-                    return score.toFixed(1);
-                  })()}/{scoringConfig.experience_skills.skills + scoringConfig.experience_skills.certifications}
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="space-y-4">
-            {candidate.skills && candidate.skills !== '' ? (
-              <InfoItem 
-                label="Habilidades" 
-                value={candidate.skills}
-                score={scoringConfig && candidate.skills ? scoringConfig.experience_skills.skills : 0}
-                maxScore={scoringConfig?.experience_skills.skills}
-              />
-            ) : (
-              <p className="text-gray-500">Nenhuma habilidade informada</p>
-            )}
           </div>
         </div>
 
