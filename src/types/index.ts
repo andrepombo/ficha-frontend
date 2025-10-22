@@ -50,7 +50,6 @@ export interface ScoreBreakdown {
   experience_skills: number;
   education: number;
   availability_logistics: number;
-  profile_completeness: number;
   interview_performance: number;
 }
 

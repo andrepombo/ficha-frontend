@@ -17,12 +17,12 @@ interface ScoreDistribution {
 interface ScoringWeights {
   experience_skills: {
     years_of_experience: number;
-    skills: number;
-    certifications: number;
   };
   education: {
     education_level: number;
     courses: number;
+    skills: number;
+    certifications: number;
   };
   availability_logistics: {
     immediate_availability: number;
@@ -43,13 +43,13 @@ const Scoring: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [weights, setWeights] = useState<ScoringWeights>({
     experience_skills: {
-      years_of_experience: 15,
-      skills: 8,
-      certifications: 7,
+      years_of_experience: 20,
     },
     education: {
       education_level: 18,
       courses: 2,
+      skills: 2,
+      certifications: 7,
     },
     availability_logistics: {
       immediate_availability: 8,
@@ -58,7 +58,7 @@ const Scoring: React.FC = () => {
       height_painting: 0,
     },
     interview_performance: {
-      average_rating: 12,
+      average_rating: 27,
       feedback_quality: 3,
     },
   });
@@ -129,29 +129,11 @@ const Scoring: React.FC = () => {
   const handleSaveCategoryWeights = (categoryKey: keyof ScoringWeights, updatedCriteria: Record<string, number>) => {
     console.log('Saving category weights:', categoryKey, updatedCriteria);
     
-    // Special handling: "skills" and "certifications" are displayed in education but stored in experience_skills
-    let newWeights = { ...editedWeights };
-    
-    if (categoryKey === 'education') {
-      // Extract skills and certifications from education criteria
-      const { skills, certifications, ...educationCriteria } = updatedCriteria;
-      
-      // Update education without skills and certifications
-      newWeights.education = educationCriteria as any;
-      
-      // Update skills and certifications in experience_skills
-      newWeights.experience_skills = {
-        ...newWeights.experience_skills,
-        ...(skills !== undefined && { skills }),
-        ...(certifications !== undefined && { certifications }),
-      };
-    } else if (categoryKey === 'experience_skills') {
-      // When editing experience_skills, update normally
-      newWeights.experience_skills = updatedCriteria as any;
-    } else {
-      // For other categories, update normally
-      newWeights[categoryKey] = updatedCriteria as any;
-    }
+    // Update the category weights directly
+    const newWeights = {
+      ...editedWeights,
+      [categoryKey]: updatedCriteria as any
+    };
     
     console.log('New weights after update:', newWeights);
     setEditedWeights(newWeights);
@@ -253,22 +235,22 @@ const Scoring: React.FC = () => {
       key: 'experience_skills',
       label: 'Experiência & Habilidades',
       icon: TrendingUp,
-      maxScore: 30,
+      maxScore: 20,
       color: 'indigo',
       criteria: [
-        { label: 'Anos de experiência', points: '15 pontos', details: '6+ anos: 15pts | 4-5 anos: 13pts | 2-3 anos: 10pts | 1 ano: 5pts' },
+        { label: 'Anos de experiência', points: '20 pontos', details: '6+ anos: 20pts | 4-5 anos: 17pts | 2-3 anos: 13pts | 1 ano: 7pts' },
       ],
     },
     {
       key: 'education',
       label: 'Educação & Qualificações',
       icon: GraduationCap,
-      maxScore: 20,
+      maxScore: 29,
       color: 'purple',
       criteria: [
         { label: 'Nível educacional', points: '18 pontos', details: 'Pós-graduação: 18pts | Superior completo: 17pts | Técnico: 14pts' },
         { label: 'Cursos adicionais', points: '2 pontos bônus', details: '0.5 pontos por curso listado' },
-        { label: 'Habilidades listadas', points: '8 pontos', details: '5+ habilidades: 8pts | 3-4: 6pts | 1-2: 4pts' },
+        { label: 'Habilidades listadas', points: '2 pontos', details: '5+ habilidades: 2pts | 3-4: 1.5pts | 1-2: 1pt' },
         { label: 'Certificações', points: '7 pontos', details: '3+ certificações: 7pts | 2: 5pts | 1: 3pts' },
       ],
     },
@@ -487,18 +469,13 @@ const Scoring: React.FC = () => {
                     </div>
                     <div className="space-y-2">
                       {Object.entries(criterionLabels[category.key] || {}).map(([criterionKey, { label, description }]) => {
-                        // Special handling: "skills" and "certifications" are displayed in education but stored in experience_skills
+                        // Get points from the appropriate category
                         let points = 0;
-                        if (category.key === 'education' && (criterionKey === 'skills' || criterionKey === 'certifications')) {
-                          // Get skills/certifications points from experience_skills
-                          const weightsToUse = editMode ? editedWeights : weights;
-                          points = weightsToUse.experience_skills[criterionKey as 'skills' | 'certifications'];
-                        } else {
-                          const categoryWeights = (editMode ? editedWeights : weights)[category.key as keyof ScoringWeights];
-                          points = typeof categoryWeights === 'object' && categoryWeights !== null 
-                            ? (categoryWeights as any)[criterionKey] 
-                            : 0;
-                        }
+                        const categoryWeights = (editMode ? editedWeights : weights)[category.key as keyof ScoringWeights];
+                        points = typeof categoryWeights === 'object' && categoryWeights !== null 
+                          ? (categoryWeights as any)[criterionKey] || 0
+                          : 0;
+                        
                         return (
                           <div key={criterionKey} className="flex justify-between items-start text-sm">
                             <div className="flex-1">
@@ -565,15 +542,7 @@ const Scoring: React.FC = () => {
             React.createElement(categories.find(c => c.key === selectedCategory)!.icon, { size: 28 }) : 
             null
           }
-          criteria={
-            selectedCategory === 'education' 
-              ? { 
-                  ...editedWeights.education, 
-                  skills: editedWeights.experience_skills.skills,
-                  certifications: editedWeights.experience_skills.certifications 
-                } as Record<string, number>
-              : editedWeights[selectedCategory] as Record<string, number>
-          }
+          criteria={editedWeights[selectedCategory] as Record<string, number>}
           criteriaLabels={criterionLabels[selectedCategory]}
         />
       )}

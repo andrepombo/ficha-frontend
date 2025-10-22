@@ -342,123 +342,102 @@ function CandidateDetail() {
 
         {/* Score Breakdown Card */}
         {candidate.score_breakdown && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white rounded-xl shadow p-6 mb-6 border border-purple-100">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white shadow">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Detalhamento da Pontuação</h2>
+              <h2 className="text-xl font-bold text-gray-900">Detalhamento da Pontuação</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {/* Experience & Skills */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border-2 border-blue-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <h3 className="font-bold text-blue-900">Experiência & Habilidades</h3>
+                  <h3 className="font-semibold text-blue-900 text-sm">Experiência & Habilidades</h3>
                 </div>
                 <div className="flex items-end justify-between">
-                  <div className="text-3xl font-black text-blue-700">{(candidate.score_breakdown.experience_skills || 0).toFixed(1)}</div>
-                  <div className="text-sm font-semibold text-blue-600">/ 19 pts</div>
+                  <div className="text-2xl font-extrabold text-blue-700">{(candidate.score_breakdown.experience_skills || 0).toFixed(1)}</div>
+                  <div className="text-xs font-semibold text-blue-600">/ {scoringConfig ? scoringConfig.experience_skills.years_of_experience : 20} pts</div>
                 </div>
-                <div className="mt-2 bg-blue-200 rounded-full h-2">
+                <div className="mt-2 bg-blue-200 rounded-full h-1.5">
                   <div 
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all"
-                    style={{ width: `${((candidate.score_breakdown.experience_skills || 0) / 30) * 100}%` }}
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full transition-all"
+                    style={{ width: `${((candidate.score_breakdown.experience_skills || 0) / 20) * 100}%` }}
                   />
                 </div>
               </div>
 
               {/* Education */}
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border-2 border-purple-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-600 rounded-md flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                   </div>
-                  <h3 className="font-bold text-purple-900">Educação</h3>
+                  <h3 className="font-semibold text-purple-900 text-sm">Educação</h3>
                 </div>
                 <div className="flex items-end justify-between">
-                  <div className="text-3xl font-black text-purple-700">{(candidate.score_breakdown.education || 0).toFixed(1)}</div>
-                  <div className="text-sm font-semibold text-purple-600">/ 30 pts</div>
+                  <div className="text-2xl font-extrabold text-purple-700">{(candidate.score_breakdown.education || 0).toFixed(1)}</div>
+                  <div className="text-xs font-semibold text-purple-600">/ {scoringConfig ? (scoringConfig.education.education_level + scoringConfig.education.courses + (scoringConfig.education.skills || 0) + (scoringConfig.education.certifications || 0)) : 29} pts</div>
                 </div>
-                <div className="mt-2 bg-purple-200 rounded-full h-2">
+                <div className="mt-2 bg-purple-200 rounded-full h-1.5">
                   <div 
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 h-2 rounded-full transition-all"
-                    style={{ width: `${((candidate.score_breakdown.education || 0) / 20) * 100}%` }}
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 h-1.5 rounded-full transition-all"
+                    style={{ width: `${((candidate.score_breakdown.education || 0) / 29) * 100}%` }}
                   />
                 </div>
               </div>
 
               {/* Availability & Logistics */}
-              <div className="bg-gradient-to-br from-green-50 to-teal-50 p-5 rounded-xl border-2 border-green-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
+              <div className="bg-gradient-to-br from-green-50 to-teal-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 bg-gradient-to-br from-green-500 to-teal-600 rounded-md flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <h3 className="font-bold text-green-900">Disponibilidade</h3>
+                  <h3 className="font-semibold text-green-900 text-sm">Disponibilidade</h3>
                 </div>
                 <div className="flex items-end justify-between">
-                  <div className="text-3xl font-black text-green-700">{(candidate.score_breakdown.availability_logistics || 0).toFixed(1)}</div>
-                  <div className="text-sm font-semibold text-green-600">/ 26 pts</div>
+                  <div className="text-2xl font-extrabold text-green-700">{(candidate.score_breakdown.availability_logistics || 0).toFixed(1)}</div>
+                  <div className="text-xs font-semibold text-green-600">/ {scoringConfig ? (scoringConfig.availability_logistics.immediate_availability + scoringConfig.availability_logistics.own_transportation + scoringConfig.availability_logistics.travel_availability + (scoringConfig.availability_logistics.height_painting || 0)) : 23} pts</div>
                 </div>
-                <div className="mt-2 bg-green-200 rounded-full h-2">
+                <div className="mt-2 bg-green-200 rounded-full h-1.5">
                   <div 
-                    className="bg-gradient-to-r from-green-500 to-teal-600 h-2 rounded-full transition-all"
-                    style={{ width: `${((candidate.score_breakdown.availability_logistics || 0) / 20) * 100}%` }}
+                    className="bg-gradient-to-r from-green-500 to-teal-600 h-1.5 rounded-full transition-all"
+                    style={{ width: `${((candidate.score_breakdown.availability_logistics || 0) / 23) * 100}%` }}
                   />
                 </div>
               </div>
 
-              {/* Profile Completeness */}
-              <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-5 rounded-xl border-2 border-cyan-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-bold text-cyan-900">Completude do Perfil</h3>
-                </div>
-                <div className="flex items-end justify-between">
-                  <div className="text-3xl font-black text-cyan-700">{(candidate.score_breakdown.profile_completeness || 0).toFixed(1)}</div>
-                  <div className="text-sm font-semibold text-cyan-600">/ 15 pts</div>
-                </div>
-                <div className="mt-2 bg-cyan-200 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-cyan-500 to-blue-600 h-2 rounded-full transition-all"
-                    style={{ width: `${((candidate.score_breakdown.profile_completeness || 0) / 15) * 100}%` }}
-                  />
-                </div>
-              </div>
 
               {/* Interview Performance */}
-              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 p-5 rounded-xl border-2 border-amber-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg flex items-center justify-center">
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 p-4 rounded-lg border border-amber-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-md flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                     </svg>
                   </div>
-                  <h3 className="font-bold text-amber-900">Desempenho em Entrevistas</h3>
+                  <h3 className="font-semibold text-amber-900 text-sm">Desempenho em Entrevistas</h3>
                 </div>
                 <div className="flex items-end justify-between">
-                  <div className="text-3xl font-black text-amber-700">{(candidate.score_breakdown.interview_performance || 0).toFixed(1)}</div>
-                  <div className="text-sm font-semibold text-amber-600">/ 15 pts</div>
+                  <div className="text-2xl font-extrabold text-amber-700">{(candidate.score_breakdown.interview_performance || 0).toFixed(1)}</div>
+                  <div className="text-xs font-semibold text-amber-600">/ {scoringConfig ? (scoringConfig.interview_performance.average_rating + scoringConfig.interview_performance.feedback_quality) : 30} pts</div>
                 </div>
-                <div className="mt-2 bg-amber-200 rounded-full h-2">
+                <div className="mt-2 bg-amber-200 rounded-full h-1.5">
                   <div 
-                    className="bg-gradient-to-r from-amber-500 to-yellow-600 h-2 rounded-full transition-all"
-                    style={{ width: `${((candidate.score_breakdown.interview_performance || 0) / 15) * 100}%` }}
+                    className="bg-gradient-to-r from-amber-500 to-yellow-600 h-1.5 rounded-full transition-all"
+                    style={{ width: `${((candidate.score_breakdown.interview_performance || 0) / 30) * 100}%` }}
                   />
                 </div>
               </div>
@@ -510,7 +489,7 @@ function CandidateDetail() {
                   <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Experiência</div>
                   <div className="text-lg font-bold text-blue-700">
                     {(candidate.score_breakdown.experience_skills || 0).toFixed(1)}/
-                    {scoringConfig.experience_skills.years_of_experience + scoringConfig.experience_skills.skills + scoringConfig.experience_skills.certifications}
+                    {scoringConfig.experience_skills.years_of_experience}
                   </div>
                 </div>
               )}

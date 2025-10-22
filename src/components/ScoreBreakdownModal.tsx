@@ -22,16 +22,16 @@ const ScoreBreakdownModal: React.FC<ScoreBreakdownModalProps> = ({ candidate, is
       key: 'experience_skills',
       label: 'Experiência & Habilidades',
       icon: TrendingUp,
-      maxScore: 30,
-      description: 'Anos de experiência, habilidades técnicas e certificações',
+      maxScore: 20,
+      description: 'Anos de experiência profissional',
       color: 'indigo',
     },
     {
       key: 'education',
       label: 'Educação & Qualificações',
       icon: GraduationCap,
-      maxScore: 20,
-      description: 'Nível educacional e cursos complementares',
+      maxScore: 29,
+      description: 'Nível educacional, cursos, habilidades técnicas e certificações',
       color: 'purple',
     },
     {
@@ -169,9 +169,6 @@ const ScoreBreakdownModal: React.FC<ScoreBreakdownModalProps> = ({ candidate, is
               )}
               {breakdown && breakdown.interview_performance === 0 && (
                 <li>• Ainda não foi entrevistado. Pontuação pode aumentar após entrevista.</li>
-              )}
-              {breakdown && breakdown.profile_completeness < 10 && (
-                <li>• Perfil incompleto. Solicite mais informações ao candidato.</li>
               )}
             </ul>
           </div>
