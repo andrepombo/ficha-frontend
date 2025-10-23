@@ -23,33 +23,33 @@ const kanbanColumns: KanbanColumn[] = [
     id: 'pending',
     title: 'Pendente',
     status: ['pending'],
-    color: 'text-gray-700',
-    bgColor: 'bg-gray-50',
-    borderColor: 'border-gray-300'
+    color: 'text-orange-700',
+    bgColor: 'bg-orange-50',
+    borderColor: 'border-orange-300'
   },
   {
     id: 'reviewing',
     title: 'Em Análise',
     status: ['reviewing'],
-    color: 'text-blue-700',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-300'
-  },
-  {
-    id: 'shortlisted',
-    title: 'Pré-Selecionado',
-    status: ['shortlisted'],
     color: 'text-purple-700',
     bgColor: 'bg-purple-50',
     borderColor: 'border-purple-300'
   },
   {
+    id: 'shortlisted',
+    title: 'Pré-Selecionado',
+    status: ['shortlisted'],
+    color: 'text-cyan-700',
+    bgColor: 'bg-cyan-50',
+    borderColor: 'border-cyan-300'
+  },
+  {
     id: 'interviewed',
     title: 'Entrevistado',
     status: ['interviewed'],
-    color: 'text-amber-700',
-    bgColor: 'bg-amber-50',
-    borderColor: 'border-amber-300'
+    color: 'text-indigo-700',
+    bgColor: 'bg-indigo-50',
+    borderColor: 'border-indigo-300'
   },
   {
     id: 'accepted',
@@ -165,21 +165,17 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ candidates, onStatusChange })
                         </h4>
                       </div>
 
-                      {/* Contact Info */}
-                      <div className="mb-3">
+                      {/* Contact Info & Score */}
+                      <div className="flex items-center justify-between mb-3">
                         {candidate.phone_number && (
                           <p className="text-xs text-gray-600">
                             📱 {candidate.phone_number}
                           </p>
                         )}
-                      </div>
-
-                      {/* Score Badge */}
-                      {candidate.score !== null && candidate.score !== undefined && (
-                        <div className="mb-3">
+                        {candidate.score !== null && candidate.score !== undefined && (
                           <ScoreBadge candidate={candidate} size="sm" showGrade={true} />
-                        </div>
-                      )}
+                        )}
+                      </div>
 
                       {/* Applied Date */}
                       <p className="text-xs text-gray-500 mb-3">
