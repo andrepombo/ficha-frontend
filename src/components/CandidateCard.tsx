@@ -11,12 +11,12 @@ interface CandidateCardProps {
 }
 
 const statusColors: Record<CandidateStatus, string> = {
-  pending: 'bg-gradient-to-r from-orange-500 to-orange-600 text-white',
-  reviewing: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white',
-  shortlisted: 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white',
-  interviewed: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white',
-  accepted: 'bg-gradient-to-r from-green-500 to-green-600 text-white',
-  rejected: 'bg-gradient-to-r from-red-500 to-red-600 text-white',
+  pending: 'bg-orange-100 text-orange-800',
+  reviewing: 'bg-purple-100 text-purple-800',
+  shortlisted: 'bg-cyan-100 text-cyan-800',
+  interviewed: 'bg-indigo-100 text-indigo-800',
+  accepted: 'bg-green-100 text-green-800',
+  rejected: 'bg-red-100 text-red-800',
 };
 
 function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
@@ -42,6 +42,7 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
               <ScoreBadge 
                 candidate={candidate} 
                 size="sm" 
+                variant="bright"
                 onClick={() => setShowScoreModal(true)}
               />
             )}

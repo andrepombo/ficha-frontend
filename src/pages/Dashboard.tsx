@@ -28,6 +28,10 @@ function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    key: 'name' | 'phone' | 'cpf' | 'status' | 'score' | 'date';
+    direction: 'asc' | 'desc';
+  } | null>(null);
   const [stats, setStats] = useState<CandidateStats>({
     total: 0,
     pending: 0,
@@ -241,6 +245,84 @@ function Dashboard() {
     return statusMap[status] || 'bg-gray-100 text-gray-800';
   };
 
+  // Handle sorting
+  const handleSort = (key: 'name' | 'phone' | 'cpf' | 'status' | 'score' | 'date') => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Get sorted candidates
+  const getSortedCandidates = () => {
+    if (!sortConfig) return filteredCandidates;
+
+    const sorted = [...filteredCandidates].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortConfig.key) {
+        case 'name':
+          aValue = a.full_name?.toLowerCase() || '';
+          bValue = b.full_name?.toLowerCase() || '';
+          break;
+        case 'phone':
+          aValue = a.phone_number || '';
+          bValue = b.phone_number || '';
+          break;
+        case 'cpf':
+          aValue = a.cpf || '';
+          bValue = b.cpf || '';
+          break;
+        case 'status':
+          aValue = a.status || '';
+          bValue = b.status || '';
+          break;
+        case 'score':
+          aValue = typeof a.score === 'number' ? a.score : parseFloat(a.score as any) || 0;
+          bValue = typeof b.score === 'number' ? b.score : parseFloat(b.score as any) || 0;
+          break;
+        case 'date':
+          aValue = new Date(a.applied_date).getTime();
+          bValue = new Date(b.applied_date).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+
+    return sorted;
+  };
+
+  // Render sort icon
+  const renderSortIcon = (columnKey: 'name' | 'phone' | 'cpf' | 'status' | 'score' | 'date') => {
+    if (!sortConfig || sortConfig.key !== columnKey) {
+      return (
+        <svg className="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      );
+    }
+    return sortConfig.direction === 'asc' ? (
+      <svg className="w-4 h-4 ml-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+      </svg>
+    ) : (
+      <svg className="w-4 h-4 ml-1 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      </svg>
+    );
+  };
+
 
 
   if (loading) {
@@ -435,17 +517,65 @@ function Dashboard() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-purple-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nome</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Telefone</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">CPF</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Pontuação</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aplicado em</th>
+                    <th 
+                      className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-purple-100 transition-colors"
+                      onClick={() => handleSort('name')}
+                    >
+                      <div className="flex items-center">
+                        Nome
+                        {renderSortIcon('name')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-purple-100 transition-colors"
+                      onClick={() => handleSort('phone')}
+                    >
+                      <div className="flex items-center">
+                        Telefone
+                        {renderSortIcon('phone')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-purple-100 transition-colors"
+                      onClick={() => handleSort('cpf')}
+                    >
+                      <div className="flex items-center">
+                        CPF
+                        {renderSortIcon('cpf')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-purple-100 transition-colors"
+                      onClick={() => handleSort('status')}
+                    >
+                      <div className="flex items-center">
+                        Status
+                        {renderSortIcon('status')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-purple-100 transition-colors"
+                      onClick={() => handleSort('score')}
+                    >
+                      <div className="flex items-center">
+                        Pontuação
+                        {renderSortIcon('score')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-purple-100 transition-colors"
+                      onClick={() => handleSort('date')}
+                    >
+                      <div className="flex items-center">
+                        Aplicado em
+                        {renderSortIcon('date')}
+                      </div>
+                    </th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {filteredCandidates.map(candidate => (
+                  {getSortedCandidates().map(candidate => (
                     <tr key={candidate.id} className="hover:bg-purple-50">
                       <td className="px-4 py-3 text-sm text-gray-900 font-medium">{candidate.full_name}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.phone_number || 'N/A'}</td>

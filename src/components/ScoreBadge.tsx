@@ -6,28 +6,44 @@ interface ScoreBadgeProps {
   size?: 'sm' | 'md' | 'lg';
   showGrade?: boolean;
   onClick?: () => void;
+  variant?: 'bright' | 'soft';
 }
 
 const ScoreBadge: React.FC<ScoreBadgeProps> = ({ 
   candidate, 
   size = 'md', 
   showGrade = true,
-  onClick 
+  onClick,
+  variant = 'soft'
 }) => {
   // Ensure score is a number
   const score = typeof candidate.score === 'number' ? candidate.score : parseFloat(candidate.score as any) || 0;
   const grade = candidate.score_grade || 'F';
   
-  // Determine color based on score (matching status badge style)
+  // Determine color based on score and variant
   const getColorClasses = () => {
-    if (score >= 80) {
-      return 'bg-green-100 text-green-800';
-    } else if (score >= 60) {
-      return 'bg-yellow-100 text-yellow-800';
-    } else if (score >= 40) {
-      return 'bg-orange-100 text-orange-800';
+    if (variant === 'bright') {
+      // Bright gradient colors for card view
+      if (score >= 80) {
+        return 'bg-gradient-to-r from-green-500 to-green-600 text-white';
+      } else if (score >= 60) {
+        return 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white';
+      } else if (score >= 40) {
+        return 'bg-gradient-to-r from-orange-500 to-orange-600 text-white';
+      } else {
+        return 'bg-gradient-to-r from-red-500 to-red-600 text-white';
+      }
     } else {
-      return 'bg-red-100 text-red-800';
+      // Soft pastel colors for list view
+      if (score >= 80) {
+        return 'bg-green-100 text-green-800';
+      } else if (score >= 60) {
+        return 'bg-yellow-100 text-yellow-800';
+      } else if (score >= 40) {
+        return 'bg-orange-100 text-orange-800';
+      } else {
+        return 'bg-red-100 text-red-800';
+      }
     }
   };
 
