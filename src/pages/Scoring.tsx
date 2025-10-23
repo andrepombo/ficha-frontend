@@ -95,11 +95,15 @@ const Scoring: React.FC = () => {
     try {
       const config = await candidateAPI.getScoringConfig();
       // Map backend structure to frontend structure (referral fields are in experience_skills on backend)
+      // Extract referral fields and remove them from experience_skills to avoid double counting
+      const { has_relatives_in_company, referred_by, ...experienceSkillsWithoutReferral } = config.weights.experience_skills || {};
+      
       const mappedWeights = {
         ...config.weights,
+        experience_skills: experienceSkillsWithoutReferral,
         referral: {
-          has_relatives_in_company: config.weights.experience_skills?.has_relatives_in_company || 0,
-          referred_by: config.weights.experience_skills?.referred_by || 0,
+          has_relatives_in_company: has_relatives_in_company || 0,
+          referred_by: referred_by || 0,
         }
       };
       setWeights(mappedWeights);

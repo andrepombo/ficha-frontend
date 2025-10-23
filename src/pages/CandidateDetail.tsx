@@ -6,6 +6,9 @@ import { getTranslatedStatus } from '../utils/statusTranslations';
 import InterviewModal from '../components/InterviewModal';
 import FeedbackModal from '../components/FeedbackModal';
 import InterviewCard from '../components/InterviewCard';
+import SkillsModal from '../components/SkillsModal';
+import CoursesModal from '../components/CoursesModal';
+import CertificationsModal from '../components/CertificationsModal';
 
 const statusColors: Record<CandidateStatus, string> = {
   pending: 'bg-orange-100 text-orange-800',
@@ -21,11 +24,18 @@ interface InfoItemProps {
   value: string | number;
   score?: number;
   maxScore?: number;
+  onClick?: () => void;
+  clickable?: boolean;
 }
 
-function InfoItem({ label, value, score, maxScore }: InfoItemProps) {
+function InfoItem({ label, value, score, maxScore, onClick, clickable }: InfoItemProps) {
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-100 relative">
+    <div 
+      className={`bg-gradient-to-br from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-100 relative ${
+        clickable ? 'cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200' : ''
+      }`}
+      onClick={onClick}
+    >
       {score !== undefined && maxScore !== undefined && (
         <div className="absolute top-2 right-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
           {score.toFixed(1)}/{maxScore}
@@ -33,6 +43,14 @@ function InfoItem({ label, value, score, maxScore }: InfoItemProps) {
       )}
       <p className="text-xs font-semibold text-indigo-600 mb-1 uppercase tracking-wide">{label}</p>
       <p className="text-gray-900 font-medium text-lg pr-16">{value}</p>
+      {clickable && (
+        <div className="absolute bottom-2 right-2 text-indigo-400">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        </div>
+      )}
     </div>
   );
 }
@@ -53,6 +71,11 @@ function CandidateDetail() {
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
+  
+  // Modal states for skills, courses, and certifications
+  const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
+  const [isCoursesModalOpen, setIsCoursesModalOpen] = useState(false);
+  const [isCertificationsModalOpen, setIsCertificationsModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -717,6 +740,8 @@ function CandidateDetail() {
                 return Math.min(courseCount * 0.5, scoringConfig.education.courses);
               })() : undefined}
               maxScore={scoringConfig?.education.courses}
+              clickable={true}
+              onClick={() => setIsCoursesModalOpen(true)}
             />
             <InfoItem 
               label="Habilidades" 
@@ -737,6 +762,8 @@ function CandidateDetail() {
                 return 0;
               })() : undefined}
               maxScore={scoringConfig?.education.skills}
+              clickable={true}
+              onClick={() => setIsSkillsModalOpen(true)}
             />
             <InfoItem 
               label="Certificações" 
@@ -757,6 +784,8 @@ function CandidateDetail() {
                 return 0;
               })() : undefined}
               maxScore={scoringConfig?.education.certifications}
+              clickable={true}
+              onClick={() => setIsCertificationsModalOpen(true)}
             />
           </div>
         </div>
@@ -1110,6 +1139,24 @@ function CandidateDetail() {
         onClose={handleModalClose}
         onSuccess={handleInterviewSuccess}
         interview={selectedInterview}
+      />
+
+      <SkillsModal
+        isOpen={isSkillsModalOpen}
+        onClose={() => setIsSkillsModalOpen(false)}
+        skills={candidate.skills || ''}
+      />
+
+      <CoursesModal
+        isOpen={isCoursesModalOpen}
+        onClose={() => setIsCoursesModalOpen(false)}
+        courses={(candidate as any).courses || ''}
+      />
+
+      <CertificationsModal
+        isOpen={isCertificationsModalOpen}
+        onClose={() => setIsCertificationsModalOpen(false)}
+        certifications={candidate.certifications || ''}
       />
     </div>
   );
