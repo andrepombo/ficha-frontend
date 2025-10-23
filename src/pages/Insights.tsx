@@ -15,6 +15,9 @@ function Insights() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
+  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
+  const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -131,7 +134,11 @@ function Insights() {
       setLoading(true);
       const data = await candidateAPI.getAll();
       setCandidates(data);
-      setFilteredCandidates(data);
+      
+      // Extract unique years from candidates
+      const years = [...new Set(data.map(c => new Date(c.applied_date).getFullYear().toString()))];
+      setAvailableYears(years.sort((a, b) => parseInt(b) - parseInt(a)));
+      
       setError(null);
     } catch (err) {
       setError('Falha ao carregar dados. Por favor, tente novamente.');
@@ -141,31 +148,44 @@ function Insights() {
     }
   };
 
-  // Filter candidates based on status
-  const applyStatusFilter = (filter: string) => {
-    setStatusFilter(filter);
+  // Filter candidates based on status, month, and year
+  const applyFilters = () => {
+    let filtered = [...candidates];
     
-    if (filter === 'all') {
-      setFilteredCandidates(candidates);
-    } else if (filter === 'in_process') {
-      // Candidates still in the process (not accepted or rejected)
-      const filtered = candidates.filter(c => 
+    // Apply status filter
+    if (statusFilter === 'in_process') {
+      filtered = filtered.filter(c => 
         ['pending', 'reviewing', 'shortlisted', 'interviewed'].includes(c.status)
       );
-      setFilteredCandidates(filtered);
-    } else if (filter === 'accepted') {
-      const filtered = candidates.filter(c => c.status === 'accepted');
-      setFilteredCandidates(filtered);
-    } else if (filter === 'rejected') {
-      const filtered = candidates.filter(c => c.status === 'rejected');
-      setFilteredCandidates(filtered);
+    } else if (statusFilter === 'accepted') {
+      filtered = filtered.filter(c => c.status === 'accepted');
+    } else if (statusFilter === 'rejected') {
+      filtered = filtered.filter(c => c.status === 'rejected');
     }
+    
+    // Apply month filter
+    if (selectedMonth !== 'all') {
+      filtered = filtered.filter(c => {
+        const date = new Date(c.applied_date);
+        return date.getMonth() === parseInt(selectedMonth);
+      });
+    }
+    
+    // Apply year filter
+    if (selectedYear !== 'all') {
+      filtered = filtered.filter(c => {
+        const date = new Date(c.applied_date);
+        return date.getFullYear().toString() === selectedYear;
+      });
+    }
+    
+    setFilteredCandidates(filtered);
   };
 
-  // Re-apply filter when candidates change
+  // Re-apply filters when candidates or filter values change
   useEffect(() => {
-    applyStatusFilter(statusFilter);
-  }, [candidates]);
+    applyFilters();
+  }, [candidates, statusFilter, selectedMonth, selectedYear]);
 
   const processAllData = () => {
     processGenderData();
@@ -290,7 +310,7 @@ function Insights() {
     <div className="bg-purple-50">
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header with Filter */}
+        {/* Header with Filters */}
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
@@ -298,22 +318,71 @@ function Insights() {
               <p className="mt-2 text-gray-600">Análise detalhada dos dados dos candidatos</p>
             </div>
             
-            {/* Status Filter */}
+            {/* Filters */}
             <div className="bg-white rounded-lg shadow-md p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filtrar por Status
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => applyStatusFilter(e.target.value)}
-                className="block w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-              >
-                <option value="all">Todos os Candidatos</option>
-                <option value="in_process">Em Processo</option>
-                <option value="accepted">Aceitos</option>
-                <option value="rejected">Rejeitados</option>
-              </select>
-              <p className="mt-2 text-xs text-gray-500">
+              <div className="grid grid-cols-3 gap-4">
+                {/* Month Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mês
+                  </label>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm"
+                  >
+                    <option value="all">Todos</option>
+                    <option value="0">Janeiro</option>
+                    <option value="1">Fevereiro</option>
+                    <option value="2">Março</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Maio</option>
+                    <option value="5">Junho</option>
+                    <option value="6">Julho</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Setembro</option>
+                    <option value="9">Outubro</option>
+                    <option value="10">Novembro</option>
+                    <option value="11">Dezembro</option>
+                  </select>
+                </div>
+
+                {/* Year Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ano
+                  </label>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm"
+                  >
+                    <option value="all">Todos</option>
+                    {availableYears.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Status Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm"
+                  >
+                    <option value="all">Todos</option>
+                    <option value="in_process">Em Processo</option>
+                    <option value="accepted">Aceitos</option>
+                    <option value="rejected">Rejeitados</option>
+                  </select>
+                </div>
+              </div>
+              
+              <p className="mt-3 text-xs text-gray-500 text-center">
                 Mostrando {filteredCandidates.length} de {candidates.length} candidatos
               </p>
             </div>

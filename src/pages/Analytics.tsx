@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { candidateAPI } from '../services/api';
 import { Candidate } from '../types';
 import { downloadFile } from '../utils/downloadFile';
-import ConversionFunnel from '../components/ConversionFunnel';
+import CompactFunnelCharts from '../components/CompactFunnelCharts';
 
 interface MonthlyData {
   month: string;
@@ -17,6 +17,7 @@ function Analytics() {
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [availableYears, setAvailableYears] = useState<string[]>([]);
 
@@ -28,7 +29,7 @@ function Analytics() {
     if (candidates.length > 0) {
       processMonthlyData();
     }
-  }, [candidates, selectedYear]);
+  }, [candidates, selectedMonth, selectedYear]);
 
   const fetchCandidates = async () => {
     try {
@@ -63,9 +64,14 @@ function Analytics() {
       monthlyStats[monthKey] = { applications: 0, accepted: 0, rejected: 0 };
     }
 
-    // Filter candidates by selected year and count by month
+    // Filter candidates by selected year and month, then count by month
     candidates
-      .filter(c => new Date(c.applied_date).getFullYear().toString() === selectedYear)
+      .filter(c => {
+        const date = new Date(c.applied_date);
+        const yearMatch = selectedYear === 'all' || date.getFullYear().toString() === selectedYear;
+        const monthMatch = selectedMonth === 'all' || date.getMonth() === parseInt(selectedMonth);
+        return yearMatch && monthMatch;
+      })
       .forEach(candidate => {
         const date = new Date(candidate.applied_date);
         const monthIndex = date.getMonth();
@@ -81,12 +87,25 @@ function Analytics() {
       });
 
     // Convert to array format for recharts
-    const data: MonthlyData[] = monthNames.map(month => ({
-      month,
-      applications: monthlyStats[month].applications,
-      accepted: monthlyStats[month].accepted,
-      rejected: monthlyStats[month].rejected,
-    }));
+    // If a specific month is selected, only show that month's data
+    let data: MonthlyData[];
+    if (selectedMonth !== 'all') {
+      const monthIndex = parseInt(selectedMonth);
+      const monthKey = monthNames[monthIndex];
+      data = [{
+        month: monthKey,
+        applications: monthlyStats[monthKey].applications,
+        accepted: monthlyStats[monthKey].accepted,
+        rejected: monthlyStats[monthKey].rejected,
+      }];
+    } else {
+      data = monthNames.map(month => ({
+        month,
+        applications: monthlyStats[month].applications,
+        accepted: monthlyStats[month].accepted,
+        rejected: monthlyStats[month].rejected,
+      }));
+    }
 
     setMonthlyData(data);
   };
@@ -148,8 +167,32 @@ function Analytics() {
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-end">
-            {/* Year Selector and Export Buttons */}
+            {/* Month, Year Selector and Export Buttons */}
             <div className="flex items-center space-x-3">
+              <label htmlFor="month-select" className="text-sm font-medium text-gray-700">
+                Mês:
+              </label>
+              <select
+                id="month-select"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+              >
+                <option value="all">Todos</option>
+                <option value="0">Janeiro</option>
+                <option value="1">Fevereiro</option>
+                <option value="2">Março</option>
+                <option value="3">Abril</option>
+                <option value="4">Maio</option>
+                <option value="5">Junho</option>
+                <option value="6">Julho</option>
+                <option value="7">Agosto</option>
+                <option value="8">Setembro</option>
+                <option value="9">Outubro</option>
+                <option value="10">Novembro</option>
+                <option value="11">Dezembro</option>
+              </select>
+              
               <label htmlFor="year-select" className="text-sm font-medium text-gray-700">
                 Ano:
               </label>
@@ -159,6 +202,7 @@ function Analytics() {
                 onChange={(e) => setSelectedYear(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
               >
+                <option value="all">Todos</option>
                 {availableYears.map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
@@ -245,7 +289,7 @@ function Analytics() {
 
         {/* Conversion Funnel */}
         <div className="mb-8">
-          <ConversionFunnel selectedYear={selectedYear} />
+          <CompactFunnelCharts selectedMonth={selectedMonth} selectedYear={selectedYear} />
         </div>
 
         {/* Bar Chart */}

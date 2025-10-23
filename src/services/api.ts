@@ -125,10 +125,19 @@ export const candidateAPI = {
     return response.data;
   },
 
-  getFunnelStats: async (year?: string): Promise<any> => {
-    const response = await api.get('/candidates/funnel_stats/', {
-      params: year ? { year } : {},
-    });
+  getFunnelStats: async (year?: string, month?: string): Promise<any> => {
+    const params: any = {};
+    if (year) params.year = year;
+    if (month) params.month = month;
+    const response = await api.get('/candidates/funnel_stats/', { params });
+    return response.data;
+  },
+
+  getAverageTimePerStage: async (year?: string, month?: string): Promise<any> => {
+    const params: any = {};
+    if (year) params.year = year;
+    if (month) params.month = month;
+    const response = await api.get('/candidates/average_time_per_stage/', { params });
     return response.data;
   },
 
