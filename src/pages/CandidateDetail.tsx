@@ -383,12 +383,12 @@ function CandidateDetail() {
                 </div>
                 <div className="flex items-end justify-between">
                   <div className="text-2xl font-extrabold text-blue-700">{(candidate.score_breakdown.experience_skills || 0).toFixed(1)}</div>
-                  <div className="text-xs font-semibold text-blue-600">/ {scoringConfig ? scoringConfig.experience_skills.years_of_experience : 20} pts</div>
+                  <div className="text-xs font-semibold text-blue-600">/ {scoringConfig ? (scoringConfig.experience_skills.years_of_experience + (scoringConfig.experience_skills.idle_time || 0)) : 32} pts</div>
                 </div>
                 <div className="mt-2 bg-blue-200 rounded-full h-1.5 overflow-hidden">
                   <div 
                     className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${Math.min(((candidate.score_breakdown.experience_skills || 0) / (scoringConfig ? scoringConfig.experience_skills.years_of_experience : 20)) * 100, 100)}%` }}
+                    style={{ width: `${Math.min(((candidate.score_breakdown.experience_skills || 0) / (scoringConfig ? (scoringConfig.experience_skills.years_of_experience + (scoringConfig.experience_skills.idle_time || 0)) : 32)) * 100, 100)}%` }}
                   />
                 </div>
               </div>
@@ -450,12 +450,12 @@ function CandidateDetail() {
                 </div>
                 <div className="flex items-end justify-between">
                   <div className="text-2xl font-extrabold text-amber-700">{(candidate.score_breakdown.interview_performance || 0).toFixed(1)}</div>
-                  <div className="text-xs font-semibold text-amber-600">/ {scoringConfig ? (scoringConfig.interview_performance.average_rating + scoringConfig.interview_performance.feedback_quality) : 30} pts</div>
+                  <div className="text-xs font-semibold text-amber-600">/ {scoringConfig ? scoringConfig.interview_performance.average_rating : 30} pts</div>
                 </div>
                 <div className="mt-2 bg-amber-200 rounded-full h-1.5 overflow-hidden">
                   <div 
                     className="bg-gradient-to-r from-amber-500 to-yellow-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${Math.min(((candidate.score_breakdown.interview_performance || 0) / (scoringConfig ? (scoringConfig.interview_performance.average_rating + scoringConfig.interview_performance.feedback_quality) : 30)) * 100, 100)}%` }}
+                    style={{ width: `${Math.min(((candidate.score_breakdown.interview_performance || 0) / (scoringConfig ? scoringConfig.interview_performance.average_rating : 30)) * 100, 100)}%` }}
                   />
                 </div>
               </div>
@@ -480,7 +480,7 @@ function CandidateDetail() {
                   <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Experiência</div>
                   <div className="text-lg font-bold text-blue-700">
                     {(candidate.score_breakdown.experience_skills || 0).toFixed(1)}/
-                    {scoringConfig.experience_skills.years_of_experience}
+                    {(scoringConfig.experience_skills.years_of_experience || 0) + (scoringConfig.experience_skills.idle_time || 0)}
                   </div>
                 </div>
               )}
@@ -550,6 +550,35 @@ function CandidateDetail() {
                     
                     return 'N/A';
                   })()}
+                  score={scoringConfig ? (() => {
+                    const sortedExperiences = [...candidate.professional_experiences].sort((a, b) => {
+                      if (!a.data_desligamento) return -1;
+                      if (!b.data_desligamento) return 1;
+                      return new Date(b.data_desligamento).getTime() - new Date(a.data_desligamento).getTime();
+                    });
+                    
+                    const mostRecentJob = sortedExperiences[0];
+                    const idleTimeMax = scoringConfig.experience_skills.idle_time || 5;
+                    
+                    // If currently employed (no end date)
+                    if (!mostRecentJob?.data_desligamento) {
+                      return idleTimeMax;
+                    }
+                    
+                    // Calculate idle time score based on days
+                    const idleDays = mostRecentJob.idle_time_days;
+                    if (idleDays === null || idleDays === undefined) {
+                      return idleTimeMax * 0.5;
+                    }
+                    
+                    if (idleDays <= 30) return idleTimeMax;
+                    if (idleDays <= 90) return idleTimeMax * 0.8;
+                    if (idleDays <= 180) return idleTimeMax * 0.6;
+                    if (idleDays <= 365) return idleTimeMax * 0.4;
+                    if (idleDays <= 730) return idleTimeMax * 0.2;
+                    return idleTimeMax * 0.1;
+                  })() : undefined}
+                  maxScore={scoringConfig?.experience_skills.idle_time}
                 />
               </div>
             )}
@@ -765,7 +794,7 @@ function CandidateDetail() {
                   <div className="text-xs font-semibold text-amber-600 uppercase tracking-wide">Pontuação Entrevista</div>
                   <div className="text-lg font-bold text-amber-700">
                     {(candidate.score_breakdown.interview_performance || 0).toFixed(1)}/
-                    {scoringConfig.interview_performance.average_rating + scoringConfig.interview_performance.feedback_quality}
+                    {scoringConfig.interview_performance.average_rating}
                   </div>
                 </div>
               )}

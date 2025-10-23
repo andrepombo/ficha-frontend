@@ -22,15 +22,15 @@ const ScoreBreakdownModal: React.FC<ScoreBreakdownModalProps> = ({ candidate, is
       key: 'experience_skills',
       label: 'Experiência & Habilidades',
       icon: TrendingUp,
-      maxScore: 20,
-      description: 'Anos de experiência profissional',
+      maxScore: 32,
+      description: 'Anos de experiência profissional e tempo parado',
       color: 'indigo',
     },
     {
       key: 'education',
       label: 'Educação & Qualificações',
       icon: GraduationCap,
-      maxScore: 29,
+      maxScore: 18,
       description: 'Nível educacional, cursos, habilidades técnicas e certificações',
       color: 'purple',
     },
@@ -46,7 +46,7 @@ const ScoreBreakdownModal: React.FC<ScoreBreakdownModalProps> = ({ candidate, is
       key: 'interview_performance',
       label: 'Desempenho em Entrevistas',
       icon: MessageSquare,
-      maxScore: 15,
+      maxScore: 30,
       description: 'Avaliações e feedback de entrevistas',
       color: 'amber',
     },
@@ -153,6 +153,54 @@ const ScoreBreakdownModal: React.FC<ScoreBreakdownModalProps> = ({ candidate, is
               );
             })}
           </div>
+
+          {/* Experience Details - Show Idle Time */}
+          {candidate.professional_experiences && candidate.professional_experiences.length > 0 && (
+            <div className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+              <h4 className="font-semibold text-blue-900 mb-3">📊 Detalhes da Experiência</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div className="bg-white rounded-lg p-3 border border-blue-100">
+                  <div className="text-blue-600 font-medium mb-1">Anos de Experiência</div>
+                  <div className="text-gray-800 font-semibold">
+                    {(() => {
+                      const totalDays = candidate.professional_experiences.reduce((total, exp) => {
+                        if (exp.data_admissao) {
+                          const endDate = exp.data_desligamento ? new Date(exp.data_desligamento) : new Date();
+                          const startDate = new Date(exp.data_admissao);
+                          if (endDate >= startDate) {
+                            return total + (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                          }
+                        }
+                        return total;
+                      }, 0);
+                      const years = Math.round((totalDays / 365.25) * 10) / 10;
+                      return `${years} ano${years !== 1 ? 's' : ''}`;
+                    })()}
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-blue-100">
+                  <div className="text-blue-600 font-medium mb-1">Tempo Parado</div>
+                  <div className="text-gray-800 font-semibold">
+                    {(() => {
+                      const sortedExperiences = [...candidate.professional_experiences].sort((a, b) => {
+                        if (!a.data_desligamento) return -1;
+                        if (!b.data_desligamento) return 1;
+                        return new Date(b.data_desligamento).getTime() - new Date(a.data_desligamento).getTime();
+                      });
+                      const mostRecentJob = sortedExperiences[0];
+                      if (!mostRecentJob?.data_desligamento) {
+                        return '✅ Empregado atualmente';
+                      }
+                      if (mostRecentJob.idle_time_formatted) {
+                        return mostRecentJob.idle_time_formatted;
+                      }
+                      return 'N/A';
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Insights */}
           <div className="mt-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">

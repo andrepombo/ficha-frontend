@@ -17,6 +17,7 @@ interface ScoreDistribution {
 interface ScoringWeights {
   experience_skills: {
     years_of_experience: number;
+    idle_time: number;
   };
   education: {
     education_level: number;
@@ -32,7 +33,6 @@ interface ScoringWeights {
   };
   interview_performance: {
     average_rating: number;
-    feedback_quality: number;
   };
 }
 
@@ -43,23 +43,23 @@ const Scoring: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [weights, setWeights] = useState<ScoringWeights>({
     experience_skills: {
-      years_of_experience: 20,
+      years_of_experience: 27,
+      idle_time: 5,
     },
     education: {
-      education_level: 18,
-      courses: 2,
+      education_level: 16,
+      courses: 0,
       skills: 2,
-      certifications: 7,
+      certifications: 0,
     },
     availability_logistics: {
-      immediate_availability: 8,
-      own_transportation: 6,
-      travel_availability: 6,
-      height_painting: 0,
+      immediate_availability: 5,
+      own_transportation: 5,
+      travel_availability: 5,
+      height_painting: 5,
     },
     interview_performance: {
-      average_rating: 27,
-      feedback_quality: 3,
+      average_rating: 30,
     },
   });
   const [editedWeights, setEditedWeights] = useState<ScoringWeights>(weights);
@@ -211,6 +211,7 @@ const Scoring: React.FC = () => {
   const criterionLabels: Record<string, Record<string, { label: string; description: string }>> = {
     experience_skills: {
       years_of_experience: { label: 'Anos de experiência', description: '6+ anos: máximo | 4-5 anos: 87% | 2-3 anos: 67% | 1 ano: 33%' },
+      idle_time: { label: 'Tempo parado', description: 'Empregado: máximo | 0-30 dias: 100% | 31-90 dias: 80% | 91-180 dias: 60% | 181-365 dias: 40% | 366-730 dias: 20% | 730+ dias: 10%' },
     },
     education: {
       education_level: { label: 'Nível educacional', description: 'Pós-graduação: máximo | Superior: 95% | Técnico: 80%' },
@@ -234,10 +235,11 @@ const Scoring: React.FC = () => {
       key: 'experience_skills',
       label: 'Experiência & Habilidades',
       icon: TrendingUp,
-      maxScore: 20,
+      maxScore: 32,
       color: 'indigo',
       criteria: [
-        { label: 'Anos de experiência', points: '20 pontos', details: '6+ anos: 20pts | 4-5 anos: 17pts | 2-3 anos: 13pts | 1 ano: 7pts' },
+        { label: 'Anos de experiência', points: '27 pontos', details: '6+ anos: 27pts | 4-5 anos: 23pts | 2-3 anos: 18pts | 1 ano: 9pts' },
+        { label: 'Tempo parado', points: '5 pontos', details: 'Empregado: 5pts | 0-30 dias: 5pts | 31-90 dias: 4pts | 91-180 dias: 3pts | 181-365 dias: 2pts | 366-730 dias: 1pt | 730+ dias: 0.5pts' },
       ],
     },
     {
@@ -273,7 +275,7 @@ const Scoring: React.FC = () => {
       maxScore: 30,
       color: 'amber',
       criteria: [
-        { label: 'Avaliação média', points: '30 pontos', details: 'Baseado em avaliações de 1-5 estrelas (representa o desempenho completo da entrevista)' },
+        { label: 'Avaliação média', points: '30 pontos', details: 'Baseado em avaliações de 1-5 estrelas: 5 estrelas = 30pts | 4 estrelas = 24pts | 3 estrelas = 18pts | 2 estrelas = 12pts | 1 estrela = 6pts' },
       ],
     },
   ];
