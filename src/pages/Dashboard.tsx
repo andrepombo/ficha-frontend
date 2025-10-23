@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { candidateAPI } from '../services/api';
 import { Candidate, CandidateFilters, CandidateStats } from '../types';
 import CandidateCard from '../components/CandidateCard';
@@ -10,6 +10,7 @@ import { getTranslatedStatus } from '../utils/statusTranslations';
 import { downloadFile } from '../utils/downloadFile';
 
 function Dashboard() {
+  const [searchParams] = useSearchParams();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
@@ -35,28 +36,46 @@ function Dashboard() {
 
   const [filters, setFilters] = useState<CandidateFilters>(() => {
     const { month, year } = getDefaultMonthYear();
+    
+    // Check URL params for filters
+    const urlGender = searchParams.get('gender');
+    const urlDisability = searchParams.get('disability');
+    const urlTransportation = searchParams.get('transportation');
+    const urlHowFound = searchParams.get('how_found_vacancy');
+    const urlAvailability = searchParams.get('availability');
+    const urlTravel = searchParams.get('travel_availability');
+    const urlHeightPainting = searchParams.get('height_painting');
+    const urlEmployment = searchParams.get('currently_employed');
+    
+    // If any URL params exist, clear default month/year filters
+    const hasUrlFilters = urlGender || urlDisability || urlTransportation || urlHowFound || 
+                          urlAvailability || urlTravel || urlHeightPainting || urlEmployment;
+    
     return {
       status: 'all',
       search: '',
-      month: month,
-      year: year,
+      month: hasUrlFilters ? 'all' : month,
+      year: hasUrlFilters ? 'all' : year,
       score_range: 'all',
     };
   });
 
-  const [advancedFilters, setAdvancedFilters] = useState<any>({
-    gender: 'all',
-    disability: 'all',
-    education: 'all',
-    transportation: 'all',
-    currently_employed: 'all',
-    availability: 'all',
-    travel_availability: 'all',
-    height_painting: 'all',
-    city: 'all',
-    how_found_vacancy: 'all',
-    date_from: '',
-    date_until: '',
+  const [advancedFilters, setAdvancedFilters] = useState<any>(() => {
+    // Initialize advanced filters from URL params if they exist
+    return {
+      gender: searchParams.get('gender') || 'all',
+      disability: searchParams.get('disability') || 'all',
+      education: 'all',
+      transportation: searchParams.get('transportation') || 'all',
+      currently_employed: searchParams.get('currently_employed') || 'all',
+      availability: searchParams.get('availability') || 'all',
+      travel_availability: searchParams.get('travel_availability') || 'all',
+      height_painting: searchParams.get('height_painting') || 'all',
+      city: 'all',
+      how_found_vacancy: searchParams.get('how_found_vacancy') || 'all',
+      date_from: '',
+      date_until: '',
+    };
   });
 
   const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);

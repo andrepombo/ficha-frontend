@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { candidateAPI } from '../services/api';
 import { Candidate } from '../types';
@@ -6,9 +7,11 @@ import { Candidate } from '../types';
 interface ChartData {
   name: string;
   value: number;
+  [key: string]: string | number;
 }
 
 function Insights() {
+  const navigate = useNavigate();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +31,94 @@ function Insights() {
   const DISABILITY_COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444'];
   const BINARY_COLORS = ['#10b981', '#ef4444'];
   const REFERRAL_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
+
+  // Helper function to navigate to Dashboard with filters
+  const navigateToFilteredDashboard = (filterType: string, filterValue: string) => {
+    const params = new URLSearchParams();
+    params.set(filterType, filterValue);
+    navigate(`/dashboard?${params.toString()}`);
+  };
+
+  // Click handlers for different chart types
+  const handleGenderClick = (data: any) => {
+    if (data && data.name) {
+      const genderMap: { [key: string]: string } = {
+        'Masculino': 'masculino',
+        'Feminino': 'feminino',
+        'Prefiro não informar': 'prefiro_nao_informar'
+      };
+      navigateToFilteredDashboard('gender', genderMap[data.name] || data.name);
+    }
+  };
+
+  const handleDisabilityClick = (data: any) => {
+    if (data && data.name) {
+      const disabilityMap: { [key: string]: string } = {
+        'Sem deficiência': 'sem_deficiencia',
+        'Física': 'fisica',
+        'Auditiva': 'auditiva',
+        'Visual': 'visual',
+        'Mental': 'mental',
+        'Múltipla': 'multipla',
+        'Reabilitado': 'reabilitado'
+      };
+      navigateToFilteredDashboard('disability', disabilityMap[data.name] || data.name);
+    }
+  };
+
+  const handleTransportationClick = (data: any) => {
+    if (data && data.name) {
+      const value = data.name === 'Sim' ? 'sim' : 'nao';
+      navigateToFilteredDashboard('transportation', value);
+    }
+  };
+
+  const handleReferralClick = (data: any) => {
+    if (data && data.name) {
+      const referralMap: { [key: string]: string } = {
+        'Facebook': 'facebook',
+        'Indicação': 'indicacao_colaborador',
+        'Instagram': 'instagram',
+        'LinkedIn': 'linkedin',
+        'Sine': 'sine',
+        'Outros': 'outros'
+      };
+      navigateToFilteredDashboard('how_found_vacancy', referralMap[data.name] || data.name);
+    }
+  };
+
+  const handleAvailabilityClick = (data: any) => {
+    if (data && data.name) {
+      const availabilityMap: { [key: string]: string } = {
+        'Imediato': 'imediato',
+        '15 dias': '15_dias',
+        '30 dias': '30_dias',
+        'A combinar': 'a_combinar'
+      };
+      navigateToFilteredDashboard('availability', availabilityMap[data.name] || data.name);
+    }
+  };
+
+  const handleTravelClick = (data: any) => {
+    if (data && data.name) {
+      const value = data.name === 'Sim' ? 'sim' : 'nao';
+      navigateToFilteredDashboard('travel_availability', value);
+    }
+  };
+
+  const handleHeightPaintingClick = (data: any) => {
+    if (data && data.name) {
+      const value = data.name === 'Sim' ? 'sim' : 'nao';
+      navigateToFilteredDashboard('height_painting', value);
+    }
+  };
+
+  const handleEmploymentClick = (data: any) => {
+    if (data && data.name) {
+      const value = data.name === 'Sim' ? 'sim' : 'nao';
+      navigateToFilteredDashboard('currently_employed', value);
+    }
+  };
 
   useEffect(() => {
     fetchCandidates();
@@ -176,7 +267,7 @@ function Insights() {
             {availabilityData.length > 0 ? (
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
-                  <Pie data={availabilityData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                  <Pie data={availabilityData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label onClick={handleAvailabilityClick} cursor="pointer">
                     {availabilityData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={REFERRAL_COLORS[index % REFERRAL_COLORS.length]} />
                     ))}
@@ -193,7 +284,7 @@ function Insights() {
             {travelData.length > 0 ? (
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
-                  <Pie data={travelData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                  <Pie data={travelData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label onClick={handleTravelClick} cursor="pointer">
                     {travelData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={BINARY_COLORS[index % BINARY_COLORS.length]} />
                     ))}
@@ -210,7 +301,7 @@ function Insights() {
             {heightPaintingData.length > 0 ? (
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
-                  <Pie data={heightPaintingData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                  <Pie data={heightPaintingData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label onClick={handleHeightPaintingClick} cursor="pointer">
                     {heightPaintingData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={BINARY_COLORS[index % BINARY_COLORS.length]} />
                     ))}
@@ -230,7 +321,7 @@ function Insights() {
             {transportationData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie data={transportationData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                  <Pie data={transportationData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label onClick={handleTransportationClick} cursor="pointer">
                     {transportationData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={BINARY_COLORS[index % BINARY_COLORS.length]} />
                     ))}
@@ -247,7 +338,7 @@ function Insights() {
             {employmentData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie data={employmentData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                  <Pie data={employmentData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label onClick={handleEmploymentClick} cursor="pointer">
                     {employmentData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={BINARY_COLORS[index % BINARY_COLORS.length]} />
                     ))}
@@ -267,7 +358,7 @@ function Insights() {
             {genderData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie data={genderData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                  <Pie data={genderData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label onClick={handleGenderClick} cursor="pointer">
                     {genderData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={GENDER_COLORS[index % GENDER_COLORS.length]} />
                     ))}
@@ -289,7 +380,7 @@ function Insights() {
                   <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} style={{ fontSize: '12px' }} />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#8b5cf6" radius={[8, 8, 0, 0]}>
+                  <Bar dataKey="value" fill="#8b5cf6" radius={[8, 8, 0, 0]} onClick={handleDisabilityClick} cursor="pointer">
                     {disabilityData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={DISABILITY_COLORS[index % DISABILITY_COLORS.length]} />
                     ))}
@@ -310,7 +401,7 @@ function Insights() {
                 <XAxis type="number" />
                 <YAxis dataKey="name" type="category" width={150} style={{ fontSize: '14px' }} />
                 <Tooltip />
-                <Bar dataKey="value" radius={[0, 8, 8, 0]}>
+                <Bar dataKey="value" radius={[0, 8, 8, 0]} onClick={handleReferralClick} cursor="pointer">
                   {referralData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={REFERRAL_COLORS[index % REFERRAL_COLORS.length]} />
                   ))}
