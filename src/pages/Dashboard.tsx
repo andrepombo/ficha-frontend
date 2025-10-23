@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { candidateAPI } from '../services/api';
 import { Candidate, CandidateFilters, CandidateStats } from '../types';
@@ -11,9 +11,20 @@ import { downloadFile } from '../utils/downloadFile';
 
 function Dashboard() {
   const [searchParams] = useSearchParams();
+  const candidateListRef = useRef<HTMLDivElement>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
-  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
+  
+  // Check if navigating from Insights (URL params present)
+  const hasUrlFilters = searchParams.get('gender') || searchParams.get('disability') || 
+                        searchParams.get('transportation') || searchParams.get('how_found_vacancy') ||
+                        searchParams.get('availability') || searchParams.get('travel_availability') ||
+                        searchParams.get('height_painting') || searchParams.get('currently_employed');
+  
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>(() => {
+    // Default to list view if coming from Insights
+    return hasUrlFilters ? 'list' : 'cards';
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<CandidateStats>({
@@ -102,6 +113,19 @@ function Dashboard() {
 
     setFilteredCandidates(filtered);
   }, [filters.search, candidates]);
+
+  // Scroll to candidate list when navigating from Insights
+  useEffect(() => {
+    if (hasUrlFilters && !loading && filteredCandidates.length > 0 && candidateListRef.current) {
+      // Small delay to ensure DOM is fully rendered
+      setTimeout(() => {
+        candidateListRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 300);
+    }
+  }, [hasUrlFilters, loading, filteredCandidates.length]);
 
   const fetchCandidates = async () => {
     try {
@@ -357,7 +381,7 @@ function Dashboard() {
           hasActiveAdvancedFilters={hasActiveAdvancedFilters()}
         />
 
-        <div className="mt-6">
+        <div className="mt-6" ref={candidateListRef}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900">
               Candidatos ({filteredCandidates.length})
