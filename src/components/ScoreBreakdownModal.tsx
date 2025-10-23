@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, TrendingUp, GraduationCap, MapPin, MessageSquare } from 'lucide-react';
+import { X, TrendingUp, GraduationCap, MapPin, MessageSquare, Users } from 'lucide-react';
 import { Candidate, ScoreBreakdown } from '../types';
 
 interface ScoreBreakdownModalProps {
@@ -41,6 +41,14 @@ const ScoreBreakdownModal: React.FC<ScoreBreakdownModalProps> = ({ candidate, is
       maxScore: 20,
       description: 'Disponibilidade imediata, transporte e viagens',
       color: 'blue',
+    },
+    {
+      key: 'referral',
+      label: 'Indicação',
+      icon: Users,
+      maxScore: 0,
+      description: 'Como o candidato soube da vaga e quem indicou',
+      color: 'green',
     },
     {
       key: 'interview_performance',
@@ -201,6 +209,41 @@ const ScoreBreakdownModal: React.FC<ScoreBreakdownModalProps> = ({ candidate, is
               </div>
             </div>
           )}
+
+          {/* Referral Details */}
+          <div className="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+            <h4 className="font-semibold text-green-900 mb-3">👥 Indicação</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div className="bg-white rounded-lg p-3 border border-green-100">
+                <div className="text-green-600 font-medium mb-1">Como Soube da Vaga</div>
+                <div className="text-gray-800 font-semibold">
+                  {(() => {
+                    const howFoundMap: { [key: string]: string } = {
+                      'facebook': 'Facebook',
+                      'indicacao_colaborador': 'Indicação de Colaborador',
+                      'instagram': 'Instagram',
+                      'linkedin': 'LinkedIn',
+                      'sine': 'Sine',
+                      'outros': 'Outros'
+                    };
+                    const howFound = candidate.how_found_vacancy || 'N/A';
+                    return howFoundMap[howFound] || howFound;
+                  })()}
+                  {candidate.how_found_vacancy === 'outros' && candidate.how_found_vacancy_other && (
+                    <span className="text-gray-600 text-xs block mt-1">
+                      ({candidate.how_found_vacancy_other})
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-3 border border-green-100">
+                <div className="text-green-600 font-medium mb-1">Indicado Por</div>
+                <div className="text-gray-800 font-semibold">
+                  {candidate.referred_by || 'Não indicado'}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Insights */}
           <div className="mt-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
