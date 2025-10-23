@@ -13,6 +13,8 @@ interface ChartData {
 function Insights() {
   const navigate = useNavigate();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -124,17 +126,12 @@ function Insights() {
     fetchCandidates();
   }, []);
 
-  useEffect(() => {
-    if (candidates.length > 0) {
-      processAllData();
-    }
-  }, [candidates]);
-
   const fetchCandidates = async () => {
     try {
       setLoading(true);
       const data = await candidateAPI.getAll();
       setCandidates(data);
+      setFilteredCandidates(data);
       setError(null);
     } catch (err) {
       setError('Falha ao carregar dados. Por favor, tente novamente.');
@@ -143,6 +140,32 @@ function Insights() {
       setLoading(false);
     }
   };
+
+  // Filter candidates based on status
+  const applyStatusFilter = (filter: string) => {
+    setStatusFilter(filter);
+    
+    if (filter === 'all') {
+      setFilteredCandidates(candidates);
+    } else if (filter === 'in_process') {
+      // Candidates still in the process (not accepted or rejected)
+      const filtered = candidates.filter(c => 
+        ['pending', 'reviewing', 'shortlisted', 'interviewed'].includes(c.status)
+      );
+      setFilteredCandidates(filtered);
+    } else if (filter === 'accepted') {
+      const filtered = candidates.filter(c => c.status === 'accepted');
+      setFilteredCandidates(filtered);
+    } else if (filter === 'rejected') {
+      const filtered = candidates.filter(c => c.status === 'rejected');
+      setFilteredCandidates(filtered);
+    }
+  };
+
+  // Re-apply filter when candidates change
+  useEffect(() => {
+    applyStatusFilter(statusFilter);
+  }, [candidates]);
 
   const processAllData = () => {
     processGenderData();
@@ -155,83 +178,90 @@ function Insights() {
     processEmploymentData();
   };
 
+  // Re-process data when filtered candidates change
+  useEffect(() => {
+    if (filteredCandidates.length > 0) {
+      processAllData();
+    }
+  }, [filteredCandidates]);
+
   const processGenderData = () => {
-    const counts: { [key: string]: number } = { 'Masculino': 0, 'Feminino': 0, 'Prefiro não informar': 0 };
-    candidates.forEach(c => {
-      if (c.gender === 'masculino') counts['Masculino']++;
-      else if (c.gender === 'feminino') counts['Feminino']++;
-      else if (c.gender === 'prefiro_nao_informar') counts['Prefiro não informar']++;
+    const genderCount: { [key: string]: number } = {};
+    filteredCandidates.forEach(candidate => {
+      if (candidate.gender === 'masculino') genderCount['Masculino'] = (genderCount['Masculino'] || 0) + 1;
+      else if (candidate.gender === 'feminino') genderCount['Feminino'] = (genderCount['Feminino'] || 0) + 1;
+      else if (candidate.gender === 'prefiro_nao_informar') genderCount['Prefiro não informar'] = (genderCount['Prefiro não informar'] || 0) + 1;
     });
-    setGenderData(Object.entries(counts).filter(([_, v]) => v > 0).map(([name, value]) => ({ name, value })));
+    setGenderData(Object.entries(genderCount).filter(([_, v]) => v > 0).map(([name, value]) => ({ name, value })));
   };
 
   const processDisabilityData = () => {
+    const disabilityCount: { [key: string]: number } = {};
     const labels: { [key: string]: string } = {
       'sem_deficiencia': 'Sem deficiência', 'fisica': 'Física', 'auditiva': 'Auditiva',
       'visual': 'Visual', 'mental': 'Mental', 'multipla': 'Múltipla', 'reabilitado': 'Reabilitado'
     };
-    const counts: { [key: string]: number } = {};
-    candidates.forEach(c => {
-      if (c.disability) counts[labels[c.disability] || c.disability] = (counts[labels[c.disability] || c.disability] || 0) + 1;
+    filteredCandidates.forEach(candidate => {
+      if (candidate.disability) disabilityCount[labels[candidate.disability] || candidate.disability] = (disabilityCount[labels[candidate.disability] || candidate.disability] || 0) + 1;
     });
-    setDisabilityData(Object.entries(counts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value));
+    setDisabilityData(Object.entries(disabilityCount).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value));
   };
 
   const processTransportationData = () => {
-    const counts = { 'Sim': 0, 'Não': 0 };
-    candidates.forEach(c => {
-      if (c.has_own_transportation === 'sim') counts['Sim']++;
-      else if (c.has_own_transportation === 'nao') counts['Não']++;
+    const transportationCount = { sim: 0, nao: 0 };
+    filteredCandidates.forEach(candidate => {
+      if (candidate.has_own_transportation === 'sim') transportationCount.sim++;
+      else if (candidate.has_own_transportation === 'nao') transportationCount.nao++;
     });
-    setTransportationData(Object.entries(counts).filter(([_, v]) => v > 0).map(([name, value]) => ({ name, value })));
+    setTransportationData(Object.entries(transportationCount).filter(([_, v]) => v > 0).map(([name, value]) => ({ name: name === 'sim' ? 'Sim' : 'Não', value })));
   };
 
   const processReferralData = () => {
+    const referralCount: { [key: string]: number } = {};
     const labels: { [key: string]: string } = {
       'facebook': 'Facebook', 'indicacao_colaborador': 'Indicação', 'instagram': 'Instagram',
       'linkedin': 'LinkedIn', 'sine': 'Sine', 'outros': 'Outros'
     };
-    const counts: { [key: string]: number } = {};
-    candidates.forEach(c => {
-      if (c.how_found_vacancy) counts[labels[c.how_found_vacancy] || c.how_found_vacancy] = (counts[labels[c.how_found_vacancy] || c.how_found_vacancy] || 0) + 1;
+    filteredCandidates.forEach(candidate => {
+      if (candidate.how_found_vacancy) referralCount[labels[candidate.how_found_vacancy] || candidate.how_found_vacancy] = (referralCount[labels[candidate.how_found_vacancy] || candidate.how_found_vacancy] || 0) + 1;
     });
-    setReferralData(Object.entries(counts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value));
+    setReferralData(Object.entries(referralCount).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value));
   };
 
   const processAvailabilityData = () => {
+    const availabilityCount: { [key: string]: number } = {};
     const labels: { [key: string]: string } = { 'imediato': 'Imediato', '15_dias': '15 dias', '30_dias': '30 dias' };
-    const counts: { [key: string]: number } = {};
-    candidates.forEach(c => {
-      if (c.availability_start) counts[labels[c.availability_start] || c.availability_start] = (counts[labels[c.availability_start] || c.availability_start] || 0) + 1;
+    filteredCandidates.forEach(candidate => {
+      if (candidate.availability_start) availabilityCount[labels[candidate.availability_start] || candidate.availability_start] = (availabilityCount[labels[candidate.availability_start] || candidate.availability_start] || 0) + 1;
     });
-    setAvailabilityData(Object.entries(counts).map(([name, value]) => ({ name, value })));
+    setAvailabilityData(Object.entries(availabilityCount).map(([name, value]) => ({ name, value })));
   };
 
   const processTravelData = () => {
-    const counts = { 'Sim': 0, 'Não': 0 };
-    candidates.forEach(c => {
-      if (c.travel_availability === 'sim') counts['Sim']++;
-      else if (c.travel_availability === 'nao') counts['Não']++;
+    const travelCount = { sim: 0, nao: 0 };
+    filteredCandidates.forEach(candidate => {
+      if (candidate.travel_availability === 'sim') travelCount.sim++;
+      else if (candidate.travel_availability === 'nao') travelCount.nao++;
     });
-    setTravelData(Object.entries(counts).filter(([_, v]) => v > 0).map(([name, value]) => ({ name, value })));
+    setTravelData(Object.entries(travelCount).filter(([_, v]) => v > 0).map(([name, value]) => ({ name: name === 'sim' ? 'Sim' : 'Não', value })));
   };
 
   const processHeightPaintingData = () => {
-    const counts = { 'Sim': 0, 'Não': 0 };
-    candidates.forEach(c => {
-      if (c.height_painting === 'sim') counts['Sim']++;
-      else if (c.height_painting === 'nao') counts['Não']++;
+    const heightPaintingCount = { sim: 0, nao: 0 };
+    filteredCandidates.forEach(candidate => {
+      if (candidate.height_painting === 'sim') heightPaintingCount.sim++;
+      else if (candidate.height_painting === 'nao') heightPaintingCount.nao++;
     });
-    setHeightPaintingData(Object.entries(counts).filter(([_, v]) => v > 0).map(([name, value]) => ({ name, value })));
+    setHeightPaintingData(Object.entries(heightPaintingCount).filter(([_, v]) => v > 0).map(([name, value]) => ({ name: name === 'sim' ? 'Sim' : 'Não', value })));
   };
 
   const processEmploymentData = () => {
-    const counts = { 'Sim': 0, 'Não': 0 };
-    candidates.forEach(c => {
-      if (c.currently_employed === 'sim') counts['Sim']++;
-      else if (c.currently_employed === 'nao') counts['Não']++;
+    const employmentCount = { sim: 0, nao: 0 };
+    filteredCandidates.forEach(candidate => {
+      if (candidate.currently_employed === 'sim') employmentCount.sim++;
+      else if (candidate.currently_employed === 'nao') employmentCount.nao++;
     });
-    setEmploymentData(Object.entries(counts).filter(([_, v]) => v > 0).map(([name, value]) => ({ name, value })));
+    setEmploymentData(Object.entries(employmentCount).filter(([_, v]) => v > 0).map(([name, value]) => ({ name: name === 'sim' ? 'Sim' : 'Não', value })));
   };
 
   if (loading) {
@@ -260,6 +290,36 @@ function Insights() {
     <div className="bg-purple-50">
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header with Filter */}
+        <div className="mb-8">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Insights de Candidatos</h1>
+              <p className="mt-2 text-gray-600">Análise detalhada dos dados dos candidatos</p>
+            </div>
+            
+            {/* Status Filter */}
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Filtrar por Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => applyStatusFilter(e.target.value)}
+                className="block w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              >
+                <option value="all">Todos os Candidatos</option>
+                <option value="in_process">Em Processo</option>
+                <option value="accepted">Aceitos</option>
+                <option value="rejected">Rejeitados</option>
+              </select>
+              <p className="mt-2 text-xs text-gray-500">
+                Mostrando {filteredCandidates.length} de {candidates.length} candidatos
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Top Priority Charts - Availability & Skills */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="card">
@@ -417,7 +477,7 @@ function Insights() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <p className="text-sm opacity-90">Total de Candidatos</p>
-              <p className="text-3xl font-bold mt-1">{candidates.length}</p>
+              <p className="text-3xl font-bold mt-1">{filteredCandidates.length}</p>
             </div>
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <p className="text-sm opacity-90">Com Transporte Próprio</p>

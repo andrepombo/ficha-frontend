@@ -100,6 +100,9 @@ function CandidateDetail() {
       const data = await candidateAPI.getById(candidateId);
       console.log('Candidate data received:', data);
       console.log('Professional experiences:', data.professional_experiences);
+      console.log('🖼️ PHOTO DEBUG - Photo field value:', data.photo);
+      console.log('🖼️ PHOTO DEBUG - Photo type:', typeof data.photo);
+      console.log('🖼️ PHOTO DEBUG - Photo is truthy?:', !!data.photo);
       
       // Always recalculate score to ensure it's up to date with current config
       console.log('Recalculating score to match current configuration...');
@@ -120,6 +123,7 @@ function CandidateDetail() {
     } catch (err) {
       setError('Failed to load candidate details.');
       console.error('Error fetching candidate:', err);
+      setError('Erro ao carregar dados do candidato');
     } finally {
       setLoading(false);
     }
@@ -258,9 +262,30 @@ function CandidateDetail() {
             {/* Top Section: Avatar, Name, and Application Date */}
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-5">
-                <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                  {candidate.full_name.charAt(0).toUpperCase()}
-                </div>
+                {candidate.photo && candidate.photo.trim() !== '' ? (
+                  <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg ring-4 ring-purple-100">
+                    <img 
+                      src={candidate.photo?.startsWith('http') ? candidate.photo : `http://localhost:8000${candidate.photo}`}
+                      alt={candidate.full_name}
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                      onError={(e) => {
+                        const photoUrl = candidate.photo?.startsWith('http') ? candidate.photo : `http://localhost:8000${candidate.photo}`;
+                        console.error('Error loading photo. URL:', photoUrl);
+                        console.error('Photo field value:', candidate.photo);
+                        // Fallback to gradient avatar
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          parent.innerHTML = `<div class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-lg">${candidate.full_name.charAt(0).toUpperCase()}</div>`;
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                    {candidate.full_name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     {candidate.full_name}

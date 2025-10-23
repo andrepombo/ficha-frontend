@@ -28,6 +28,7 @@ export interface Candidate {
   travel_availability?: string;
   height_painting?: string;
   resume?: string;
+  photo?: string;
   cover_letter?: string;
   skills?: string;
   certifications?: string;
