@@ -488,7 +488,7 @@ function CandidateDetail() {
             
             {/* Experience Summary with Score Breakdown */}
             {scoringConfig && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <InfoItem 
                   label="Anos de Experiência" 
                   value={(() => {
@@ -579,6 +579,10 @@ function CandidateDetail() {
                     return idleTimeMax * 0.1;
                   })() : undefined}
                   maxScore={scoringConfig?.experience_skills.idle_time}
+                />
+                <InfoItem 
+                  label="Trabalhou na Pinte Antes" 
+                  value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} 
                 />
               </div>
             )}
@@ -867,7 +871,6 @@ function CandidateDetail() {
           <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Trabalhou na Pinte Antes" value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} />
             <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
             <InfoItem label="Como Soube da Vaga" value={
               candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
