@@ -6,6 +6,7 @@ import CandidateCard from '../components/CandidateCard';
 import StatsCard from '../components/StatsCard';
 import FilterBar from '../components/FilterBar';
 import AdvancedSearchModal from '../components/AdvancedSearchModal';
+import ScoreBadge from '../components/ScoreBadge';
 import { getTranslatedStatus } from '../utils/statusTranslations';
 import { downloadFile } from '../utils/downloadFile';
 
@@ -220,12 +221,24 @@ function Dashboard() {
   const handleExportExcel = async () => {
     try {
       const blob = await candidateAPI.exportExcel(filters);
-      const filename = `candidatos_${new Date().toISOString().split('T')[0]}.xlsx`;
-      downloadFile(blob, filename);
-    } catch (err) {
-      console.error('Error exporting Excel:', err);
-      alert('Falha ao exportar Excel. Por favor, tente novamente.');
+      downloadFile(blob, `candidatos_${new Date().toISOString().split('T')[0]}.xlsx`);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      alert('Erro ao exportar para Excel. Por favor, tente novamente.');
     }
+  };
+
+  // Get status badge colors matching StatsCard colors
+  const getStatusBadgeClasses = (status: string) => {
+    const statusMap: { [key: string]: string } = {
+      'pending': 'bg-orange-100 text-orange-800',
+      'reviewing': 'bg-purple-100 text-purple-800',
+      'shortlisted': 'bg-cyan-100 text-cyan-800',
+      'interviewed': 'bg-indigo-100 text-indigo-800',
+      'accepted': 'bg-green-100 text-green-800',
+      'rejected': 'bg-red-100 text-red-800',
+    };
+    return statusMap[status] || 'bg-gray-100 text-gray-800';
   };
 
 
@@ -426,6 +439,7 @@ function Dashboard() {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Telefone</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">CPF</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Pontuação</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Aplicado em</th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
                   </tr>
@@ -437,9 +451,16 @@ function Dashboard() {
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.phone_number || 'N/A'}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.cpf || 'N/A'}</td>
                       <td className="px-4 py-3 text-sm">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClasses(candidate.status)}`}>
                           {getTranslatedStatus(candidate.status)}
                         </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {candidate.score !== null && candidate.score !== undefined ? (
+                          <ScoreBadge candidate={candidate} size="sm" showGrade={true} />
+                        ) : (
+                          <span className="text-gray-400 text-xs">N/A</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-700">{new Date(candidate.applied_date).toLocaleDateString()}</td>
                       <td className="px-4 py-3 text-sm text-right">
