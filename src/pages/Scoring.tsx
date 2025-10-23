@@ -189,8 +189,9 @@ const Scoring: React.FC = () => {
       console.log('Saving weights:', editedWeights);
       
       // Map frontend structure back to backend structure (referral fields go into experience_skills)
+      const { referral, ...restWeights } = editedWeights;
       const backendWeights = {
-        ...editedWeights,
+        ...restWeights,
         experience_skills: {
           ...editedWeights.experience_skills,
           has_relatives_in_company: editedWeights.referral?.has_relatives_in_company || 0,
@@ -198,6 +199,7 @@ const Scoring: React.FC = () => {
         }
       };
       
+      console.log('Backend weights to save:', backendWeights);
       await candidateAPI.updateScoringConfig(backendWeights);
       setWeights(editedWeights);
       setIsCustom(true);

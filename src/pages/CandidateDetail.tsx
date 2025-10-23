@@ -370,7 +370,7 @@ function CandidateDetail() {
               <h2 className="text-xl font-bold text-gray-900">Detalhamento da Pontuação</h2>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {/* Experience & Skills */}
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
                 <div className="flex items-center gap-2 mb-2">
@@ -437,6 +437,50 @@ function CandidateDetail() {
                 </div>
               </div>
 
+              {/* Indicação */}
+              <div className="bg-gradient-to-br from-teal-50 to-cyan-50 p-4 rounded-lg border border-teal-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-md flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold text-teal-900 text-sm">Indicação</h3>
+                </div>
+                <div className="flex items-end justify-between">
+                  <div className="text-2xl font-extrabold text-teal-700">
+                    {scoringConfig ? (() => {
+                      let score = 0;
+                      if (scoringConfig.experience_skills.has_relatives_in_company > 0 && candidate.has_relatives_in_company === 'sim') {
+                        score += scoringConfig.experience_skills.has_relatives_in_company;
+                      }
+                      if (scoringConfig.experience_skills.referred_by > 0 && candidate.referred_by && candidate.referred_by.trim()) {
+                        score += scoringConfig.experience_skills.referred_by;
+                      }
+                      return score.toFixed(1);
+                    })() : '0.0'}
+                  </div>
+                  <div className="text-xs font-semibold text-teal-600">
+                    / {scoringConfig ? (scoringConfig.experience_skills.has_relatives_in_company + scoringConfig.experience_skills.referred_by) : 0} pts
+                  </div>
+                </div>
+                <div className="mt-2 bg-teal-200 rounded-full h-1.5 overflow-hidden">
+                  <div 
+                    className="bg-gradient-to-r from-teal-500 to-cyan-600 h-1.5 rounded-full transition-all"
+                    style={{ width: `${scoringConfig ? (() => {
+                      let score = 0;
+                      if (scoringConfig.experience_skills.has_relatives_in_company > 0 && candidate.has_relatives_in_company === 'sim') {
+                        score += scoringConfig.experience_skills.has_relatives_in_company;
+                      }
+                      if (scoringConfig.experience_skills.referred_by > 0 && candidate.referred_by && candidate.referred_by.trim()) {
+                        score += scoringConfig.experience_skills.referred_by;
+                      }
+                      const maxScore = scoringConfig.experience_skills.has_relatives_in_company + scoringConfig.experience_skills.referred_by;
+                      return maxScore > 0 ? Math.min((score / maxScore) * 100, 100) : 0;
+                    })() : 0}%` }}
+                  />
+                </div>
+              </div>
 
               {/* Interview Performance */}
               <div className="bg-gradient-to-br from-amber-50 to-yellow-50 p-4 rounded-lg border border-amber-200">
@@ -775,11 +819,48 @@ function CandidateDetail() {
         </div>
 
         {/* Indicação Section */}
-        <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação</h2>
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Indicação</h2>
+            </div>
+            {candidate.score_breakdown && scoringConfig && (
+              <div className="bg-gradient-to-r from-teal-50 to-cyan-50 px-4 py-2 rounded-xl border border-teal-200">
+                <div className="text-xs font-semibold text-teal-600 uppercase tracking-wide">Pontuação Indicação</div>
+                <div className="text-lg font-bold text-teal-700">
+                  {(() => {
+                    let score = 0;
+                    if (scoringConfig.experience_skills.has_relatives_in_company > 0 && candidate.has_relatives_in_company === 'sim') {
+                      score += scoringConfig.experience_skills.has_relatives_in_company;
+                    }
+                    if (scoringConfig.experience_skills.referred_by > 0 && candidate.referred_by && candidate.referred_by.trim()) {
+                      score += scoringConfig.experience_skills.referred_by;
+                    }
+                    return score.toFixed(1);
+                  })()}/
+                  {scoringConfig.experience_skills.has_relatives_in_company + scoringConfig.experience_skills.referred_by}
+                </div>
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
+            <InfoItem 
+              label="Parentes/Amigos na Empresa" 
+              value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'}
+              score={scoringConfig && scoringConfig.experience_skills.has_relatives_in_company > 0 ? (candidate.has_relatives_in_company === 'sim' ? scoringConfig.experience_skills.has_relatives_in_company : 0) : undefined}
+              maxScore={scoringConfig?.experience_skills.has_relatives_in_company}
+            />
+            <InfoItem 
+              label="Indicado Por" 
+              value={candidate.referred_by || 'N/A'}
+              score={scoringConfig && scoringConfig.experience_skills.referred_by > 0 ? (candidate.referred_by && candidate.referred_by.trim() ? scoringConfig.experience_skills.referred_by : 0) : undefined}
+              maxScore={scoringConfig?.experience_skills.referred_by}
+            />
             <InfoItem label="Como Soube da Vaga" value={
               candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
               candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
