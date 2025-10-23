@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Award, TrendingUp, GraduationCap, MapPin, MessageSquare, Info, BarChart3, RefreshCw, Edit2, Save, X, RotateCcw } from 'lucide-react';
+import { Award, TrendingUp, GraduationCap, MapPin, MessageSquare, Info, BarChart3, RefreshCw, Edit2, Save, X, RotateCcw, Users } from 'lucide-react';
 import { candidateAPI } from '../services/api';
 import CriterionEditModal from '../components/CriterionEditModal';
 
@@ -18,6 +18,11 @@ interface ScoringWeights {
   experience_skills: {
     years_of_experience: number;
     idle_time: number;
+    worked_at_pinte_before: number;
+  };
+  referral: {
+    has_relatives_in_company: number;
+    referred_by: number;
   };
   education: {
     education_level: number;
@@ -41,25 +46,31 @@ const Scoring: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [recalculating, setRecalculating] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  // Initial state with zeros - actual values loaded from database in useEffect
   const [weights, setWeights] = useState<ScoringWeights>({
     experience_skills: {
-      years_of_experience: 27,
-      idle_time: 5,
+      years_of_experience: 0,
+      idle_time: 0,
+      worked_at_pinte_before: 0,
+    },
+    referral: {
+      has_relatives_in_company: 0,
+      referred_by: 0,
     },
     education: {
-      education_level: 16,
+      education_level: 0,
       courses: 0,
-      skills: 2,
+      skills: 0,
       certifications: 0,
     },
     availability_logistics: {
-      immediate_availability: 5,
-      own_transportation: 5,
-      travel_availability: 5,
-      height_painting: 5,
+      immediate_availability: 0,
+      own_transportation: 0,
+      travel_availability: 0,
+      height_painting: 0,
     },
     interview_performance: {
-      average_rating: 30,
+      average_rating: 0,
     },
   });
   const [editedWeights, setEditedWeights] = useState<ScoringWeights>(weights);
@@ -83,8 +94,16 @@ const Scoring: React.FC = () => {
   const fetchScoringConfig = async () => {
     try {
       const config = await candidateAPI.getScoringConfig();
-      setWeights(config.weights);
-      setEditedWeights(config.weights);
+      // Map backend structure to frontend structure (referral fields are in experience_skills on backend)
+      const mappedWeights = {
+        ...config.weights,
+        referral: {
+          has_relatives_in_company: config.weights.experience_skills?.has_relatives_in_company || 0,
+          referred_by: config.weights.experience_skills?.referred_by || 0,
+        }
+      };
+      setWeights(mappedWeights);
+      setEditedWeights(mappedWeights);
       setIsCustom(config.is_custom);
     } catch (error) {
       console.error('Error fetching scoring config:', error);
@@ -168,7 +187,18 @@ const Scoring: React.FC = () => {
     try {
       setSaving(true);
       console.log('Saving weights:', editedWeights);
-      await candidateAPI.updateScoringConfig(editedWeights);
+      
+      // Map frontend structure back to backend structure (referral fields go into experience_skills)
+      const backendWeights = {
+        ...editedWeights,
+        experience_skills: {
+          ...editedWeights.experience_skills,
+          has_relatives_in_company: editedWeights.referral?.has_relatives_in_company || 0,
+          referred_by: editedWeights.referral?.referred_by || 0,
+        }
+      };
+      
+      await candidateAPI.updateScoringConfig(backendWeights);
       setWeights(editedWeights);
       setIsCustom(true);
       setEditMode(false);
@@ -212,6 +242,11 @@ const Scoring: React.FC = () => {
     experience_skills: {
       years_of_experience: { label: 'Anos de experiência', description: '6+ anos: máximo | 4-5 anos: 87% | 2-3 anos: 67% | 1 ano: 33%' },
       idle_time: { label: 'Tempo parado', description: 'Empregado: máximo | 0-30 dias: 100% | 31-90 dias: 80% | 91-180 dias: 60% | 181-365 dias: 40% | 366-730 dias: 20% | 730+ dias: 10%' },
+      worked_at_pinte_before: { label: 'Trabalhou na Pinte Antes?', description: 'Sim: pontos configuráveis | Não: 0pts' },
+    },
+    referral: {
+      has_relatives_in_company: { label: 'Parentes/Amigos na Empresa', description: 'Sim: pontos configuráveis | Não: 0pts' },
+      referred_by: { label: 'Indicado Por', description: 'Indicado: pontos configuráveis | Não indicado: 0pts' },
     },
     education: {
       education_level: { label: 'Nível educacional', description: 'Pós-graduação: máximo | Superior: 95% | Técnico: 80%' },
@@ -240,6 +275,7 @@ const Scoring: React.FC = () => {
       criteria: [
         { label: 'Anos de experiência', points: '27 pontos', details: '6+ anos: 27pts | 4-5 anos: 23pts | 2-3 anos: 18pts | 1 ano: 9pts' },
         { label: 'Tempo parado', points: '5 pontos', details: 'Empregado: 5pts | 0-30 dias: 5pts | 31-90 dias: 4pts | 91-180 dias: 3pts | 181-365 dias: 2pts | 366-730 dias: 1pt | 730+ dias: 0.5pts' },
+        { label: 'Trabalhou na Pinte Antes?', points: '0 pontos', details: 'Sim: pontos configuráveis | Não: 0pts' },
       ],
     },
     {
@@ -266,6 +302,17 @@ const Scoring: React.FC = () => {
         { label: 'Transporte próprio', points: '6 pontos', details: 'Sim: 6pts | Não: 0pts' },
         { label: 'Disponibilidade para viagens', points: '6 pontos', details: 'Sim: 6pts | Ocasionalmente: 3pts' },
         { label: 'Pintura em altura', points: '0 pontos', details: 'Sim: pontos configuráveis | Não: 0pts' },
+      ],
+    },
+    {
+      key: 'referral',
+      label: 'Indicação',
+      icon: Users,
+      maxScore: 0,
+      color: 'teal',
+      criteria: [
+        { label: 'Parentes/Amigos na Empresa', points: '0 pontos', details: 'Sim: pontos configuráveis | Não: 0pts' },
+        { label: 'Indicado Por', points: '0 pontos', details: 'Indicado: pontos configuráveis | Não indicado: 0pts' },
       ],
     },
     {

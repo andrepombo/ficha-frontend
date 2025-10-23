@@ -383,12 +383,12 @@ function CandidateDetail() {
                 </div>
                 <div className="flex items-end justify-between">
                   <div className="text-2xl font-extrabold text-blue-700">{(candidate.score_breakdown.experience_skills || 0).toFixed(1)}</div>
-                  <div className="text-xs font-semibold text-blue-600">/ {scoringConfig ? (scoringConfig.experience_skills.years_of_experience + (scoringConfig.experience_skills.idle_time || 0)) : 32} pts</div>
+                  <div className="text-xs font-semibold text-blue-600">/ {scoringConfig ? Object.values(scoringConfig.experience_skills).reduce((sum: number, val) => sum + (typeof val === 'number' ? val : 0), 0) : 32} pts</div>
                 </div>
                 <div className="mt-2 bg-blue-200 rounded-full h-1.5 overflow-hidden">
                   <div 
                     className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${Math.min(((candidate.score_breakdown.experience_skills || 0) / (scoringConfig ? (scoringConfig.experience_skills.years_of_experience + (scoringConfig.experience_skills.idle_time || 0)) : 32)) * 100, 100)}%` }}
+                    style={{ width: `${Math.min(((candidate.score_breakdown.experience_skills || 0) / (scoringConfig ? Object.values(scoringConfig.experience_skills).reduce((sum: number, val) => sum + (typeof val === 'number' ? val : 0), 0) : 32)) * 100, 100)}%` }}
                   />
                 </div>
               </div>
@@ -480,7 +480,7 @@ function CandidateDetail() {
                   <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Experiência</div>
                   <div className="text-lg font-bold text-blue-700">
                     {(candidate.score_breakdown.experience_skills || 0).toFixed(1)}/
-                    {(scoringConfig.experience_skills.years_of_experience || 0) + (scoringConfig.experience_skills.idle_time || 0)}
+                    {Object.values(scoringConfig.experience_skills).reduce((sum: number, val) => sum + (typeof val === 'number' ? val : 0), 0)}
                   </div>
                 </div>
               )}
@@ -488,7 +488,7 @@ function CandidateDetail() {
             
             {/* Experience Summary with Score Breakdown */}
             {scoringConfig && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 <InfoItem 
                   label="Anos de Experiência" 
                   value={(() => {
@@ -581,8 +581,10 @@ function CandidateDetail() {
                   maxScore={scoringConfig?.experience_skills.idle_time}
                 />
                 <InfoItem 
-                  label="Trabalhou na Pinte Antes" 
+                  label="Trabalhou na Pinte Antes?" 
                   value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} 
+                  score={scoringConfig && scoringConfig.experience_skills.worked_at_pinte_before > 0 ? (candidate.worked_at_pinte_before === 'sim' ? scoringConfig.experience_skills.worked_at_pinte_before : 0) : undefined}
+                  maxScore={scoringConfig?.experience_skills.worked_at_pinte_before}
                 />
               </div>
             )}
@@ -772,6 +774,23 @@ function CandidateDetail() {
           </div>
         </div>
 
+        {/* Indicação Section */}
+        <div className="card mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
+            <InfoItem label="Como Soube da Vaga" value={
+              candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
+              candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
+              candidate.how_found_vacancy === 'instagram' ? 'Instagram' :
+              candidate.how_found_vacancy === 'linkedin' ? 'LinkedIn' :
+              candidate.how_found_vacancy === 'sine' ? 'Sine' :
+              candidate.how_found_vacancy === 'outros' ? `Outros: ${candidate.how_found_vacancy_other || ''}` : 'N/A'
+            } />
+          </div>
+        </div>
+
         {/* Interviews Section */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
           <div className="flex items-center justify-between mb-6">
@@ -864,22 +883,6 @@ function CandidateDetail() {
             <InfoItem label="Estado" value={candidate.state || 'N/A'} />
             <InfoItem label="CEP" value={candidate.postal_code || 'N/A'} />
             <InfoItem label="País" value={candidate.country || 'N/A'} />
-          </div>
-        </div>
-
-        <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Indicação</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InfoItem label="Parentes/Amigos na Empresa" value={candidate.has_relatives_in_company === 'sim' ? 'Sim' : candidate.has_relatives_in_company === 'nao' ? 'Não' : 'N/A'} />
-            <InfoItem label="Indicado Por" value={candidate.referred_by || 'N/A'} />
-            <InfoItem label="Como Soube da Vaga" value={
-              candidate.how_found_vacancy === 'facebook' ? 'Facebook' :
-              candidate.how_found_vacancy === 'indicacao_colaborador' ? 'Indicação de colaborador' :
-              candidate.how_found_vacancy === 'instagram' ? 'Instagram' :
-              candidate.how_found_vacancy === 'linkedin' ? 'LinkedIn' :
-              candidate.how_found_vacancy === 'sine' ? 'Sine' :
-              candidate.how_found_vacancy === 'outros' ? `Outros: ${candidate.how_found_vacancy_other || ''}` : 'N/A'
-            } />
           </div>
         </div>
 
