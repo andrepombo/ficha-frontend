@@ -7,6 +7,7 @@ import StatsCard from '../components/StatsCard';
 import FilterBar from '../components/FilterBar';
 import AdvancedSearchModal from '../components/AdvancedSearchModal';
 import ScoreBadge from '../components/ScoreBadge';
+import KanbanBoard from '../components/KanbanBoard';
 import { getTranslatedStatus } from '../utils/statusTranslations';
 import { downloadFile } from '../utils/downloadFile';
 
@@ -22,9 +23,9 @@ function Dashboard() {
                         searchParams.get('availability') || searchParams.get('travel_availability') ||
                         searchParams.get('height_painting') || searchParams.get('currently_employed');
   
-  const [viewMode, setViewMode] = useState<'cards' | 'list'>(() => {
-    // Default to list view if coming from Insights
-    return hasUrlFilters ? 'list' : 'cards';
+  const [viewMode, setViewMode] = useState<'cards' | 'list' | 'kanban'>(() => {
+    // Default to kanban view as the main view
+    return 'kanban';
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -378,7 +379,7 @@ function Dashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className={`${viewMode === 'kanban' ? 'max-w-[95%] mx-auto px-4 py-8' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
         {/* Current Month and Year */}
         <div className="mb-8">
           <div className="bg-white rounded-2xl shadow-xl border-2 border-purple-100 p-6 relative overflow-hidden">
@@ -429,8 +430,21 @@ function Dashboard() {
                 <div className="flex items-center bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl overflow-hidden shadow-md">
                   <button
                     type="button"
-                    onClick={() => setViewMode('cards')}
+                    onClick={() => setViewMode('kanban')}
                     className={`px-4 py-2.5 text-sm font-bold flex items-center space-x-2 transition-all duration-300 ${
+                      viewMode === 'kanban' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' : 'text-indigo-700 hover:bg-white'
+                    }`}
+                    title="Kanban"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                    </svg>
+                    <span className="hidden md:inline">Kanban</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('cards')}
+                    className={`px-4 py-2.5 text-sm font-bold flex items-center space-x-2 border-l-2 border-indigo-200 transition-all duration-300 ${
                       viewMode === 'cards' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' : 'text-indigo-700 hover:bg-white'
                     }`}
                     title="Cartões"
@@ -486,8 +500,13 @@ function Dashboard() {
               <div className="inline-flex items-center bg-white border border-indigo-200 rounded-lg overflow-hidden">
                 <button
                   type="button"
+                  onClick={() => setViewMode('kanban')}
+                  className={`px-3 py-2 text-sm ${viewMode === 'kanban' ? 'bg-indigo-600 text-white' : 'text-indigo-700'}`}
+                >Kanban</button>
+                <button
+                  type="button"
                   onClick={() => setViewMode('cards')}
-                  className={`px-3 py-2 text-sm ${viewMode === 'cards' ? 'bg-indigo-600 text-white' : 'text-indigo-700'}`}
+                  className={`px-3 py-2 text-sm border-l border-indigo-200 ${viewMode === 'cards' ? 'bg-indigo-600 text-white' : 'text-indigo-700'}`}
                 >Cartões</button>
                 <button
                   type="button"
@@ -502,6 +521,11 @@ function Dashboard() {
             <div className="card text-center py-12">
               <p className="text-gray-500 text-lg">Nenhum candidato encontrado com os filtros selecionados.</p>
             </div>
+          ) : viewMode === 'kanban' ? (
+            <KanbanBoard
+              candidates={filteredCandidates}
+              onStatusChange={handleStatusChange}
+            />
           ) : viewMode === 'cards' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCandidates.map(candidate => (
