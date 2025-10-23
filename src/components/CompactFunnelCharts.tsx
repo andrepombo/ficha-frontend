@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { candidateAPI } from '../services/api';
 
 interface FunnelStage {
@@ -116,8 +116,8 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
 
         {/* Vertical Bar Chart */}
         <div className="p-6">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={funnelData.stages}>
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={funnelData.stages} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis 
                 dataKey="name" 
@@ -153,6 +153,11 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
                 {funnelData.stages.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
+                <LabelList 
+                  dataKey="count" 
+                  position="top" 
+                  style={{ fontSize: '14px', fontWeight: 'bold', fill: '#374151' }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -194,8 +199,8 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
 
         {/* Vertical Bar Chart */}
         <div className="p-6">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={timeData.stages}>
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={timeData.stages} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis 
                 dataKey="stage" 
@@ -228,6 +233,11 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
                 {timeData.stages.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
+                <LabelList 
+                  dataKey="average_days" 
+                  position="top" 
+                  style={{ fontSize: '14px', fontWeight: 'bold', fill: '#374151' }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -249,28 +259,6 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
               </div>
             ))}
           </div>
-
-          {/* Note */}
-          {timeData.note && (
-            <div className="mt-4 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
-              <div className="flex items-start gap-2">
-                <svg
-                  className="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <p className="text-xs text-indigo-800">{timeData.note}</p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
