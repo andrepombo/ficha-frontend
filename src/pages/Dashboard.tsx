@@ -473,8 +473,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 mb-8">
-          <StatsCard title="Total" count={stats.total} color="blue" />
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <StatsCard title="Pendente" count={stats.pending} color="orange" />
           <StatsCard title="Em Análise" count={stats.reviewing} color="purple" />
           <StatsCard title="Selecionado" count={stats.shortlisted} color="cyan" />

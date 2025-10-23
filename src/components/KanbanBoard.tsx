@@ -111,7 +111,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ candidates, onStatusChange })
   };
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4 px-2">
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
       {kanbanColumns.map(column => {
         const columnCandidates = getCandidatesForColumn(column.status);
         const isDropTarget = dragOverColumn === column.id;
@@ -119,7 +119,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ candidates, onStatusChange })
         return (
           <div
             key={column.id}
-            className="flex-shrink-0 w-64"
+            className="flex flex-col"
             onDragOver={(e) => handleDragOver(e, column.id)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, column.id)}
