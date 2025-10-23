@@ -61,6 +61,8 @@ export interface ProfessionalExperience {
   data_admissao?: string;
   data_desligamento?: string;
   motivo_saida?: string;
+  idle_time_days?: number | null;
+  idle_time_formatted?: string | null;
 }
 
 export type CandidateStatus = 'pending' | 'reviewing' | 'shortlisted' | 'interviewed' | 'accepted' | 'rejected';

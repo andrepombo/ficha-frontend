@@ -488,7 +488,7 @@ function CandidateDetail() {
             
             {/* Experience Summary with Score Breakdown */}
             {scoringConfig && (
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <InfoItem 
                   label="Anos de Experiência" 
                   value={(() => {
@@ -525,6 +525,31 @@ function CandidateDetail() {
                     return yearsMax * 0.13;
                   })() : undefined}
                   maxScore={scoringConfig?.experience_skills.years_of_experience}
+                />
+                <InfoItem 
+                  label="Tempo Parado" 
+                  value={(() => {
+                    // Find the most recent job (with the latest data_desligamento)
+                    const sortedExperiences = [...candidate.professional_experiences].sort((a, b) => {
+                      if (!a.data_desligamento) return -1; // Jobs without end date (current) come first
+                      if (!b.data_desligamento) return 1;
+                      return new Date(b.data_desligamento).getTime() - new Date(a.data_desligamento).getTime();
+                    });
+                    
+                    const mostRecentJob = sortedExperiences[0];
+                    
+                    // If the most recent job has no end date, they're currently employed
+                    if (!mostRecentJob?.data_desligamento) {
+                      return 'Empregado atualmente';
+                    }
+                    
+                    // Use the idle_time_formatted from backend if available
+                    if (mostRecentJob.idle_time_formatted) {
+                      return mostRecentJob.idle_time_formatted;
+                    }
+                    
+                    return 'N/A';
+                  })()}
                 />
               </div>
             )}
