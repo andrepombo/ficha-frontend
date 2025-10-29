@@ -5,6 +5,7 @@ interface ActivityLog {
   id: number;
   candidate_name: string | null;
   interview_title: string | null;
+  interviewer_name: string | null;
   user_name: string | null;
   action_type: string;
   action_type_display: string;
@@ -302,6 +303,11 @@ const ActivityLog: React.FC = () => {
                       {log.interview_title && (
                         <span>
                           <strong>Entrevista:</strong> {log.interview_title}
+                        </span>
+                      )}
+                      {log.interviewer_name && (
+                        <span>
+                          <strong>Entrevistador:</strong> {log.interviewer_name}
                         </span>
                       )}
                     </div>
