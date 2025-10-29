@@ -73,6 +73,8 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
   const loadUsers = async () => {
     try {
       const data = await userAPI.getAll();
+      console.log('Users loaded:', data);
+      console.log('Users count:', data?.length);
       setUsers(data || []);
     } catch (err) {
       console.error('Error loading users:', err);
@@ -205,9 +207,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
                 {users && users.length > 0 ? (
                   users.map(user => (
                     <option key={user.id} value={user.id}>
-                      {user.first_name && user.last_name 
-                        ? `${user.first_name} ${user.last_name}`
-                        : user.username}
+                      {user.full_name || user.username}
                     </option>
                   ))
                 ) : (
