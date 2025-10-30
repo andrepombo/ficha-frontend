@@ -9,6 +9,7 @@ import InterviewCard from '../components/InterviewCard';
 import SkillsModal from '../components/SkillsModal';
 import CoursesModal from '../components/CoursesModal';
 import CertificationsModal from '../components/CertificationsModal';
+import DocumentViewer from '../components/DocumentViewer';
 
 const statusColors: Record<CandidateStatus, string> = {
   pending: 'bg-orange-100 text-orange-800',
@@ -367,7 +368,7 @@ function CandidateDetail() {
               </div>
             </div>
 
-            {/* CPF, Access Code, and Status Change */}
+            {/* CPF and Status Change */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
               <div className="flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2.5 rounded-xl font-medium border border-purple-200">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -375,14 +376,6 @@ function CandidateDetail() {
                 </svg>
                 <span>CPF: {candidate.cpf}</span>
               </div>
-              {candidate.access_code && (
-                <div className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-xl font-medium border border-indigo-200">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                  </svg>
-                  <span>Código: {candidate.access_code}</span>
-                </div>
-              )}
               
               {/* Inline Status Change - pushed to the right */}
               <div className="flex items-center gap-2 ml-auto">
@@ -1065,27 +1058,12 @@ function CandidateDetail() {
           </div>
         </div>
 
-        <div className="card mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Documentos</h2>
-          {candidate.resume ? (
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Currículo</p>
-              <a 
-                href={candidate.resume} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Baixar Currículo
-              </a>
-            </div>
-          ) : (
-            <p className="text-gray-500">Nenhum currículo enviado</p>
-          )}
-        </div>
+        {/* Documents Section */}
+        <DocumentViewer 
+          resume={candidate.resume}
+          photo={candidate.photo}
+          candidateName={candidate.full_name}
+        />
 
         {/* Internal Notes Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
