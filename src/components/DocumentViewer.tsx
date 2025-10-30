@@ -5,14 +5,28 @@ interface DocumentViewerProps {
   resume?: string;
   photo?: string;
   candidateName: string;
+  candidateId: number;
 }
 
-function DocumentViewer({ resume, photo, candidateName }: DocumentViewerProps) {
+function DocumentViewer({ resume, photo, candidateName, candidateId }: DocumentViewerProps) {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [iframeLoading, setIframeLoading] = useState(true);
+  const [iframeError, setIframeError] = useState(false);
 
   const getResumeUrl = (url: string) => {
     if (url.startsWith('http')) return url;
     return `http://localhost:8000${url}`;
+  };
+
+  const getDocumentViewerUrl = (docType: 'resume' | 'photo') => {
+    // Get JWT token from localStorage
+    const token = localStorage.getItem('access_token');
+    return `http://localhost:8000/api/candidates/${candidateId}/view-document/${docType}/?token=${token}`;
+  };
+
+  const isPdfFile = (url: string) => {
+    return url?.toLowerCase().endsWith('.pdf');
   };
 
   const hasDocuments = resume || photo;
@@ -61,15 +75,29 @@ function DocumentViewer({ resume, photo, candidateName }: DocumentViewerProps) {
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <a
-                  href={getResumeUrl(resume)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-all font-medium shadow-sm"
-                >
-                  <Eye className="w-5 h-5" />
-                  Visualizar
-                </a>
+                {isPdfFile(resume) ? (
+                  <button
+                    onClick={() => {
+                      setIframeLoading(true);
+                      setIframeError(false);
+                      setShowResumeModal(true);
+                    }}
+                    className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-all font-medium shadow-sm"
+                  >
+                    <Eye className="w-5 h-5" />
+                    Visualizar
+                  </button>
+                ) : (
+                  <a
+                    href={getResumeUrl(resume)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-all font-medium shadow-sm"
+                  >
+                    <Eye className="w-5 h-5" />
+                    Visualizar
+                  </a>
+                )}
                 <a
                   href={getResumeUrl(resume)}
                   target="_blank"
@@ -97,28 +125,13 @@ function DocumentViewer({ resume, photo, candidateName }: DocumentViewerProps) {
                 </div>
               </div>
 
-              {/* Photo Preview Thumbnail */}
-              <div className="mb-4">
-                <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden border-2 border-purple-200">
-                  <img
-                    src={photo.startsWith('http') ? photo : `http://localhost:8000${photo}`}
-                    alt={candidateName}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23ddd" width="200" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EImagem não disponível%3C/text%3E%3C/svg%3E';
-                    }}
-                  />
-                </div>
-              </div>
-
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={() => setShowPhotoModal(true)}
                   className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-purple-500 text-purple-600 rounded-lg hover:bg-purple-50 transition-all font-medium shadow-sm"
                 >
                   <Eye className="w-5 h-5" />
-                  Ampliar
+                  Visualizar
                 </button>
                 <a
                   href={photo.startsWith('http') ? photo : `http://localhost:8000${photo}`}
@@ -135,6 +148,61 @@ function DocumentViewer({ resume, photo, candidateName }: DocumentViewerProps) {
           )}
         </div>
       </div>
+
+      {/* Resume Preview Modal (PDF) */}
+      {showResumeModal && resume && isPdfFile(resume) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
+          <div className="relative max-w-6xl w-full h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+              <h3 className="text-2xl font-bold text-gray-900">Currículo - {candidateName}</h3>
+              <button
+                onClick={() => setShowResumeModal(false)}
+                className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors shadow-md"
+              >
+                <X className="w-6 h-6 text-gray-700" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden bg-gray-100 relative">
+              {iframeLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Carregando documento...</p>
+                  </div>
+                </div>
+              )}
+              {iframeError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
+                  <div className="text-center p-8">
+                    <div className="text-red-500 text-6xl mb-4">⚠️</div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">Erro ao carregar documento</h4>
+                    <p className="text-gray-600 mb-6">Não foi possível exibir o documento no visualizador.</p>
+                    <a
+                      href={getResumeUrl(resume)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium"
+                    >
+                      <Eye className="w-5 h-5" />
+                      Abrir em nova aba
+                    </a>
+                  </div>
+                </div>
+              )}
+              <iframe
+                src={getDocumentViewerUrl('resume')}
+                className="w-full h-full border-0"
+                title="Resume Preview"
+                onLoad={() => setIframeLoading(false)}
+                onError={() => {
+                  setIframeLoading(false);
+                  setIframeError(true);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Photo Modal */}
       {showPhotoModal && photo && (

@@ -1063,6 +1063,7 @@ function CandidateDetail() {
           resume={candidate.resume}
           photo={candidate.photo}
           candidateName={candidate.full_name}
+          candidateId={candidate.id}
         />
 
         {/* Internal Notes Card */}
