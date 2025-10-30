@@ -4,6 +4,7 @@ export interface Candidate {
   cpf: string;
   email: string;
   phone_number: string;
+  second_phone_number?: string;
   date_of_birth?: string;
   gender?: string;
   disability?: string;

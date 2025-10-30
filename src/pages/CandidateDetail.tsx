@@ -1035,6 +1035,7 @@ function CandidateDetail() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem label="Atualmente Empregado" value={candidate.currently_employed === 'sim' ? 'Sim' : candidate.currently_employed === 'nao' ? 'Não' : 'N/A'} />
+            <InfoItem label="Telefone alternativo" value={candidate.second_phone_number || 'N/A'} />
           </div>
         </div>
 
