@@ -1062,6 +1062,7 @@ function CandidateDetail() {
         <DocumentViewer 
           resume={candidate.resume}
           photo={candidate.photo}
+          workCards={candidate.work_cards}
           candidateName={candidate.full_name}
           candidateId={candidate.id}
         />

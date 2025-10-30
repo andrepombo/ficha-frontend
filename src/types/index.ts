@@ -41,6 +41,7 @@ export interface Candidate {
   notes?: string;
   access_code?: string;
   professional_experiences?: ProfessionalExperience[];
+  work_cards?: WorkCard[];
   score?: number;
   score_grade?: string;
   score_color?: string;
@@ -65,6 +66,16 @@ export interface ProfessionalExperience {
   motivo_saida?: string;
   idle_time_days?: number | null;
   idle_time_formatted?: string | null;
+}
+
+export interface WorkCard {
+  id: number;
+  file: string;
+  file_url: string;
+  file_name: string;
+  file_size: number;
+  file_extension: string;
+  uploaded_at: string;
 }
 
 export type CandidateStatus = 'pending' | 'reviewing' | 'shortlisted' | 'interviewed' | 'accepted' | 'rejected';

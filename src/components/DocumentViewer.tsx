@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { FileText, Image as ImageIcon, Download, Eye, X } from 'lucide-react';
+import { FileText, Image as ImageIcon, Download, Eye, X, File } from 'lucide-react';
+import { WorkCard } from '../types';
 
 interface DocumentViewerProps {
   resume?: string;
   photo?: string;
+  workCards?: WorkCard[];
   candidateName: string;
   candidateId: number;
 }
 
-function DocumentViewer({ resume, photo, candidateName, candidateId }: DocumentViewerProps) {
+function DocumentViewer({ resume, photo, workCards, candidateName, candidateId }: DocumentViewerProps) {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(true);
@@ -29,7 +31,7 @@ function DocumentViewer({ resume, photo, candidateName, candidateId }: DocumentV
     return url?.toLowerCase().endsWith('.pdf');
   };
 
-  const hasDocuments = resume || photo;
+  const hasDocuments = resume || photo || (workCards && workCards.length > 0);
 
   if (!hasDocuments) {
     return (
@@ -147,6 +149,60 @@ function DocumentViewer({ resume, photo, candidateName, candidateId }: DocumentV
             </div>
           )}
         </div>
+
+        {/* Work Cards Section */}
+        {workCards && workCards.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <File className="w-5 h-5 text-green-600" />
+              Carteira de Trabalho ({workCards.length})
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {workCards.map((workCard) => (
+                <div
+                  key={workCard.id}
+                  className="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-4 border-2 border-green-200 hover:border-green-300 transition-all"
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center text-white shadow-md flex-shrink-0">
+                      <File className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-gray-900 text-sm truncate" title={workCard.file_name}>
+                        {workCard.file_name}
+                      </h4>
+                      <p className="text-xs text-gray-600">
+                        {workCard.file_extension.toUpperCase()} • {(workCard.file_size / 1024).toFixed(1)} KB
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(workCard.uploaded_at).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <a
+                      href={workCard.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-white border-2 border-green-500 text-green-600 rounded-lg hover:bg-green-50 transition-all font-medium text-sm shadow-sm"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Ver
+                    </a>
+                    <a
+                      href={workCard.file_url}
+                      download
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg hover:from-green-700 hover:to-teal-700 transition-all font-medium text-sm shadow-md"
+                    >
+                      <Download className="w-4 h-4" />
+                      Baixar
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Resume Preview Modal (PDF) */}
