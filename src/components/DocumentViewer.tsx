@@ -18,23 +18,25 @@ function DocumentViewer({ resume, photo, workCards, candidateName, candidateId }
   const [iframeLoading, setIframeLoading] = useState(true);
   const [iframeError, setIframeError] = useState(false);
 
+  const API_BASE = (import.meta as any)?.env?.VITE_API_BASE_URL || window.location.origin;
+
   const getResumeUrl = (url: string) => {
     if (url.startsWith('http')) return url;
-    return `http://localhost:8000${url}`;
+    return `${API_BASE}${url}`;
   };
 
   const getDocumentViewerUrl = (docType: 'resume' | 'photo', download: boolean = false) => {
     // Get JWT token from localStorage
     const token = localStorage.getItem('access_token');
     const downloadParam = download ? '&download=true' : '';
-    return `http://localhost:8000/api/candidates/${candidateId}/view-document/${docType}/?token=${token}${downloadParam}`;
+    return `${API_BASE}/api/candidates/${candidateId}/view-document/${docType}/?token=${token}${downloadParam}`;
   };
 
   const getWorkCardViewerUrl = (workCardId: number, download: boolean = false) => {
     // Get JWT token from localStorage
     const token = localStorage.getItem('access_token');
     const downloadParam = download ? '&download=true' : '';
-    return `http://localhost:8000/api/candidates/view-work-card/${workCardId}/?token=${token}${downloadParam}`;
+    return `${API_BASE}/api/candidates/view-work-card/${workCardId}/?token=${token}${downloadParam}`;
   };
 
   const isPdfFile = (url: string) => {
@@ -282,7 +284,7 @@ function DocumentViewer({ resume, photo, workCards, candidateName, candidateId }
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Foto - {candidateName}</h3>
               <div className="flex items-center justify-center">
                 <img
-                  src={photo.startsWith('http') ? photo : `http://localhost:8000${photo}`}
+                  src={photo.startsWith('http') ? photo : `${API_BASE}${photo}`}
                   alt={candidateName}
                   className="max-w-full max-h-[70vh] object-contain rounded-lg"
                   onError={(e) => {
