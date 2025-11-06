@@ -1061,7 +1061,7 @@ function CandidateDetail() {
         {/* Documents Section */}
         <DocumentViewer 
           resume={candidate.resume}
-          photo={candidate.photo}
+          photo={(candidate as any).photo_medium || candidate.photo}
           workCards={candidate.work_cards}
           candidateName={candidate.full_name}
           candidateId={candidate.id}
