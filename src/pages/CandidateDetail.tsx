@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { candidateAPI } from '../services/api';
 import { Candidate, CandidateStatus, Interview } from '../types';
@@ -78,12 +78,15 @@ function CandidateDetail() {
   const [isCoursesModalOpen, setIsCoursesModalOpen] = useState(false);
   const [isCertificationsModalOpen, setIsCertificationsModalOpen] = useState(false);
 
+  // Guard against double invocation in React.StrictMode (dev)
+  const initializedForIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (id) {
-      fetchCandidate(parseInt(id));
-      fetchInterviews(parseInt(id));
-      fetchScoringConfig();
-    }
+    if (!id) return;
+    if (initializedForIdRef.current === id) return;
+    initializedForIdRef.current = id;
+    fetchCandidate(parseInt(id));
+    fetchInterviews(parseInt(id));
+    fetchScoringConfig();
   }, [id]);
 
   const fetchScoringConfig = async () => {
