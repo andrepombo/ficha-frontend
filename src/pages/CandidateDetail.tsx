@@ -254,17 +254,22 @@ function CandidateDetail() {
             {/* Top Section: Avatar, Name, and Application Date */}
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-5">
-                {candidate.photo && candidate.photo.trim() !== '' ? (
+                {(candidate.photo || (candidate as any).photo_medium || (candidate as any).photo_thumb || (candidate as any).photo_original) ? (
                   <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg ring-4 ring-purple-100">
                     <img 
-                      src={candidate.photo?.startsWith('http') ? candidate.photo : `http://localhost:8000${candidate.photo}`}
+                      src={(() => {
+                        const anyCand: any = candidate as any;
+                        const src = anyCand.photo_medium || anyCand.photo_thumb || anyCand.photo_original || anyCand.photo;
+                        return src;
+                      })()}
                       alt={candidate.full_name}
                       className="w-full h-full object-cover"
                       crossOrigin="anonymous"
                       onError={(e) => {
-                        const photoUrl = candidate.photo?.startsWith('http') ? candidate.photo : `http://localhost:8000${candidate.photo}`;
-                        console.error('Error loading photo. URL:', photoUrl);
-                        console.error('Photo field value:', candidate.photo);
+                        const anyCand: any = candidate as any;
+                        const src = anyCand.photo_medium || anyCand.photo_thumb || anyCand.photo_original || anyCand.photo;
+                        console.error('Error loading photo. URL:', src);
+                        console.error('Photo field value:', src);
                         // Fallback to gradient avatar
                         const parent = e.currentTarget.parentElement;
                         if (parent) {
