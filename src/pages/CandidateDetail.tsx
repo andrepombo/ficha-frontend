@@ -104,21 +104,9 @@ function CandidateDetail() {
       console.log('🖼️ PHOTO DEBUG - Photo field value:', data.photo);
       console.log('🖼️ PHOTO DEBUG - Photo type:', typeof data.photo);
       console.log('🖼️ PHOTO DEBUG - Photo is truthy?:', !!data.photo);
-      
-      // Always recalculate score to ensure it's up to date with current config
-      console.log('Recalculating score to match current configuration...');
-      try {
-        await candidateAPI.calculateScore(candidateId);
-        // Fetch again to get updated score
-        const updatedData = await candidateAPI.getById(candidateId);
-        setCandidate(updatedData);
-        setNotes(updatedData.notes || '');
-      } catch (scoreErr) {
-        console.error('Error calculating score:', scoreErr);
-        // Still set the candidate data even if score calculation fails
-        setCandidate(data);
-        setNotes(data.notes || '');
-      }
+      // Use existing stored score; avoid recalculating on page load to reduce requests
+      setCandidate(data);
+      setNotes(data.notes || '');
       
       setError(null);
     } catch (err) {

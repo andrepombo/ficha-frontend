@@ -11,6 +11,10 @@ const api = axios.create({
   },
 });
 
+// Simple in-memory cache for configuration endpoints
+let scoringConfigCache: { data: any; ts: number } | null = null;
+const SCORING_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 // Add request interceptor to include auth token
 api.interceptors.request.use(
   (config) => {
@@ -159,7 +163,12 @@ export const candidateAPI = {
   },
 
   getScoringConfig: async (): Promise<any> => {
+    const now = Date.now();
+    if (scoringConfigCache && now - scoringConfigCache.ts < SCORING_CONFIG_TTL_MS) {
+      return scoringConfigCache.data;
+    }
     const response = await api.get('/candidates/scoring_config/');
+    scoringConfigCache = { data: response.data, ts: now };
     return response.data;
   },
 
