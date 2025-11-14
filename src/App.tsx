@@ -12,6 +12,8 @@ import Insights from './pages/Insights'
 import Scoring from './pages/Scoring'
 import Calendar from './pages/Calendar'
 import ActivityLog from './pages/ActivityLog'
+import Questionnaires from './pages/Questionnaires'
+import Positions from './pages/Positions'
 
 function App() {
   return (
@@ -87,6 +89,26 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <ActivityLog />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/questionnaires"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Questionnaires />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/positions"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Positions />
                 </Layout>
               </ProtectedRoute>
             }

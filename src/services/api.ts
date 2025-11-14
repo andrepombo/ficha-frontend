@@ -242,4 +242,125 @@ export const userAPI = {
   },
 };
 
+export const questionnaireApi = {
+  // Templates
+  getTemplates: async (): Promise<any[]> => {
+    const response = await api.get('/questionnaires/');
+    return response.data;
+  },
+
+  getTemplate: async (id: number): Promise<any> => {
+    const response = await api.get(`/questionnaires/${id}/`);
+    return response.data;
+  },
+
+  getActiveTemplate: async (positionKey: string): Promise<any> => {
+    const response = await api.get('/questionnaires/active/', {
+      params: { position_key: positionKey },
+    });
+    return response.data;
+  },
+
+  createTemplate: async (data: any): Promise<any> => {
+    const response = await api.post('/questionnaires/', data);
+    return response.data;
+  },
+
+  updateTemplate: async (id: number, data: any): Promise<any> => {
+    const response = await api.patch(`/questionnaires/${id}/`, data);
+    return response.data;
+  },
+
+  deleteTemplate: async (id: number): Promise<void> => {
+    await api.delete(`/questionnaires/${id}/`);
+  },
+
+  activateTemplate: async (id: number): Promise<any> => {
+    const response = await api.post(`/questionnaires/${id}/activate/`);
+    return response.data;
+  },
+
+  deactivateTemplate: async (id: number): Promise<any> => {
+    const response = await api.post(`/questionnaires/${id}/deactivate/`);
+    return response.data;
+  },
+
+  getTemplateStats: async (id: number): Promise<any> => {
+    const response = await api.get(`/questionnaires/${id}/stats/`);
+    return response.data;
+  },
+
+  // Questions
+  getQuestions: async (templateId?: number): Promise<any[]> => {
+    const params = templateId ? { template_id: templateId } : {};
+    const response = await api.get('/questions/', { params });
+    return response.data;
+  },
+
+  createQuestion: async (data: any): Promise<any> => {
+    const response = await api.post('/questions/', data);
+    return response.data;
+  },
+
+  updateQuestion: async (id: number, data: any): Promise<any> => {
+    const response = await api.patch(`/questions/${id}/`, data);
+    return response.data;
+  },
+
+  deleteQuestion: async (id: number): Promise<void> => {
+    await api.delete(`/questions/${id}/`);
+  },
+
+  // Options
+  getOptions: async (questionId?: number): Promise<any[]> => {
+    const params = questionId ? { question_id: questionId } : {};
+    const response = await api.get('/question-options/', { params });
+    return response.data;
+  },
+
+  createOption: async (data: any): Promise<any> => {
+    const response = await api.post('/question-options/', data);
+    return response.data;
+  },
+
+  updateOption: async (id: number, data: any): Promise<any> => {
+    const response = await api.patch(`/question-options/${id}/`, data);
+    return response.data;
+  },
+
+  deleteOption: async (id: number): Promise<void> => {
+    await api.delete(`/question-options/${id}/`);
+  },
+
+  // Responses
+  submitResponse: async (data: any): Promise<any> => {
+    const response = await api.post('/questionnaire-responses/submit/', data);
+    return response.data;
+  },
+
+  getResponses: async (params?: any): Promise<any[]> => {
+    const response = await api.get('/questionnaire-responses/', { params });
+    return response.data;
+  },
+
+  getResponse: async (id: number): Promise<any> => {
+    const response = await api.get(`/questionnaire-responses/${id}/`);
+    return response.data;
+  },
+
+  // Analytics
+  getAnalyticsByPosition: async (positionKey?: string): Promise<any[]> => {
+    const params = positionKey ? { position_key: positionKey } : {};
+    const response = await api.get('/questionnaire-responses/analytics/by-position/', { params });
+    return response.data;
+  },
+
+  getOptionDistribution: async (questionId: number): Promise<any[]> => {
+    const response = await api.get('/questionnaire-responses/analytics/option-distribution/', {
+      params: { question_id: questionId },
+    });
+    return response.data;
+  },
+};
+
 export default api;
