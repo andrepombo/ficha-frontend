@@ -102,15 +102,21 @@ function DocumentViewer({ resume, photo, workCards, candidateName, candidateId }
                     Visualizar
                   </button>
                 ) : (
-                  <a
-                    href={getResumeUrl(resume)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => {
+                      try {
+                        alert('Não foi possivel a visualização, fazendo o download');
+                      } catch (_) {
+                        // ignore if alerts are blocked
+                      }
+                      // Use backend proxy to force download and avoid S3 XML errors
+                      window.location.href = getDocumentViewerUrl('resume', true);
+                    }}
                     className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-all font-medium shadow-sm"
                   >
                     <Eye className="w-5 h-5" />
                     Visualizar
-                  </a>
+                  </button>
                 )}
                 <a
                   href={getDocumentViewerUrl('resume', true)}
