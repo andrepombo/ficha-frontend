@@ -40,7 +40,9 @@ function DocumentViewer({ resume, photo, workCards, candidateName, candidateId }
   };
 
   const isPdfFile = (url: string) => {
-    return url?.toLowerCase().endsWith('.pdf');
+    if (!url) return false;
+    const base = url.split('?')[0] || url;
+    return base.toLowerCase().endsWith('.pdf');
   };
 
   const hasDocuments = resume || photo || (workCards && workCards.length > 0);
