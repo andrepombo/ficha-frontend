@@ -23,6 +23,7 @@ interface QuestionnaireTemplate {
   id?: number;
   position_key: string;
   title: string;
+  step_number: number;
   version: number;
   is_active: boolean;
 }
@@ -35,6 +36,7 @@ interface Props {
 function QuestionnaireBuilder({ template, onClose }: Props) {
   const [title, setTitle] = useState(template?.title || '');
   const [positionKey, setPositionKey] = useState(template?.position_key || '');
+  const [stepNumber, setStepNumber] = useState(template?.step_number || 1);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -167,12 +169,14 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
         await questionnaireApi.updateTemplate(templateId, {
           title,
           position_key: positionKey,
+          step_number: stepNumber,
           version: (template?.version || 1) + 1,
         });
       } else {
         const newTemplate = await questionnaireApi.createTemplate({
           title,
           position_key: positionKey,
+          step_number: stepNumber,
           version: 1,
           is_active: false,
         });
@@ -251,7 +255,7 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
       {/* Template Info */}
       <div className="bg-white rounded-lg shadow p-6 space-y-4">
         <h2 className="text-lg font-semibold text-gray-900">Informações do Questionário</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Título
@@ -281,6 +285,19 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
                 </option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Ordem (após Dados Pessoais)
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={stepNumber}
+              onChange={(e) => setStepNumber(parseInt(e.target.value) || 1)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              placeholder="1"
+            />
           </div>
         </div>
       </div>

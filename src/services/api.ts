@@ -268,6 +268,13 @@ export const questionnaireApi = {
     return response.data;
   },
 
+  getStepsForPosition: async (positionKey: string): Promise<any> => {
+    const response = await api.get('/questionnaires/steps-for-position/', {
+      params: { position_key: positionKey },
+    });
+    return response.data;
+  },
+
   createTemplate: async (data: any): Promise<any> => {
     const response = await api.post('/questionnaires/', data);
     return response.data;
@@ -289,6 +296,13 @@ export const questionnaireApi = {
 
   deactivateTemplate: async (id: number): Promise<any> => {
     const response = await api.post(`/questionnaires/${id}/deactivate/`);
+    return response.data;
+  },
+
+  updateTemplateStep: async (id: number, stepNumber: number): Promise<any> => {
+    const response = await api.post(`/questionnaires/${id}/update_step/`, {
+      step_number: stepNumber,
+    });
     return response.data;
   },
 

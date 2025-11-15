@@ -8,6 +8,7 @@ interface QuestionnaireTemplate {
   id: number;
   position_key: string;
   title: string;
+  step_number: number;
   version: number;
   is_active: boolean;
   total_points: number;
@@ -97,6 +98,18 @@ function Questionnaires() {
     setSelectedTemplate(null);
   };
 
+  const handleUpdateStep = async (template: QuestionnaireTemplate, newStep: number) => {
+    if (newStep < 1) return;
+    
+    try {
+      await questionnaireApi.updateTemplateStep(template.id, newStep);
+      await loadTemplates();
+    } catch (error) {
+      console.error('Error updating step:', error);
+      alert('Erro ao atualizar ordem do questionário');
+    }
+  };
+
   const filteredTemplates = filterPosition
     ? templates.filter(t => t.position_key.toLowerCase().includes(filterPosition.toLowerCase()))
     : templates;
@@ -128,7 +141,7 @@ function Questionnaires() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Questionários</h1>
           <p className="text-gray-600 mt-1">
-            Gerencie questionários por posição com perguntas de múltipla escolha
+            Gerencie múltiplos questionários por posição e defina a ordem de exibição
           </p>
         </div>
         <button
@@ -225,7 +238,17 @@ function Questionnaires() {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="text-xs text-gray-600 mb-1">Ordem</p>
+                    <input
+                      type="number"
+                      min="1"
+                      value={template.step_number}
+                      onChange={(e) => handleUpdateStep(template, parseInt(e.target.value) || 1)}
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    />
+                  </div>
                   <div>
                     <p className="text-xs text-gray-600">Questões</p>
                     <p className="text-lg font-semibold text-gray-900">
