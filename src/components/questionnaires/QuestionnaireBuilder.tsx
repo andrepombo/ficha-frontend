@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Trash2, Save, GripVertical } from 'lucide-react';
-import { questionnaireApi } from '../../services/api';
+import { questionnaireApi, positionsAPI } from '../../services/api';
 
 interface Question {
   id?: number;
@@ -38,12 +38,28 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [positions, setPositions] = useState<any[]>([]);
+  const [loadingPositions, setLoadingPositions] = useState(false);
 
   useEffect(() => {
+    loadPositions();
     if (template?.id) {
       loadTemplate();
     }
   }, [template]);
+
+  const loadPositions = async () => {
+    try {
+      setLoadingPositions(true);
+      const data = await positionsAPI.getAll();
+      setPositions(data.filter((p: any) => p.is_active));
+    } catch (error) {
+      console.error('Error loading positions:', error);
+      setPositions([]);
+    } finally {
+      setLoadingPositions(false);
+    }
+  };
 
   const loadTemplate = async () => {
     if (!template?.id) return;
@@ -252,13 +268,19 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Posição
             </label>
-            <input
-              type="text"
+            <select
               value={positionKey}
               onChange={(e) => setPositionKey(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder="Ex: Painter"
-            />
+              disabled={loadingPositions}
+            >
+              <option value="">Selecione uma posição</option>
+              {positions.map((position) => (
+                <option key={position.id} value={position.name}>
+                  {position.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

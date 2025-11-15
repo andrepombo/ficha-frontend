@@ -242,6 +242,13 @@ export const userAPI = {
   },
 };
 
+export const positionsAPI = {
+  getAll: async (): Promise<any[]> => {
+    const response = await api.get('/positions/');
+    return response.data;
+  },
+};
+
 export const questionnaireApi = {
   // Templates
   getTemplates: async (): Promise<any[]> => {
