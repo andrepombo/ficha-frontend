@@ -111,7 +111,7 @@ function Questionnaires() {
   };
 
   const filteredTemplates = filterPosition
-    ? templates.filter(t => t.position_key.toLowerCase().includes(filterPosition.toLowerCase()))
+    ? templates.filter(t => t.position_key === filterPosition)
     : templates;
 
   const positions = Array.from(new Set(templates.map(t => t.position_key)));
@@ -156,7 +156,7 @@ function Questionnaires() {
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4">
         <div className="flex items-center gap-4">
-          <div className="flex-1">
+          <div className="w-full max-w-sm">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Filtrar por Posição
             </label>
