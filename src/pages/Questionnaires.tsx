@@ -209,53 +209,60 @@ function Questionnaires() {
           {filteredTemplates.map(template => (
             <div
               key={template.id}
-              className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
+              className="bg-white rounded-2xl shadow-sm ring-1 ring-gray-100 hover:shadow-md hover:ring-indigo-100 transition-all"
             >
               <div className="p-6">
                 {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {template.title}
+                <div className="flex items-start justify-between mb-5">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <span className="truncate">{template.title}</span>
+                      <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                        v{template.version}
+                      </span>
                     </h3>
-                    <p className="text-sm text-gray-600">
-                      {template.position_key}
-                    </p>
+                    <div className="mt-1">
+                      <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-gray-50 text-gray-700 border border-gray-200">
+                        {template.position_key}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-3 shrink-0">
                     {template.is_active ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 border border-green-100 text-xs font-medium rounded-full">
                         <CheckCircle className="w-3 h-3" />
                         Ativo
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 text-gray-700 border border-gray-200 text-xs font-medium rounded-full">
                         <XCircle className="w-3 h-3" />
                         Inativo
                       </span>
                     )}
+
+                    {/* Ordem input placed next to status badge */}
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-semibold text-gray-700 hidden sm:block">Ordem</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={template.step_number}
+                        onChange={(e) => handleUpdateStep(template, parseInt(e.target.value) || 1)}
+                        className="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="text-xs text-gray-600 mb-1">Ordem</p>
-                    <input
-                      type="number"
-                      min="1"
-                      value={template.step_number}
-                      onChange={(e) => handleUpdateStep(template, parseInt(e.target.value) || 1)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
+                <div className="grid grid-cols-2 gap-4 mb-5 p-3 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 divide-x divide-gray-200">
+                  <div className="pr-4">
                     <p className="text-xs text-gray-600">Questões</p>
                     <p className="text-lg font-semibold text-gray-900">
                       {template.questions?.length || 0}
                     </p>
                   </div>
-                  <div>
+                  <div className="pl-4">
                     <p className="text-xs text-gray-600">Pontos</p>
                     <p className="text-lg font-semibold text-gray-900">
                       {template.total_points || 0}
@@ -263,25 +270,18 @@ function Questionnaires() {
                   </div>
                 </div>
 
-                {/* Version */}
-                <div className="mb-4">
-                  <span className="text-xs text-gray-500">
-                    Versão {template.version}
-                  </span>
-                </div>
-
                 {/* Actions */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleEdit(template)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors text-sm"
                   >
                     <Edit2 className="w-4 h-4" />
                     Editar
                   </button>
                   <button
                     onClick={() => handleViewAnalytics(template)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-sm"
                   >
                     <BarChart3 className="w-4 h-4" />
                     Analytics
@@ -293,15 +293,15 @@ function Questionnaires() {
                     onClick={() => handleToggleActive(template)}
                     className={`flex-1 px-3 py-2 rounded-lg transition-colors text-sm ${
                       template.is_active
-                        ? 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100'
-                        : 'bg-green-50 text-green-600 hover:bg-green-100'
+                        ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-100'
+                        : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-100'
                     }`}
                   >
                     {template.is_active ? 'Desativar' : 'Ativar'}
                   </button>
                   <button
                     onClick={() => handleDelete(template.id)}
-                    className="px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                    className="px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors border border-red-100"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
