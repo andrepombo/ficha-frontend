@@ -334,28 +334,6 @@ function CandidateDetail() {
                 <span className={`status-badge ${statusColors[candidate.status]} inline-block text-sm px-5 py-2 rounded-xl font-semibold shadow-md`}>
                   {getTranslatedStatus(candidate.status)}
                 </span>
-                {candidate.score !== undefined && candidate.score !== null && (() => {
-                  const score = Number(candidate.score);
-                  let bgGradient = 'from-red-500 to-red-600'; // Default for low scores
-                  
-                  if (score >= 80) {
-                    bgGradient = 'from-green-500 to-green-600'; // Excellent
-                  } else if (score >= 60) {
-                    bgGradient = 'from-yellow-400 to-yellow-500'; // Good
-                  } else if (score >= 40) {
-                    bgGradient = 'from-orange-400 to-orange-500'; // Fair
-                  }
-                  
-                  return (
-                    <div className={`bg-gradient-to-br ${bgGradient} px-6 py-3 rounded-xl shadow-lg`}>
-                      <div className="text-center">
-                        <div className="text-xs font-bold text-white uppercase tracking-wide mb-1">Pontuação Total</div>
-                        <div className="text-3xl font-black text-white">{score.toFixed(1)}</div>
-                        <div className="text-xs font-semibold text-white/90">de 100 pontos</div>
-                      </div>
-                    </div>
-                  );
-                })()}
               </div>
             </div>
 
@@ -484,13 +462,42 @@ function CandidateDetail() {
         {/* Score Breakdown Card */}
         {candidate.score_breakdown && (
           <div className="bg-white rounded-xl shadow p-6 mb-6 border border-purple-100">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white shadow">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white shadow">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900">Detalhamento da Pontuação</h2>
               </div>
-              <h2 className="text-xl font-bold text-gray-900">Detalhamento da Pontuação</h2>
+              {candidate.score !== undefined && candidate.score !== null && (() => {
+                const score = Number(candidate.score);
+                let bgColor = 'bg-red-50';
+                let textColor = 'text-red-700';
+                let borderColor = 'border-red-200';
+                
+                if (score >= 80) {
+                  bgColor = 'bg-green-50';
+                  textColor = 'text-green-700';
+                  borderColor = 'border-green-200';
+                } else if (score >= 60) {
+                  bgColor = 'bg-yellow-50';
+                  textColor = 'text-yellow-700';
+                  borderColor = 'border-yellow-200';
+                } else if (score >= 40) {
+                  bgColor = 'bg-orange-50';
+                  textColor = 'text-orange-700';
+                  borderColor = 'border-orange-200';
+                }
+                
+                return (
+                  <div className={`${bgColor} ${borderColor} border px-4 py-2 rounded-xl`}>
+                    <div className={`text-xs font-semibold ${textColor} uppercase tracking-wide`}>Pontuação Total</div>
+                    <div className={`text-lg font-bold ${textColor}`}>{score.toFixed(1)}/100</div>
+                  </div>
+                );
+              })()}
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -791,10 +798,13 @@ function CandidateDetail() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Educação & Qualificações</h2>
             </div>
-            {candidate.score_breakdown && candidate.score_breakdown.education > 0 && (
+            {candidate.score_breakdown && (
               <div className="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-2 rounded-xl border border-purple-200">
                 <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Pontuação Educação</div>
-                <div className="text-lg font-bold text-purple-700">{(candidate.score_breakdown.education || 0).toFixed(1)}/{scoringConfig ? scoringConfig.education.education_level + scoringConfig.education.courses : 20}</div>
+                <div className="text-lg font-bold text-purple-700">
+                  {(candidate.score_breakdown.education || 0).toFixed(1)}/
+                  {scoringConfig ? (scoringConfig.education.education_level + scoringConfig.education.courses + (scoringConfig.education.skills || 0) + (scoringConfig.education.certifications || 0)) : 29}
+                </div>
               </div>
             )}
           </div>
@@ -901,10 +911,13 @@ function CandidateDetail() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Disponibilidade & Logística</h2>
             </div>
-            {candidate.score_breakdown && candidate.score_breakdown.availability_logistics > 0 && (
+            {candidate.score_breakdown && (
               <div className="bg-gradient-to-r from-green-50 to-teal-50 px-4 py-2 rounded-xl border border-green-200">
                 <div className="text-xs font-semibold text-green-600 uppercase tracking-wide">Pontuação Disponibilidade</div>
-                <div className="text-lg font-bold text-green-700">{(candidate.score_breakdown.availability_logistics || 0).toFixed(1)}/{scoringConfig ? scoringConfig.availability_logistics.immediate_availability + scoringConfig.availability_logistics.own_transportation + scoringConfig.availability_logistics.travel_availability + (scoringConfig.availability_logistics.height_painting || 0) : 26}</div>
+                <div className="text-lg font-bold text-green-700">
+                  {(candidate.score_breakdown.availability_logistics || 0).toFixed(1)}/
+                  {scoringConfig ? (scoringConfig.availability_logistics.immediate_availability + scoringConfig.availability_logistics.own_transportation + scoringConfig.availability_logistics.travel_availability + (scoringConfig.availability_logistics.height_painting || 0)) : 23}
+                </div>
               </div>
             )}
           </div>
