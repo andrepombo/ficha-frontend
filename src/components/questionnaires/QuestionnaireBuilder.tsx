@@ -8,7 +8,7 @@ interface Question {
   question_type: 'multi_select' | 'single_select';
   order: number;
   points: number;
-  scoring_mode: 'all_or_nothing' | 'partial';
+  scoring_mode: 'all_or_nothing' | 'partial' | 'weighted';
   options: QuestionOption[];
 }
 
@@ -169,7 +169,7 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
         alert('Cada questão deve ter pelo menos 2 opções');
         return;
       }
-      if (!q.options.some(o => o.is_correct)) {
+      if (q.scoring_mode !== 'weighted' && !q.options.some(o => o.is_correct)) {
         alert('Cada questão deve ter pelo menos uma resposta correta');
         return;
       }
@@ -179,6 +179,13 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
           .reduce((sum, o) => sum + (o.option_points || 0), 0);
         if (totalCorrectPoints <= 0) {
           alert('No modo Parcial, distribua pontos (>0) entre as opções corretas.');
+          return;
+        }
+      }
+      if (q.scoring_mode === 'weighted') {
+        const totalOptionPoints = q.options.reduce((sum, o) => sum + (o.option_points || 0), 0);
+        if (totalOptionPoints <= 0) {
+          alert('No modo Ponderado, distribua pontos (>0) entre as opções.');
           return;
         }
       }
@@ -429,6 +436,7 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
                       >
                         <option value="all_or_nothing">Tudo ou Nada</option>
                         <option value="partial">Parcial</option>
+                        <option value="weighted">Ponderado (por pontos)</option>
                       </select>
                     </div>
                   </div>
@@ -466,7 +474,7 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                           placeholder={`Opção ${oIndex + 1}`}
                         />
-                        {question.scoring_mode === 'partial' && (
+                        {(question.scoring_mode === 'partial' || question.scoring_mode === 'weighted') && (
                           <div className="flex items-center gap-2">
                             <label className="text-sm text-gray-600">Pts</label>
                             <input
@@ -488,7 +496,7 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
                               }
                               className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                               placeholder="0"
-                              title="Pontos desta opção (usado no modo Parcial)"
+                              title={question.scoring_mode === 'weighted' ? "Pontos desta opção (usado no modo Ponderado)" : "Pontos desta opção (usado no modo Parcial)"}
                             />
                           </div>
                         )}

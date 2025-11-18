@@ -1254,39 +1254,124 @@ function CandidateDetail() {
                 {questions.length > 0 ? (
                   questions.map((question: any, idx: number) => {
                     const selectedOptions = questionMap.get(question.id) || [];
+                    const selectedOptionIds = new Set(selectedOptions.map(opt => opt.option));
+                    const isWeightedScoring = question.scoring_mode === 'weighted';
                     const allCorrect = selectedOptions.length > 0 && selectedOptions.every(opt => opt.is_correct);
                     const hasIncorrect = selectedOptions.some(opt => !opt.is_correct);
+                    const hasAnswer = selectedOptions.length > 0;
+                    
+                    // For weighted scoring, calculate max points
+                    const maxOptionPoints = question.options && question.options.length > 0 
+                      ? Math.max(...question.options.map((opt: any) => opt.option_points || 0))
+                      : 0;
                     
                     return (
-                      <div key={question.id} className={`p-5 rounded-xl border-2 ${allCorrect ? 'border-green-300 bg-green-50' : hasIncorrect ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-gray-50'}`}>
+                      <div key={question.id} className={`p-5 rounded-xl border-2 ${
+                        isWeightedScoring 
+                          ? 'border-indigo-300 bg-indigo-50' 
+                          : allCorrect 
+                          ? 'border-green-300 bg-green-50' 
+                          : hasIncorrect 
+                          ? 'border-red-300 bg-red-50' 
+                          : 'border-gray-300 bg-gray-50'
+                      }`}>
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-start gap-3 flex-1">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${allCorrect ? 'bg-green-500 text-white' : hasIncorrect ? 'bg-red-500 text-white' : 'bg-gray-400 text-white'}`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${
+                              isWeightedScoring 
+                                ? 'bg-indigo-500 text-white' 
+                                : allCorrect 
+                                ? 'bg-green-500 text-white' 
+                                : hasIncorrect 
+                                ? 'bg-red-500 text-white' 
+                                : 'bg-gray-400 text-white'
+                            }`}>
                               {idx + 1}
                             </div>
                             <div className="flex-1">
                               <div className="font-bold text-gray-900 mb-3 text-lg">{question.question_text}</div>
                               <div className="space-y-2">
-                                {selectedOptions.map((opt: any) => (
-                                  <div key={opt.id} className={`flex items-center gap-2 p-3 rounded-lg ${opt.is_correct ? 'bg-green-100 border border-green-300' : 'bg-red-100 border border-red-300'}`}>
-                                    {opt.is_correct ? (
-                                      <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                      </svg>
-                                    ) : (
-                                      <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                      </svg>
-                                    )}
-                                    <span className={`text-sm ${opt.is_correct ? 'text-green-900 font-medium' : 'text-red-900 font-medium'}`}>{opt.option_text}</span>
-                                  </div>
-                                ))}
+                                {question.options && question.options.length > 0 ? (
+                                  question.options.map((option: any) => {
+                                    const isSelected = selectedOptionIds.has(option.id);
+                                    const isCorrect = option.is_correct;
+                                    const optionPoints = option.option_points || 0;
+                                    
+                                    return (
+                                      <div 
+                                        key={option.id} 
+                                        className={`flex items-center gap-2 p-3 rounded-lg border ${
+                                          isWeightedScoring
+                                            ? isSelected
+                                              ? 'bg-indigo-100 border-indigo-400'
+                                              : 'bg-white border-gray-300'
+                                            : isSelected && isCorrect 
+                                            ? 'bg-green-100 border-green-400' 
+                                            : isSelected && !isCorrect 
+                                            ? 'bg-red-100 border-red-400' 
+                                            : 'bg-white border-gray-300'
+                                        }`}
+                                      >
+                                        {isSelected ? (
+                                          isWeightedScoring ? (
+                                            <svg className="w-5 h-5 text-indigo-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                            </svg>
+                                          ) : isCorrect ? (
+                                            <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                          ) : (
+                                            <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                          )
+                                        ) : (
+                                          <div className="w-5 h-5 rounded-full border-2 border-gray-400 flex-shrink-0"></div>
+                                        )}
+                                        <span className={`text-sm flex-1 ${
+                                          isWeightedScoring
+                                            ? isSelected
+                                              ? 'text-indigo-900 font-semibold'
+                                              : 'text-gray-700'
+                                            : isSelected && isCorrect 
+                                            ? 'text-green-900 font-semibold' 
+                                            : isSelected && !isCorrect 
+                                            ? 'text-red-900 font-semibold' 
+                                            : 'text-gray-700'
+                                        }`}>
+                                          {option.option_text}
+                                        </span>
+                                        {isWeightedScoring && (
+                                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-gray-200 text-gray-700">
+                                            {optionPoints} pts
+                                          </span>
+                                        )}
+                                        {isSelected && (
+                                          <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${
+                                            isWeightedScoring
+                                              ? 'bg-indigo-500 text-white'
+                                              : isCorrect 
+                                              ? 'bg-green-500 text-white' 
+                                              : 'bg-red-500 text-white'
+                                          }`}>
+                                            Resposta do candidato
+                                          </span>
+                                        )}
+                                      </div>
+                                    );
+                                  })
+                                ) : (
+                                  <div className="text-sm text-gray-500">Sem opções disponíveis</div>
+                                )}
                               </div>
                             </div>
                           </div>
-                          <div className={`px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ${allCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
-                            {allCorrect ? '✓ Correta' : '✗ Incorreta'}
-                          </div>
+                          {hasAnswer && !isWeightedScoring && (
+                            <div className={`px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ${allCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                              {allCorrect ? '✓ Correta' : '✗ Incorreta'}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
