@@ -1260,6 +1260,15 @@ function CandidateDetail() {
                     const hasIncorrect = selectedOptions.some(opt => !opt.is_correct);
                     const hasAnswer = selectedOptions.length > 0;
                     
+                    console.log('📊 Question Data:', {
+                      questionId: question.id,
+                      questionText: question.question_text?.substring(0, 50),
+                      scoringMode: question.scoring_mode,
+                      selectedOptionsCount: selectedOptions.length,
+                      selectedOptions: selectedOptions,
+                      hasAnswer
+                    });
+                    
                     // For weighted scoring, calculate max points and selected points
                     const maxOptionPoints = question.options && question.options.length > 0 
                       ? Math.max(...question.options.map((opt: any) => opt.option_points || 0))
@@ -1269,15 +1278,32 @@ function CandidateDetail() {
                     let weightedColor = 'indigo';
                     if (isWeightedScoring && hasAnswer) {
                       const selectedOption = question.options?.find((opt: any) => selectedOptionIds.has(opt.id));
-                      const selectedPoints = selectedOption?.option_points || 0;
+                      // Convert to numbers to ensure proper comparison
+                      const selectedPoints = Number(selectedOption?.option_points || 0);
+                      const maxPoints = Number(maxOptionPoints);
+                      
+                      console.log('🎨 Weighted Scoring Color Logic:', {
+                        questionId: question.id,
+                        questionText: question.question_text?.substring(0, 50),
+                        hasAnswer,
+                        selectedOptionId: selectedOption?.id,
+                        selectedPoints,
+                        selectedPointsType: typeof selectedPoints,
+                        maxPoints,
+                        maxPointsType: typeof maxPoints,
+                        areEqual: selectedPoints === maxPoints,
+                        allOptions: question.options?.map((o: any) => ({ id: o.id, text: o.option_text?.substring(0, 30), points: o.option_points, pointsType: typeof o.option_points }))
+                      });
                       
                       if (selectedPoints === 0) {
                         weightedColor = 'red'; // Zero points
-                      } else if (selectedPoints === maxOptionPoints) {
+                      } else if (selectedPoints === maxPoints) {
                         weightedColor = 'green'; // Best answer
                       } else {
                         weightedColor = 'yellow'; // Partial answer
                       }
+                      
+                      console.log('🎨 Result color:', weightedColor);
                     }
                     
                     return (

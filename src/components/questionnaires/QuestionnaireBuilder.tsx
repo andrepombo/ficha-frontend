@@ -214,35 +214,87 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
         templateId = newTemplate.id;
       }
 
-      // Delete existing questions if editing
-      if (template?.id) {
-        const existing = await questionnaireApi.getTemplate(template.id);
-        for (const q of existing.questions || []) {
-          await questionnaireApi.deleteQuestion(q.id);
+      // Update or create questions
+      const existing = template?.id ? await questionnaireApi.getTemplate(template.id) : null;
+      const existingQuestions = existing?.questions || [];
+      const existingQuestionIds = new Set(existingQuestions.map((q: any) => q.id));
+      const processedQuestionIds = new Set<number>();
+
+      for (const question of questions) {
+        let questionId = question.id;
+        
+        // Update existing question or create new one
+        if (questionId && existingQuestionIds.has(questionId)) {
+          // Update existing question
+          await questionnaireApi.updateQuestion(questionId, {
+            question_text: question.question_text,
+            question_type: question.question_type,
+            order: question.order,
+            points: question.points,
+            scoring_mode: question.scoring_mode,
+          });
+          processedQuestionIds.add(questionId);
+        } else {
+          // Create new question
+          const createdQuestion = await questionnaireApi.createQuestion({
+            template_id: templateId,
+            question_text: question.question_text,
+            question_type: question.question_type,
+            order: question.order,
+            points: question.points,
+            scoring_mode: question.scoring_mode,
+          });
+          questionId = createdQuestion.id;
+          if (questionId) {
+            processedQuestionIds.add(questionId);
+          }
+        }
+
+        // Get existing options for this question
+        const existingOptions = existingQuestions.find((q: any) => q.id === questionId)?.options || [];
+        const existingOptionIds = new Set(existingOptions.map((o: any) => o.id));
+        const processedOptionIds = new Set<number>();
+
+        // Update or create options
+        for (const option of question.options) {
+          const optionId = option.id;
+          
+          if (optionId && existingOptionIds.has(optionId)) {
+            // Update existing option
+            await questionnaireApi.updateOption(optionId, {
+              option_text: option.option_text,
+              is_correct: option.is_correct,
+              order: option.order,
+              option_points: (option.option_points || 0),
+            });
+            processedOptionIds.add(optionId);
+          } else {
+            // Create new option
+            const payload = {
+              question_id: questionId,
+              option_text: option.option_text,
+              is_correct: option.is_correct,
+              order: option.order,
+              option_points: (option.option_points || 0),
+            };
+            console.log('Creating option with payload:', payload);
+            const created = await questionnaireApi.createOption(payload);
+            processedOptionIds.add(created.id);
+          }
+        }
+
+        // Delete options that were removed
+        for (const existingOption of existingOptions) {
+          if (!processedOptionIds.has(existingOption.id)) {
+            await questionnaireApi.deleteOption(existingOption.id);
+          }
         }
       }
 
-      // Create questions and options
-      for (const question of questions) {
-        const createdQuestion = await questionnaireApi.createQuestion({
-          template_id: templateId,
-          question_text: question.question_text,
-          question_type: question.question_type,
-          order: question.order,
-          points: question.points,
-          scoring_mode: question.scoring_mode,
-        });
-
-        for (const option of question.options) {
-          const payload = {
-            question_id: createdQuestion.id,
-            option_text: option.option_text,
-            is_correct: option.is_correct,
-            order: option.order,
-            option_points: (option.option_points || 0),
-          };
-          console.log('Creating option with payload:', payload);
-          await questionnaireApi.createOption(payload);
+      // Delete questions that were removed
+      for (const existingQuestion of existingQuestions) {
+        if (!processedQuestionIds.has(existingQuestion.id)) {
+          await questionnaireApi.deleteQuestion(existingQuestion.id);
         }
       }
 
