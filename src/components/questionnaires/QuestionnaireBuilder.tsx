@@ -17,6 +17,7 @@ interface QuestionOption {
   option_text: string;
   is_correct: boolean;
   order: number;
+  option_points?: number;
 }
 
 interface QuestionnaireTemplate {
@@ -107,6 +108,7 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
       option_text: '',
       is_correct: false,
       order: question.options.length + 1,
+      option_points: 0,
     };
     question.options = [...question.options, newOption];
     setQuestions(updated);
@@ -158,6 +160,15 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
         alert('Cada questão deve ter pelo menos uma resposta correta');
         return;
       }
+      if (q.scoring_mode === 'partial') {
+        const totalCorrectPoints = q.options
+          .filter(o => o.is_correct)
+          .reduce((sum, o) => sum + (o.option_points || 0), 0);
+        if (totalCorrectPoints <= 0) {
+          alert('No modo Parcial, distribua pontos (>0) entre as opções corretas.');
+          return;
+        }
+      }
     }
 
     try {
@@ -208,6 +219,9 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
             option_text: option.option_text,
             is_correct: option.is_correct,
             order: option.order,
+            option_points: (question.scoring_mode === 'partial')
+              ? (option.option_points || 0)
+              : 0,
           });
         }
       }
@@ -431,6 +445,28 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
                           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                           placeholder={`Opção ${oIndex + 1}`}
                         />
+                        {question.scoring_mode === 'partial' && (
+                          <div className="flex items-center gap-2">
+                            <label className="text-sm text-gray-600">Pts</label>
+                            <input
+                              type="number"
+                              min={0}
+                              step={0.5}
+                              value={option.option_points ?? 0}
+                              onChange={(e) =>
+                                handleOptionChange(
+                                  qIndex,
+                                  oIndex,
+                                  'option_points',
+                                  Number.isNaN(parseFloat(e.target.value)) ? 0 : parseFloat(e.target.value)
+                                )
+                              }
+                              className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                              placeholder="0"
+                              title="Pontos desta opção (usado no modo Parcial)"
+                            />
+                          </div>
+                        )}
                         <button
                           onClick={() => handleRemoveOption(qIndex, oIndex)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
