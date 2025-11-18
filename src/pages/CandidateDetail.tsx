@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { candidateAPI } from '../services/api';
+import { candidateAPI, questionnaireApi } from '../services/api';
 import { Candidate, CandidateStatus, Interview } from '../types';
 import { getTranslatedStatus } from '../utils/statusTranslations';
 import InterviewModal from '../components/InterviewModal';
@@ -65,6 +65,8 @@ function CandidateDetail() {
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [scoringConfig, setScoringConfig] = useState<any>(null);
+  const [qResponses, setQResponses] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<string>('personal');
   
   // Interview state
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -87,6 +89,7 @@ function CandidateDetail() {
     fetchCandidate(parseInt(id));
     fetchInterviews(parseInt(id));
     fetchScoringConfig();
+    fetchQuestionnaireResponses(parseInt(id));
   }, [id]);
 
   const fetchScoringConfig = async () => {
@@ -95,6 +98,33 @@ function CandidateDetail() {
       setScoringConfig(config.weights);
     } catch (err) {
       console.error('Error fetching scoring config:', err);
+    }
+  };
+
+  const fetchQuestionnaireResponses = async (candidateId: number) => {
+    try {
+      const data = await questionnaireApi.getResponses({ candidate_id: candidateId });
+      // handle paginated or plain list
+      const list = Array.isArray(data) ? data : ((data as any)?.results || []);
+      
+      // Fetch template details to get step_number for sorting
+      const responsesWithTemplates = await Promise.all(
+        list.map(async (response: any) => {
+          try {
+            const template = await questionnaireApi.getTemplate(response.template);
+            return { ...response, step_number: template.step_number || 999 };
+          } catch {
+            return { ...response, step_number: 999 };
+          }
+        })
+      );
+      
+      // Sort by step_number
+      responsesWithTemplates.sort((a, b) => a.step_number - b.step_number);
+      setQResponses(responsesWithTemplates);
+    } catch (err) {
+      console.error('Error fetching questionnaire responses:', err);
+      setQResponses([]);
     }
   };
 
@@ -394,6 +424,29 @@ function CandidateDetail() {
             </div>
           </div>
         </div>
+
+        {/* Tabs below header */}
+        <div className="mt-4 overflow-x-auto">
+          <div className="inline-flex gap-2 bg-white p-2 rounded-xl shadow border border-purple-100">
+            <button
+              onClick={() => setActiveTab('personal')}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${activeTab==='personal' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : 'text-gray-700 hover:bg-purple-50'}`}
+            >
+              Dados Pessoais
+            </button>
+            {qResponses.map((r) => (
+              <button
+                key={`qtab-${r.id}`}
+                onClick={() => setActiveTab(`q-${r.id}`)}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-colors ${activeTab===`q-${r.id}` ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : 'text-gray-700 hover:bg-purple-50'}`}
+              >
+                {r.template_title || 'Questionário'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {activeTab === 'personal' && (<>
 
         {/* Score Breakdown Card */}
         {candidate.score_breakdown && (
@@ -1100,6 +1153,50 @@ function CandidateDetail() {
             )}
           </button>
         </div>
+        </>)}
+
+        {activeTab !== 'personal' && (() => {
+          const resp = qResponses.find(r => `q-${r.id}` === activeTab);
+          if (!resp) return null;
+          const percentage = resp.max_score && Number(resp.max_score) > 0 ? Math.min((Number(resp.score) / Number(resp.max_score)) * 100, 100) : 0;
+          return (
+            <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">📝</div>
+                  <h2 className="text-2xl font-bold text-gray-900">{resp.template_title || 'Questionário'}</h2>
+                </div>
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-2 rounded-xl border border-purple-200">
+                  <div className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">Pontuação</div>
+                  <div className="text-lg font-bold text-indigo-700">{Number(resp.score).toFixed(1)}/{Number(resp.max_score)}</div>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="h-2 w-full bg-purple-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-600" style={{ width: `${percentage}%` }} />
+                </div>
+                <div className="mt-2 text-sm text-gray-600">{percentage.toFixed(1)}%</div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {Array.isArray(resp.selected_options) && resp.selected_options.length > 0 ? (
+                  resp.selected_options.map((opt: any) => (
+                    <div key={opt.id} className={`p-3 rounded-lg border ${opt.is_correct ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'}`}>
+                      <div className="text-sm font-semibold text-gray-800">Opção Selecionada</div>
+                      <div className="text-gray-900">{opt.option_text}</div>
+                      {opt.is_correct !== undefined && (
+                        <div className={`mt-1 text-xs font-semibold ${opt.is_correct ? 'text-green-700' : 'text-gray-600'}`}>{opt.is_correct ? 'Correta' : 'Selecionada'}</div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-gray-600">Sem opções registradas.</div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Danger Zone Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-red-200">
