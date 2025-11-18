@@ -67,6 +67,7 @@ function CandidateDetail() {
   const [scoringConfig, setScoringConfig] = useState<any>(null);
   const [qResponses, setQResponses] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<string>('personal');
+  const [questionnaireDetails, setQuestionnaireDetails] = useState<Map<number, any>>(new Map());
   
   // Interview state
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -107,11 +108,13 @@ function CandidateDetail() {
       // handle paginated or plain list
       const list = Array.isArray(data) ? data : ((data as any)?.results || []);
       
-      // Fetch template details to get step_number for sorting
+      // Fetch template details to get step_number and full questions for sorting
+      const detailsMap = new Map<number, any>();
       const responsesWithTemplates = await Promise.all(
         list.map(async (response: any) => {
           try {
             const template = await questionnaireApi.getTemplate(response.template);
+            detailsMap.set(response.template, template);
             return { ...response, step_number: template.step_number || 999 };
           } catch {
             return { ...response, step_number: 999 };
@@ -122,6 +125,7 @@ function CandidateDetail() {
       // Sort by step_number
       responsesWithTemplates.sort((a, b) => a.step_number - b.step_number);
       setQResponses(responsesWithTemplates);
+      setQuestionnaireDetails(detailsMap);
     } catch (err) {
       console.error('Error fetching questionnaire responses:', err);
       setQResponses([]);
@@ -1188,6 +1192,23 @@ function CandidateDetail() {
           const resp = qResponses.find(r => `q-${r.id}` === activeTab);
           if (!resp) return null;
           const percentage = resp.max_score && Number(resp.max_score) > 0 ? Math.min((Number(resp.score) / Number(resp.max_score)) * 100, 100) : 0;
+          
+          // Get template details with questions
+          const template = questionnaireDetails.get(resp.template);
+          const questions = template?.questions || [];
+          
+          // Group selected options by question
+          const questionMap = new Map<number, any[]>();
+          if (Array.isArray(resp.selected_options)) {
+            resp.selected_options.forEach((opt: any) => {
+              const qId = opt.question;
+              if (!questionMap.has(qId)) {
+                questionMap.set(qId, []);
+              }
+              questionMap.get(qId)!.push(opt);
+            });
+          }
+          
           return (
             <div className="bg-white rounded-2xl shadow-lg p-8 mb-6 border border-purple-100">
               <div className="flex items-center justify-between mb-6">
@@ -1208,19 +1229,49 @@ function CandidateDetail() {
                 <div className="mt-2 text-sm text-gray-600">{percentage.toFixed(1)}%</div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {Array.isArray(resp.selected_options) && resp.selected_options.length > 0 ? (
-                  resp.selected_options.map((opt: any) => (
-                    <div key={opt.id} className={`p-3 rounded-lg border ${opt.is_correct ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'}`}>
-                      <div className="text-sm font-semibold text-gray-800">Opção Selecionada</div>
-                      <div className="text-gray-900">{opt.option_text}</div>
-                      {opt.is_correct !== undefined && (
-                        <div className={`mt-1 text-xs font-semibold ${opt.is_correct ? 'text-green-700' : 'text-gray-600'}`}>{opt.is_correct ? 'Correta' : 'Selecionada'}</div>
-                      )}
-                    </div>
-                  ))
+              <div className="space-y-6">
+                {questions.length > 0 ? (
+                  questions.map((question: any, idx: number) => {
+                    const selectedOptions = questionMap.get(question.id) || [];
+                    const allCorrect = selectedOptions.length > 0 && selectedOptions.every(opt => opt.is_correct);
+                    const hasIncorrect = selectedOptions.some(opt => !opt.is_correct);
+                    
+                    return (
+                      <div key={question.id} className={`p-5 rounded-xl border-2 ${allCorrect ? 'border-green-300 bg-green-50' : hasIncorrect ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-gray-50'}`}>
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-start gap-3 flex-1">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${allCorrect ? 'bg-green-500 text-white' : hasIncorrect ? 'bg-red-500 text-white' : 'bg-gray-400 text-white'}`}>
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-bold text-gray-900 mb-3 text-lg">{question.question_text}</div>
+                              <div className="space-y-2">
+                                {selectedOptions.map((opt: any) => (
+                                  <div key={opt.id} className={`flex items-center gap-2 p-3 rounded-lg ${opt.is_correct ? 'bg-green-100 border border-green-300' : 'bg-red-100 border border-red-300'}`}>
+                                    {opt.is_correct ? (
+                                      <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                    ) : (
+                                      <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                    )}
+                                    <span className={`text-sm ${opt.is_correct ? 'text-green-900 font-medium' : 'text-red-900 font-medium'}`}>{opt.option_text}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div className={`px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ${allCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                            {allCorrect ? '✓ Correta' : '✗ Incorreta'}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
                 ) : (
-                  <div className="text-gray-600">Sem opções registradas.</div>
+                  <div className="text-center py-8 text-gray-600">Sem respostas registradas.</div>
                 )}
               </div>
             </div>
