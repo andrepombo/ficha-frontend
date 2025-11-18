@@ -321,11 +321,19 @@ function CandidateDetail() {
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     {candidate.full_name}
                   </h1>
-                  <div className="inline-flex items-center gap-2 text-sm text-gray-600 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100">
-                    <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span className="font-medium">Candidatura: {new Date(candidate.applied_date).toLocaleDateString('pt-BR')}</span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="inline-flex items-center gap-2 text-sm text-gray-600 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100">
+                      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="font-medium">Candidatura: {new Date(candidate.applied_date).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    <div className="inline-flex items-center gap-2 text-sm text-gray-600 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100">
+                      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m2 8H7a2 2 0 01-2-2V8a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="font-medium">Posição: {candidate.position_applied || 'Sem posição'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
