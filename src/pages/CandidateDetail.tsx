@@ -37,9 +37,9 @@ function InfoItem({ label, value, score, maxScore, onClick, clickable }: InfoIte
       }`}
       onClick={onClick}
     >
-      {score !== undefined && maxScore !== undefined && (
+      {maxScore !== undefined && (
         <div className="absolute top-2 right-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
-          {score.toFixed(1)}/{maxScore}
+          {(Number(score ?? 0)).toFixed(1)}/{maxScore}
         </div>
       )}
       <p className="text-xs font-semibold text-indigo-600 mb-1 uppercase tracking-wide">{label}</p>
