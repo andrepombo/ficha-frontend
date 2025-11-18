@@ -70,7 +70,17 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
     try {
       setLoading(true);
       const data = await questionnaireApi.getTemplate(template.id);
-      setQuestions(data?.questions || []);
+      const normalized = (data?.questions || []).map((q: any) => ({
+        ...q,
+        options: (q.options || []).map((o: any) => ({
+          ...o,
+          option_points: o.option_points !== undefined && o.option_points !== null
+            ? parseFloat(o.option_points)
+            : 0,
+        })),
+      }));
+      console.log('Loaded template with normalized questions:', normalized);
+      setQuestions(normalized);
     } catch (error) {
       console.error('Error loading template:', error);
       setQuestions([]);
@@ -133,6 +143,9 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
       ...updated[questionIndex].options[optionIndex],
       [field]: value,
     };
+    if (field === 'option_points') {
+      console.log(`Updated option ${optionIndex} in question ${questionIndex}: option_points = ${value}`);
+    }
     setQuestions(updated);
   };
 
@@ -214,15 +227,15 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
         });
 
         for (const option of question.options) {
-          await questionnaireApi.createOption({
+          const payload = {
             question_id: createdQuestion.id,
             option_text: option.option_text,
             is_correct: option.is_correct,
             order: option.order,
-            option_points: (question.scoring_mode === 'partial')
-              ? (option.option_points || 0)
-              : 0,
-          });
+            option_points: (option.option_points || 0),
+          };
+          console.log('Creating option with payload:', payload);
+          await questionnaireApi.createOption(payload);
         }
       }
 
@@ -388,7 +401,15 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
                         type="number"
                         value={question.points}
                         onChange={(e) =>
-                          handleQuestionChange(qIndex, 'points', parseFloat(e.target.value))
+                          handleQuestionChange(
+                            qIndex,
+                            'points',
+                            (() => {
+                              const v = (e.target.value || '').replace(',', '.');
+                              const n = parseFloat(v);
+                              return Number.isNaN(n) ? 0 : n;
+                            })()
+                          )
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                         min="0"
@@ -458,7 +479,11 @@ function QuestionnaireBuilder({ template, onClose }: Props) {
                                   qIndex,
                                   oIndex,
                                   'option_points',
-                                  Number.isNaN(parseFloat(e.target.value)) ? 0 : parseFloat(e.target.value)
+                                  (() => {
+                                    const v = (e.target.value || '').replace(',', '.');
+                                    const n = parseFloat(v);
+                                    return Number.isNaN(n) ? 0 : n;
+                                  })()
                                 )
                               }
                               className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
