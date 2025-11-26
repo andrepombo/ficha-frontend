@@ -123,6 +123,46 @@ class AuthService {
       return null;
     }
   }
+
+  // Decode a JWT without verifying signature to read payload
+  private decodeJwt(token: string): any | null {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded);
+    } catch {
+      return null;
+    }
+  }
+
+  // Check if access token is expired (with buffer)
+  isAccessTokenExpired(bufferSeconds: number = 30): boolean {
+    if (!this.accessToken) return true;
+    const payload = this.decodeJwt(this.accessToken);
+    if (!payload || !payload.exp) return true;
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp <= now + bufferSeconds;
+  }
+
+  // Ensure we have a valid (non-expired) access token before making requests
+  async ensureValidAccessToken(): Promise<string | null> {
+    if (!this.accessToken && this.refreshToken) {
+      // No access token but refresh exists
+      try {
+        return await this.refreshAccessToken();
+      } catch {
+        return null;
+      }
+    }
+    if (this.isAccessTokenExpired()) {
+      try {
+        return await this.refreshAccessToken();
+      } catch {
+        return null;
+      }
+    }
+    return this.accessToken;
+  }
 }
 
 export const authService = new AuthService();

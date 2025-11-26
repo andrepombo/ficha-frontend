@@ -17,16 +17,29 @@ const SCORING_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 // Add request interceptor to include auth token
 api.interceptors.request.use(
-  (config) => {
-    const token = authService.getAccessToken();
+  async (config) => {
+    // Ensure we have a valid token (refresh if needed) before sending the request
+    const token = await authService.ensureValidAccessToken();
+    // Axios v1 may use AxiosHeaders; set header safely without violating types
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      if ((config.headers as any)?.set) {
+        (config.headers as any).set('Authorization', `Bearer ${token}`);
+      } else {
+        (config.headers as any) = {
+          ...(config.headers as any),
+          Authorization: `Bearer ${token}`,
+        };
+      }
+    } else if ((config.headers as any)) {
+      if ((config.headers as any).set) {
+        (config.headers as any).set('Authorization', undefined as any);
+      } else if ((config.headers as any).Authorization) {
+        delete (config.headers as any).Authorization;
+      }
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Add response interceptor to handle token refresh
