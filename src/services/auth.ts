@@ -16,6 +16,7 @@ export interface AuthResponse {
     email?: string;
     first_name?: string;
     last_name?: string;
+    is_superuser?: boolean;
   };
 }
 
@@ -25,6 +26,7 @@ export interface User {
   email?: string;
   first_name?: string;
   last_name?: string;
+  is_superuser?: boolean;
 }
 
 class AuthService {
