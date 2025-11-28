@@ -52,6 +52,11 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
             </span>
           </div>
         </div>
+        {candidate.position_applied && (
+          <p className="text-sm text-gray-700 font-semibold mb-1">
+            💼 {candidate.position_applied}
+          </p>
+        )}
         <p className="text-sm text-indigo-600 font-medium">
           {candidate.full_name}
         </p>

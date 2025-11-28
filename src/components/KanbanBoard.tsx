@@ -166,6 +166,13 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ candidates, onStatusChange })
                         draggedCandidate?.id === candidate.id ? 'opacity-50' : ''
                       }`}
                     >
+                      {/* Position */}
+                      {candidate.position_applied && (
+                        <p className="text-sm text-gray-700 font-semibold mb-2">
+                          💼 {candidate.position_applied}
+                        </p>
+                      )}
+
                       {/* Candidate Name */}
                       <div className="mb-3">
                         <h4 className="font-semibold text-gray-900 text-sm">
