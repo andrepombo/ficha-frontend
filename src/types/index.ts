@@ -78,7 +78,7 @@ export interface WorkCard {
   uploaded_at: string;
 }
 
-export type CandidateStatus = 'pending' | 'reviewing' | 'shortlisted' | 'interviewed' | 'accepted' | 'rejected';
+export type CandidateStatus = 'incomplete' | 'pending' | 'reviewing' | 'shortlisted' | 'interviewed' | 'accepted' | 'rejected';
 
 export interface CandidateFilters {
   status: string;
@@ -91,6 +91,7 @@ export interface CandidateFilters {
 
 export interface CandidateStats {
   total: number;
+  incomplete: number;
   pending: number;
   reviewing: number;
   shortlisted: number;

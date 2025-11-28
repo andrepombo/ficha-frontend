@@ -11,6 +11,7 @@ interface CandidateCardProps {
 }
 
 const statusColors: Record<CandidateStatus, string> = {
+  incomplete: 'bg-yellow-100 text-yellow-800',
   pending: 'bg-orange-100 text-orange-800',
   reviewing: 'bg-purple-100 text-purple-800',
   shortlisted: 'bg-cyan-100 text-cyan-800',
@@ -91,6 +92,7 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
           onChange={handleStatusChange}
           className="flex-1 select-modern text-sm font-medium"
         >
+          <option value="incomplete">Incompleto</option>
           <option value="pending">Pendente</option>
           <option value="reviewing">Em Análise</option>
           <option value="shortlisted">Selecionado para Entrevista</option>

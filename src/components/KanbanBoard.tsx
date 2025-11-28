@@ -20,6 +20,14 @@ interface KanbanColumn {
 
 const kanbanColumns: KanbanColumn[] = [
   {
+    id: 'incomplete',
+    title: 'Incompleto',
+    status: ['incomplete'],
+    color: 'text-yellow-700',
+    bgColor: 'bg-yellow-50',
+    borderColor: 'border-yellow-300'
+  },
+  {
     id: 'pending',
     title: 'Pendente',
     status: ['pending'],
@@ -111,7 +119,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ candidates, onStatusChange })
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
       {kanbanColumns.map(column => {
         const columnCandidates = getCandidatesForColumn(column.status);
         const isDropTarget = dragOverColumn === column.id;

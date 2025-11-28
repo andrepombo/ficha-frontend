@@ -50,6 +50,7 @@ function FilterBar({ filters, onFilterChange, onAdvancedSearchClick, hasActiveAd
             className={`select-modern floating-select ${filters.status !== 'all' ? 'has-value' : ''}`}
           >
             <option value="all">Todos os Status</option>
+            <option value="incomplete">Incompleto</option>
             <option value="pending">Pendente</option>
             <option value="reviewing">Em Análise</option>
             <option value="shortlisted">Selecionado para Entrevista</option>

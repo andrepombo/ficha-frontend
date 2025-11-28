@@ -35,6 +35,7 @@ function Dashboard() {
   } | null>(null);
   const [stats, setStats] = useState<CandidateStats>({
     total: 0,
+    incomplete: 0,
     pending: 0,
     reviewing: 0,
     shortlisted: 0,
@@ -169,6 +170,7 @@ function Dashboard() {
   const calculateStats = (data: Candidate[]) => {
     const newStats: CandidateStats = {
       total: data.length,
+      incomplete: data.filter(c => c.status === 'incomplete').length,
       pending: data.filter(c => c.status === 'pending').length,
       reviewing: data.filter(c => c.status === 'reviewing').length,
       shortlisted: data.filter(c => c.status === 'shortlisted').length,
@@ -236,6 +238,7 @@ function Dashboard() {
   // Get status badge colors matching StatsCard colors
   const getStatusBadgeClasses = (status: string) => {
     const statusMap: { [key: string]: string } = {
+      'incomplete': 'bg-yellow-100 text-yellow-800',
       'pending': 'bg-orange-100 text-orange-800',
       'reviewing': 'bg-purple-100 text-purple-800',
       'shortlisted': 'bg-cyan-100 text-cyan-800',
@@ -473,7 +476,8 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4 mb-8">
+          <StatsCard title="Incompleto" count={stats.incomplete} color="yellow" />
           <StatsCard title="Pendente" count={stats.pending} color="orange" />
           <StatsCard title="Em Análise" count={stats.reviewing} color="purple" />
           <StatsCard title="Selecionado" count={stats.shortlisted} color="cyan" />

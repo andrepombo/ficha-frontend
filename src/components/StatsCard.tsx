@@ -1,7 +1,7 @@
 interface StatsCardProps {
   title: string;
   count: number;
-  color?: 'blue' | 'orange' | 'purple' | 'cyan' | 'indigo' | 'green' | 'red';
+  color?: 'blue' | 'orange' | 'purple' | 'cyan' | 'indigo' | 'green' | 'red' | 'yellow';
 }
 
 const colorClasses = {
@@ -12,7 +12,8 @@ const colorClasses = {
   indigo: 'from-indigo-500 to-indigo-600 shadow-indigo-200',
   green: 'from-green-500 to-green-600 shadow-green-200',
   red: 'from-red-500 to-red-600 shadow-red-200',
-};
+  yellow: 'from-yellow-500 to-yellow-600 shadow-yellow-200',
+} as const;
 
 function StatsCard({ title, count, color = 'blue' }: StatsCardProps) {
   return (

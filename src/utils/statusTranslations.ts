@@ -2,6 +2,7 @@ import { CandidateStatus } from '../types';
 
 // Status translations from English to Portuguese
 export const statusTranslations: Record<CandidateStatus, string> = {
+  incomplete: 'Incompleto',
   pending: 'Pendente',
   reviewing: 'Em Análise',
   shortlisted: 'Entrevista',
