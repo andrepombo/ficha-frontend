@@ -107,7 +107,7 @@ function Sidebar() {
               </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold">Pinte Fichas</h1>
+              <h1 className="text-lg font-bold">Recrutamento</h1>
               <p className="text-xs text-indigo-200">Sistema RH</p>
             </div>
           </Link>
