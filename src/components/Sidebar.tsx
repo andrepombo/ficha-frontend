@@ -160,7 +160,7 @@ function Sidebar() {
       {!isCollapsed && (
         <div className="p-4 border-t border-white border-opacity-20">
           <div className="text-xs text-indigo-200 text-center">
-            <p>© 2024 Pinte Pinturas</p>
+            <p>© 2025 Andre Pombo </p>
             <p className="mt-1">Sistema de Gestão RH</p>
           </div>
         </div>
