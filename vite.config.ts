@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
         'www.fichapinte.com.br',
         'localhost',
         '127.0.0.1',
+        'app1.andrepombo.info',
       ],
       proxy: {
         '/api': {
