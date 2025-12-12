@@ -1,3 +1,6 @@
+.env
+.env.example
+
 # Logsk
 logs
 *.log
