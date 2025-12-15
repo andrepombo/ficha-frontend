@@ -22,20 +22,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Verify deployment files
+      - name: Create .env file
+        env:
+          ENV: ${{ secrets.ENV }}
         run: |
-          echo "Files to be deployed:"
-          ls -la
-          echo "Docker compose file:"
-          cat docker-compose.yml
-          echo "Deployment script:"
-          cat deploy.sh
-
-      # - name: Create .env file
-      #   env:
-      #     ENV: ${{ secrets.ENV }}
-      #   run: |
-      #     echo "ENV=${ENV}" >> .env
+          echo "ENV=${ENV}" >> .env
 
       - name: Copy files to VPS
         uses: easingthemes/ssh-deploy@main
