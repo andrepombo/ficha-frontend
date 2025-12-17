@@ -31,7 +31,7 @@ const Login = () => {
         {/* Logo/Brand Section */}
         <div className="text-center">
           <div className="mx-auto h-32 w-32 flex items-center justify-center">
-            <img src="/painel/pinte-logo.png" alt="Pinte" className="h-32 w-32 object-contain" />
+            <img src="/painel/andre.svg" alt="Andre" className="h-32 w-32 object-contain" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Bem-vindo de volta

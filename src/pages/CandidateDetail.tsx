@@ -763,7 +763,7 @@ function CandidateDetail() {
                   maxScore={scoringConfig?.experience_skills.idle_time}
                 />
                 <InfoItem 
-                  label="Trabalhou na Pinte Antes?" 
+                  label="Trabalhou na empresa antes?" 
                   value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} 
                   score={scoringConfig && scoringConfig.experience_skills.worked_at_pinte_before > 0 ? (candidate.worked_at_pinte_before === 'sim' ? scoringConfig.experience_skills.worked_at_pinte_before : 0) : undefined}
                   maxScore={scoringConfig?.experience_skills.worked_at_pinte_before}

@@ -248,7 +248,7 @@ const Scoring: React.FC = () => {
     experience_skills: {
       years_of_experience: { label: 'Anos de experiência', description: '6+ anos: máximo | 4-5 anos: 87% | 2-3 anos: 67% | 1 ano: 33%' },
       idle_time: { label: 'Tempo parado', description: 'Empregado: máximo | 0-30 dias: 100% | 31-90 dias: 80% | 91-180 dias: 60% | 181-365 dias: 40% | 366-730 dias: 20% | 730+ dias: 10%' },
-      worked_at_pinte_before: { label: 'Trabalhou na Pinte Antes?', description: 'Sim: pontos configuráveis | Não: 0pts' },
+      worked_at_pinte_before: { label: 'Trabalhou na empresa antes?', description: 'Sim: pontos configuráveis | Não: 0pts' },
     },
     referral: {
       has_relatives_in_company: { label: 'Parentes/Amigos na Empresa', description: 'Sim: pontos configuráveis | Não: 0pts' },
@@ -281,7 +281,7 @@ const Scoring: React.FC = () => {
       criteria: [
         { label: 'Anos de experiência', points: '27 pontos', details: '6+ anos: 27pts | 4-5 anos: 23pts | 2-3 anos: 18pts | 1 ano: 9pts' },
         { label: 'Tempo parado', points: '5 pontos', details: 'Empregado: 5pts | 0-30 dias: 5pts | 31-90 dias: 4pts | 91-180 dias: 3pts | 181-365 dias: 2pts | 366-730 dias: 1pt | 730+ dias: 0.5pts' },
-        { label: 'Trabalhou na Pinte Antes?', points: '0 pontos', details: 'Sim: pontos configuráveis | Não: 0pts' },
+        { label: 'Trabalhou na empresa ntes?', points: '0 pontos', details: 'Sim: pontos configuráveis | Não: 0pts' },
       ],
     },
     {
