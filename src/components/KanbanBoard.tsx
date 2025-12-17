@@ -45,7 +45,7 @@ const kanbanColumns: KanbanColumn[] = [
   },
   {
     id: 'shortlisted',
-    title: 'Pré-Selecionado',
+    title: 'Pré-Escolhido',
     status: ['shortlisted'],
     color: 'text-cyan-700',
     bgColor: 'bg-cyan-50',
