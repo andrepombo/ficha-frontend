@@ -11,8 +11,6 @@ import KanbanBoard from '../components/KanbanBoard';
 import { getTranslatedStatus } from '../utils/statusTranslations';
 import { downloadFile } from '../utils/downloadFile';
 
-const DEMO_MODE = (import.meta as unknown as { env: { VITE_DEMO_MODE?: string } }).env.VITE_DEMO_MODE === 'true';
-
 function Dashboard() {
   const [searchParams] = useSearchParams();
   const candidateListRef = useRef<HTMLDivElement>(null);
@@ -45,19 +43,11 @@ function Dashboard() {
     accepted: 0,
     rejected: 0,
   });
-  // Set default filters: July 2025 in demo mode, otherwise current month and year
+  // Set default filters: all candidates from 2025
   const getDefaultMonthYear = () => {
-    if (DEMO_MODE) {
-      return {
-        month: '07',
-        year: '2025',
-      };
-    }
-
-    const now = new Date();
     return {
-      month: (now.getMonth() + 1).toString().padStart(2, '0'),
-      year: now.getFullYear().toString(),
+      month: 'all',
+      year: '2025',
     };
   };
 
