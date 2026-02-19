@@ -5,11 +5,17 @@ import InterviewModal from '../components/InterviewModal';
 import FeedbackModal from '../components/FeedbackModal';
 import InterviewCard from '../components/InterviewCard';
 
+const DEMO_MODE = (import.meta as unknown as { env: { VITE_DEMO_MODE?: string } }).env.VITE_DEMO_MODE === 'true';
+
 const Calendar: React.FC = () => {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+  const defaultYear = DEMO_MODE ? 2025 : new Date().getFullYear();
+  const defaultMonth = DEMO_MODE ? 7 : new Date().getMonth() + 1; // 7 = July (1-indexed for calendar)
+
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+  const [selectedYear, setSelectedYear] = useState(defaultYear);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('list');
   
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);

@@ -5,6 +5,8 @@ import { Candidate } from '../types';
 import { downloadFile } from '../utils/downloadFile';
 import CompactFunnelCharts from '../components/CompactFunnelCharts';
 
+const DEMO_MODE = (import.meta as unknown as { env: { VITE_DEMO_MODE?: string } }).env.VITE_DEMO_MODE === 'true';
+
 interface MonthlyData {
   month: string;
   applications: number;
@@ -17,8 +19,12 @@ function Analytics() {
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState<string>('all');
-  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
+
+  const defaultYear = DEMO_MODE ? '2025' : new Date().getFullYear().toString();
+  const defaultMonth = DEMO_MODE ? '6' : 'all'; // 6 = July (0-indexed for Analytics selectors)
+
+  const [selectedMonth, setSelectedMonth] = useState<string>(defaultMonth);
+  const [selectedYear, setSelectedYear] = useState<string>(defaultYear);
   const [availableYears, setAvailableYears] = useState<string[]>([]);
 
   useEffect(() => {
