@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import { candidateAPI } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getCopy } from '../i18n';
 
 interface FunnelStage {
   name: string;
@@ -39,6 +41,8 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
   const [timeData, setTimeData] = useState<TimeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { language } = useLanguage();
+  const copy = getCopy(language);
 
   useEffect(() => {
     fetchData();
@@ -60,7 +64,7 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
       setTimeData(time);
       setError(null);
     } catch (err) {
-      setError('Falha ao carregar dados. Por favor, tente novamente.');
+      setError(copy.analytics.error);
       console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
@@ -90,9 +94,9 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
       {/* Conversion Funnel Chart */}
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600">
-          <h2 className="text-xl font-bold text-white">Funil de Conversão</h2>
+          <h2 className="text-xl font-bold text-white">{copy.analytics.funnel.title}</h2>
           <p className="text-indigo-100 text-sm mt-1">
-            Candidatos por etapa do processo
+            {copy.analytics.funnel.subtitle}
           </p>
         </div>
 
@@ -101,15 +105,15 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
           <div className="grid grid-cols-3 gap-2">
             <div className="text-center">
               <div className="text-xl font-bold text-gray-900">{funnelData.total_in_funnel}</div>
-              <div className="text-xs text-gray-600">Total</div>
+              <div className="text-xs text-gray-600">{copy.analytics.funnel.total}</div>
             </div>
             <div className="text-center">
               <div className="text-xl font-bold text-green-600">{funnelData.overall_conversion_rate}%</div>
-              <div className="text-xs text-gray-600">Conversão</div>
+              <div className="text-xs text-gray-600">{copy.analytics.funnel.conversion}</div>
             </div>
             <div className="text-center">
               <div className="text-xl font-bold text-red-600">{funnelData.rejected_count}</div>
-              <div className="text-xs text-gray-600">Rejeitados</div>
+              <div className="text-xs text-gray-600">{copy.analytics.funnel.rejected}</div>
             </div>
           </div>
         </div>
@@ -141,13 +145,13 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
                 }}
                 labelStyle={{ fontWeight: 'bold', marginBottom: '8px' }}
                 formatter={(value: any, name: string) => {
-                  if (name === 'count') return [value, 'Candidatos'];
+                  if (name === 'count') return [value, copy.analytics.funnel.tooltipCount];
                   return [value, name];
                 }}
               />
               <Bar 
                 dataKey="count" 
-                name="Candidatos"
+                name={copy.analytics.funnel.barLabel}
                 radius={[8, 8, 0, 0]}
               >
                 {funnelData.stages.map((entry, index) => (
@@ -168,7 +172,7 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
               index > 0 && stage.conversion_from_previous && (
                 <div key={stage.name} className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">
-                    {funnelData.stages[index - 1].name} → {stage.name}
+                    {funnelData.stages[index - 1].name} {copy.analytics.funnel.conversionArrow} {stage.name}
                   </span>
                   <span className="font-semibold text-indigo-600">
                     {stage.conversion_from_previous}%
@@ -183,17 +187,17 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
       {/* Average Time Per Stage Chart */}
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="px-6 py-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600">
-          <h2 className="text-xl font-bold text-white">Tempo Médio por Etapa</h2>
+          <h2 className="text-xl font-bold text-white">{copy.analytics.time.title}</h2>
           <p className="text-indigo-100 text-sm mt-1">
-            Duração média em cada fase
+            {copy.analytics.time.subtitle}
           </p>
         </div>
 
         {/* Total Time */}
         <div className="px-6 py-3 bg-purple-50 border-b border-gray-200">
           <div className="text-center">
-            <div className="text-xl font-bold text-gray-900">{timeData.total_average_days} dias</div>
-            <div className="text-xs text-gray-600">Tempo total médio do processo</div>
+            <div className="text-xl font-bold text-gray-900">{timeData.total_average_days} {copy.analytics.time.daysSuffix}</div>
+            <div className="text-xs text-gray-600">{copy.analytics.time.totalLabel}</div>
           </div>
         </div>
 
@@ -213,7 +217,7 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
               <YAxis 
                 stroke="#6b7280"
                 style={{ fontSize: '12px', fontWeight: '500' }}
-                label={{ value: 'Dias', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
+                label={{ value: copy.analytics.time.barLabel, angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }}
               />
               <Tooltip 
                 contentStyle={{ 
@@ -223,11 +227,11 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                 }}
                 labelStyle={{ fontWeight: 'bold', marginBottom: '8px' }}
-                formatter={(value: any) => [`${value} dias`, 'Duração Média']}
+                formatter={(value: any) => [`${value} ${copy.analytics.time.daysSuffix}`, copy.analytics.time.tooltipLabel]}
               />
               <Bar 
                 dataKey="average_days" 
-                name="Dias"
+                name={copy.analytics.time.barLabel}
                 radius={[8, 8, 0, 0]}
               >
                 {timeData.stages.map((entry, index) => (
@@ -254,7 +258,7 @@ function CompactFunnelCharts({ selectedMonth, selectedYear }: CompactFunnelChart
                   <span className="text-gray-700">{stage.stage}</span>
                 </div>
                 <span className="font-semibold text-gray-900">
-                  {stage.average_days} dias
+                  {stage.average_days} {copy.analytics.time.daysSuffix}
                 </span>
               </div>
             ))}

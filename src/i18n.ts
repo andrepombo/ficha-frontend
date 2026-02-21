@@ -75,6 +75,93 @@ interface AppCopyShape {
     cpf: string;
     view: string;
   };
+  analytics: {
+    loading: string;
+    error: string;
+    retry: string;
+    selectors: {
+      monthLabel: string;
+      yearLabel: string;
+      monthAll: string;
+      yearAll: string;
+      monthsShort: MonthOption[];
+    };
+    exportPdf: string;
+    exportExcel: string;
+    summary: {
+      totalApplications: string;
+      accepted: string;
+      rejected: string;
+      ofTotal: string;
+      inYearPrefix: string;
+    };
+    chart: {
+      titlePrefix: string;
+      empty: string;
+      legend: {
+        applications: string;
+        accepted: string;
+        rejected: string;
+      };
+    };
+    table: {
+      title: string;
+      headers: { month: string; total: string; accepted: string; rejected: string; acceptanceRate: string };
+    };
+    funnel: {
+      title: string;
+      subtitle: string;
+      total: string;
+      conversion: string;
+      rejected: string;
+      barLabel: string;
+      tooltipCount: string;
+      conversionArrow: string;
+    };
+    time: {
+      title: string;
+      subtitle: string;
+      totalLabel: string;
+      daysSuffix: string;
+      barLabel: string;
+      tooltipLabel: string;
+    };
+  };
+  demographics: {
+    loading: string;
+    error: string;
+    retry: string;
+    cards: {
+      totalCandidates: string;
+      averageAge: string;
+      averageAgeUnit: string;
+      withAge: string;
+      withEducation: string;
+      ofTotal: string;
+    };
+    age: {
+      title: string;
+      noData: string;
+      legendSuffix: string;
+      tableTitle: string;
+      headers: { range: string; quantity: string; percent: string };
+    };
+    education: {
+      title: string;
+      noData: string;
+      tableTitle: string;
+      headers: { level: string; quantity: string; percent: string };
+      candidatesLabel: string;
+    };
+    labels: {
+      gender: { male: string; female: string; undisclosed: string };
+      disability: Record<string, string>;
+      yesNo: { yes: string; no: string };
+      availability: Record<string, string>;
+      referral: Record<string, string>;
+      education: Record<string, string>;
+    };
+  };
   sidebar: {
     brandTitle: string;
     brandSubtitle: string;
@@ -235,6 +322,145 @@ const base: Record<SupportedLanguage, AppCopyShape> = {
       empty: 'Nenhum candidato',
       viewDetails: 'Ver Detalhes',
     },
+    analytics: {
+      loading: 'Carregando dados analíticos...',
+      error: 'Falha ao carregar dados analíticos. Por favor, tente novamente.',
+      retry: 'Tentar Novamente',
+      selectors: {
+        monthLabel: 'Mês',
+        yearLabel: 'Ano',
+        monthAll: 'Todos',
+        yearAll: 'Todos',
+        monthsShort: [
+          { value: '0', label: 'Jan' },
+          { value: '1', label: 'Fev' },
+          { value: '2', label: 'Mar' },
+          { value: '3', label: 'Abr' },
+          { value: '4', label: 'Mai' },
+          { value: '5', label: 'Jun' },
+          { value: '6', label: 'Jul' },
+          { value: '7', label: 'Ago' },
+          { value: '8', label: 'Set' },
+          { value: '9', label: 'Out' },
+          { value: '10', label: 'Nov' },
+          { value: '11', label: 'Dez' },
+        ],
+      },
+      exportPdf: 'Exportar PDF',
+      exportExcel: 'Exportar Excel',
+      summary: {
+        totalApplications: 'Total de Candidaturas',
+        accepted: 'Candidatos Aceitos',
+        rejected: 'Candidatos Rejeitados',
+        ofTotal: 'do total',
+        inYearPrefix: 'em',
+      },
+      chart: {
+        titlePrefix: 'Candidaturas por Mês',
+        empty: 'Nenhuma candidatura encontrada para',
+        legend: {
+          applications: 'Total de Candidaturas',
+          accepted: 'Aceitos',
+          rejected: 'Rejeitados',
+        },
+      },
+      table: {
+        title: 'Detalhes Mensais',
+        headers: {
+          month: 'Mês',
+          total: 'Total',
+          accepted: 'Aceitos',
+          rejected: 'Rejeitados',
+          acceptanceRate: 'Taxa de Aceitação',
+        },
+      },
+      funnel: {
+        title: 'Funil de Conversão',
+        subtitle: 'Candidatos por etapa do processo',
+        total: 'Total',
+        conversion: 'Conversão',
+        rejected: 'Rejeitados',
+        barLabel: 'Candidatos',
+        tooltipCount: 'Candidatos',
+        conversionArrow: '→',
+      },
+      time: {
+        title: 'Tempo Médio por Etapa',
+        subtitle: 'Duração média em cada fase',
+        totalLabel: 'Tempo total médio do processo',
+        daysSuffix: 'dias',
+        barLabel: 'Dias',
+        tooltipLabel: 'Duração Média',
+      },
+    },
+    demographics: {
+      loading: 'Carregando dados demográficos...',
+      error: 'Falha ao carregar dados demográficos. Por favor, tente novamente.',
+      retry: 'Tentar Novamente',
+      cards: {
+        totalCandidates: 'Total de Candidatos',
+        averageAge: 'Idade Média',
+        averageAgeUnit: 'anos',
+        withAge: 'Com Idade Registrada',
+        withEducation: 'Com Escolaridade',
+        ofTotal: '% do total',
+      },
+      age: {
+        title: 'Distribuição por Faixa Etária',
+        noData: 'Nenhum dado de idade disponível',
+        legendSuffix: 'anos',
+        tableTitle: 'Detalhes por Faixa Etária',
+        headers: {
+          range: 'Faixa Etária',
+          quantity: 'Quantidade',
+          percent: 'Percentual',
+        },
+      },
+      education: {
+        title: 'Distribuição por Escolaridade',
+        noData: 'Nenhum dado de escolaridade disponível',
+        tableTitle: 'Detalhes por Escolaridade',
+        headers: {
+          level: 'Nível de Escolaridade',
+          quantity: 'Quantidade',
+          percent: 'Percentual',
+        },
+        candidatesLabel: 'Candidatos',
+      },
+      labels: {
+        gender: { male: 'Masculino', female: 'Feminino', undisclosed: 'Prefiro não informar' },
+        disability: {
+          sem_deficiencia: 'Sem deficiência',
+          fisica: 'Física',
+          auditiva: 'Auditiva',
+          visual: 'Visual',
+          mental: 'Mental',
+          multipla: 'Múltipla',
+          reabilitado: 'Reabilitado',
+        },
+        yesNo: { yes: 'Sim', no: 'Não' },
+        availability: {
+          imediato: 'Imediato',
+          '15_dias': '15 dias',
+          '30_dias': '30 dias',
+        },
+        referral: {
+          facebook: 'Facebook',
+          indicacao_colaborador: 'Indicação de colaborador',
+          instagram: 'Instagram',
+          linkedin: 'LinkedIn',
+          sine: 'Sine',
+          outros: 'Outros',
+        },
+        education: {
+          elementary: 'Ensino Fundamental',
+          high_school: 'Ensino Médio',
+          associate: 'Tecnólogo',
+          bachelor: 'Bacharelado',
+          other: 'Outro',
+        },
+      },
+    },
     sidebar: {
       brandTitle: 'Recrutamento',
       brandSubtitle: 'Sistema RH',
@@ -373,6 +599,145 @@ const base: Record<SupportedLanguage, AppCopyShape> = {
       },
       empty: 'No candidates',
       viewDetails: 'View Details',
+    },
+    analytics: {
+      loading: 'Loading analytics data...',
+      error: 'Failed to load analytics data. Please try again.',
+      retry: 'Try again',
+      selectors: {
+        monthLabel: 'Month',
+        yearLabel: 'Year',
+        monthAll: 'All',
+        yearAll: 'All',
+        monthsShort: [
+          { value: '0', label: 'Jan' },
+          { value: '1', label: 'Feb' },
+          { value: '2', label: 'Mar' },
+          { value: '3', label: 'Apr' },
+          { value: '4', label: 'May' },
+          { value: '5', label: 'Jun' },
+          { value: '6', label: 'Jul' },
+          { value: '7', label: 'Aug' },
+          { value: '8', label: 'Sep' },
+          { value: '9', label: 'Oct' },
+          { value: '10', label: 'Nov' },
+          { value: '11', label: 'Dec' },
+        ],
+      },
+      exportPdf: 'Export PDF',
+      exportExcel: 'Export Excel',
+      summary: {
+        totalApplications: 'Total Applications',
+        accepted: 'Accepted Candidates',
+        rejected: 'Rejected Candidates',
+        ofTotal: 'of total',
+        inYearPrefix: 'in',
+      },
+      chart: {
+        titlePrefix: 'Applications per Month',
+        empty: 'No applications found for',
+        legend: {
+          applications: 'Total Applications',
+          accepted: 'Accepted',
+          rejected: 'Rejected',
+        },
+      },
+      table: {
+        title: 'Monthly Details',
+        headers: {
+          month: 'Month',
+          total: 'Total',
+          accepted: 'Accepted',
+          rejected: 'Rejected',
+          acceptanceRate: 'Acceptance Rate',
+        },
+      },
+      funnel: {
+        title: 'Conversion Funnel',
+        subtitle: 'Candidates by process stage',
+        total: 'Total',
+        conversion: 'Conversion',
+        rejected: 'Rejected',
+        barLabel: 'Candidates',
+        tooltipCount: 'Candidates',
+        conversionArrow: '→',
+      },
+      time: {
+        title: 'Average Time per Stage',
+        subtitle: 'Average duration in each phase',
+        totalLabel: 'Total average process time',
+        daysSuffix: 'days',
+        barLabel: 'Days',
+        tooltipLabel: 'Average Duration',
+      },
+    },
+    demographics: {
+      loading: 'Loading demographics data...',
+      error: 'Failed to load demographics data. Please try again.',
+      retry: 'Try again',
+      cards: {
+        totalCandidates: 'Total Candidates',
+        averageAge: 'Average Age',
+        averageAgeUnit: 'years',
+        withAge: 'With Age Recorded',
+        withEducation: 'With Education',
+        ofTotal: '% of total',
+      },
+      age: {
+        title: 'Age Distribution',
+        noData: 'No age data available',
+        legendSuffix: 'years',
+        tableTitle: 'Age Range Details',
+        headers: {
+          range: 'Age Range',
+          quantity: 'Quantity',
+          percent: 'Percent',
+        },
+      },
+      education: {
+        title: 'Education Distribution',
+        noData: 'No education data available',
+        tableTitle: 'Education Details',
+        headers: {
+          level: 'Education Level',
+          quantity: 'Quantity',
+          percent: 'Percent',
+        },
+        candidatesLabel: 'Candidates',
+      },
+      labels: {
+        gender: { male: 'Male', female: 'Female', undisclosed: 'Prefer not to say' },
+        disability: {
+          sem_deficiencia: 'No disability',
+          fisica: 'Physical',
+          auditiva: 'Hearing',
+          visual: 'Visual',
+          mental: 'Mental',
+          multipla: 'Multiple',
+          reabilitado: 'Rehabilitated',
+        },
+        yesNo: { yes: 'Yes', no: 'No' },
+        availability: {
+          imediato: 'Immediate',
+          '15_dias': '15 days',
+          '30_dias': '30 days',
+        },
+        referral: {
+          facebook: 'Facebook',
+          indicacao_colaborador: 'Employee referral',
+          instagram: 'Instagram',
+          linkedin: 'LinkedIn',
+          sine: 'Sine',
+          outros: 'Other',
+        },
+        education: {
+          elementary: 'Elementary School',
+          high_school: 'High School',
+          associate: 'Associate',
+          bachelor: 'Bachelor',
+          other: 'Other',
+        },
+      },
     },
     sidebar: {
       brandTitle: 'Recruitment',

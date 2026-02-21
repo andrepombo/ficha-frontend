@@ -4,6 +4,8 @@ import { candidateAPI } from '../services/api';
 import { Candidate } from '../types';
 import { downloadFile } from '../utils/downloadFile';
 import CompactFunnelCharts from '../components/CompactFunnelCharts';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getCopy } from '../i18n';
 
 const DEMO_MODE = (import.meta as unknown as { env: { VITE_DEMO_MODE?: string } }).env.VITE_DEMO_MODE === 'true';
 
@@ -15,6 +17,8 @@ interface MonthlyData {
 }
 
 function Analytics() {
+  const { language } = useLanguage();
+  const copy = getCopy(language);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +30,8 @@ function Analytics() {
   const [selectedMonth, setSelectedMonth] = useState<string>(defaultMonth);
   const [selectedYear, setSelectedYear] = useState<string>(defaultYear);
   const [availableYears, setAvailableYears] = useState<string[]>([]);
+
+  const monthOptions = copy.analytics.selectors.monthsShort;
 
   useEffect(() => {
     fetchCandidates();
@@ -49,7 +55,7 @@ function Analytics() {
       
       setError(null);
     } catch (err) {
-      setError('Failed to load analytics data. Please try again.');
+      setError(copy.analytics.error);
       console.error('Error fetching candidates:', err);
     } finally {
       setLoading(false);
@@ -57,18 +63,10 @@ function Analytics() {
   };
 
   const processMonthlyData = () => {
-    const monthNames = [
-      'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
-    ];
-
-    // Initialize data for all 12 months
     const monthlyStats: { [key: string]: { applications: number; accepted: number; rejected: number } } = {};
-    
-    for (let i = 0; i < 12; i++) {
-      const monthKey = monthNames[i];
-      monthlyStats[monthKey] = { applications: 0, accepted: 0, rejected: 0 };
-    }
+    monthOptions.forEach(({ label }) => {
+      monthlyStats[label] = { applications: 0, accepted: 0, rejected: 0 };
+    });
 
     // Filter candidates by selected year and month, then count by month
     candidates
@@ -81,7 +79,7 @@ function Analytics() {
       .forEach(candidate => {
         const date = new Date(candidate.applied_date);
         const monthIndex = date.getMonth();
-        const monthKey = monthNames[monthIndex];
+        const monthKey = monthOptions[monthIndex].label;
         
         monthlyStats[monthKey].applications++;
         
@@ -97,7 +95,7 @@ function Analytics() {
     let data: MonthlyData[];
     if (selectedMonth !== 'all') {
       const monthIndex = parseInt(selectedMonth);
-      const monthKey = monthNames[monthIndex];
+      const monthKey = monthOptions[monthIndex].label;
       data = [{
         month: monthKey,
         applications: monthlyStats[monthKey].applications,
@@ -105,11 +103,11 @@ function Analytics() {
         rejected: monthlyStats[monthKey].rejected,
       }];
     } else {
-      data = monthNames.map(month => ({
-        month,
-        applications: monthlyStats[month].applications,
-        accepted: monthlyStats[month].accepted,
-        rejected: monthlyStats[month].rejected,
+      data = monthOptions.map(({ label }) => ({
+        month: label,
+        applications: monthlyStats[label].applications,
+        accepted: monthlyStats[label].accepted,
+        rejected: monthlyStats[label].rejected,
       }));
     }
 
@@ -127,7 +125,7 @@ function Analytics() {
       downloadFile(blob, filename);
     } catch (err) {
       console.error('Error exporting PDF:', err);
-      alert('Falha ao exportar PDF. Por favor, tente novamente.');
+      alert(copy.analytics.error);
     }
   };
 
@@ -138,7 +136,7 @@ function Analytics() {
       downloadFile(blob, filename);
     } catch (err) {
       console.error('Error exporting Excel:', err);
-      alert('Falha ao exportar Excel. Por favor, tente novamente.');
+      alert(copy.analytics.error);
     }
   };
 
@@ -147,7 +145,7 @@ function Analytics() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando dados analíticos...</p>
+          <p className="mt-4 text-gray-600">{copy.analytics.loading}</p>
         </div>
       </div>
     );
@@ -159,7 +157,7 @@ function Analytics() {
         <div className="text-center">
           <p className="text-red-600 text-xl mb-4">{error}</p>
           <button onClick={fetchCandidates} className="btn-primary">
-            Tentar Novamente
+            {copy.analytics.retry}
           </button>
         </div>
       </div>
@@ -176,7 +174,7 @@ function Analytics() {
             {/* Month, Year Selector and Export Buttons */}
             <div className="flex items-center space-x-3">
               <label htmlFor="month-select" className="text-sm font-medium text-gray-700">
-                Mês:
+                {copy.analytics.selectors.monthLabel}:
               </label>
               <select
                 id="month-select"
@@ -184,23 +182,14 @@ function Analytics() {
                 onChange={(e) => setSelectedMonth(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
               >
-                <option value="all">Todos</option>
-                <option value="0">Janeiro</option>
-                <option value="1">Fevereiro</option>
-                <option value="2">Março</option>
-                <option value="3">Abril</option>
-                <option value="4">Maio</option>
-                <option value="5">Junho</option>
-                <option value="6">Julho</option>
-                <option value="7">Agosto</option>
-                <option value="8">Setembro</option>
-                <option value="9">Outubro</option>
-                <option value="10">Novembro</option>
-                <option value="11">Dezembro</option>
+                <option value="all">{copy.analytics.selectors.monthAll}</option>
+                {monthOptions.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
               </select>
               
               <label htmlFor="year-select" className="text-sm font-medium text-gray-700">
-                Ano:
+                {copy.analytics.selectors.yearLabel}:
               </label>
               <select
                 id="year-select"
@@ -208,7 +197,7 @@ function Analytics() {
                 onChange={(e) => setSelectedYear(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
               >
-                <option value="all">Todos</option>
+                <option value="all">{copy.analytics.selectors.yearAll}</option>
                 {availableYears.map(year => (
                   <option key={year} value={year}>{year}</option>
                 ))}
@@ -219,23 +208,23 @@ function Analytics() {
                 type="button"
                 onClick={handleExportPDF}
                 className="px-4 py-2 text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                title="Exportar PDF"
+                title={copy.analytics.exportPdf}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                <span>PDF</span>
+                <span>{copy.analytics.exportPdf}</span>
               </button>
               <button
                 type="button"
                 onClick={handleExportExcel}
                 className="px-4 py-2 text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                title="Exportar Excel"
+                title={copy.analytics.exportExcel}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Excel</span>
+                <span>{copy.analytics.exportExcel}</span>
               </button>
             </div>
           </div>
@@ -246,9 +235,9 @@ function Analytics() {
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm font-medium">Total de Candidaturas</p>
+                <p className="text-blue-100 text-sm font-medium">{copy.analytics.summary.totalApplications}</p>
                 <p className="text-4xl font-bold mt-2">{totalApplications}</p>
-                <p className="text-blue-100 text-xs mt-1">em {selectedYear}</p>
+                <p className="text-blue-100 text-xs mt-1">{copy.analytics.summary.inYearPrefix} {selectedYear}</p>
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-3">
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,10 +250,10 @@ function Analytics() {
           <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm font-medium">Candidatos Aceitos</p>
+                <p className="text-green-100 text-sm font-medium">{copy.analytics.summary.accepted}</p>
                 <p className="text-4xl font-bold mt-2">{totalAccepted}</p>
                 <p className="text-green-100 text-xs mt-1">
-                  {totalApplications > 0 ? `${((totalAccepted / totalApplications) * 100).toFixed(1)}%` : '0%'} do total
+                  {totalApplications > 0 ? `${((totalAccepted / totalApplications) * 100).toFixed(1)}%` : '0%'} {copy.analytics.summary.ofTotal}
                 </p>
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-3">
@@ -278,10 +267,10 @@ function Analytics() {
           <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-red-100 text-sm font-medium">Candidatos Rejeitados</p>
+                <p className="text-red-100 text-sm font-medium">{copy.analytics.summary.rejected}</p>
                 <p className="text-4xl font-bold mt-2">{totalRejected}</p>
                 <p className="text-red-100 text-xs mt-1">
-                  {totalApplications > 0 ? `${((totalRejected / totalApplications) * 100).toFixed(1)}%` : '0%'} do total
+                  {totalApplications > 0 ? `${((totalRejected / totalApplications) * 100).toFixed(1)}%` : '0%'} {copy.analytics.summary.ofTotal}
                 </p>
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-3">
@@ -300,11 +289,11 @@ function Analytics() {
 
         {/* Bar Chart */}
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Candidaturas por Mês - {selectedYear}</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">{copy.analytics.chart.titlePrefix} - {selectedYear}</h2>
           
           {totalApplications === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">Nenhuma candidatura encontrada para {selectedYear}</p>
+              <p className="text-gray-500 text-lg">{copy.analytics.chart.empty} {selectedYear}</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={400}>
@@ -336,19 +325,19 @@ function Analytics() {
                 <Bar 
                   dataKey="applications" 
                   fill="#3b82f6" 
-                  name="Total de Candidaturas"
+                  name={copy.analytics.chart.legend.applications}
                   radius={[8, 8, 0, 0]}
                 />
                 <Bar 
                   dataKey="accepted" 
                   fill="#10b981" 
-                  name="Aceitos"
+                  name={copy.analytics.chart.legend.accepted}
                   radius={[8, 8, 0, 0]}
                 />
                 <Bar 
                   dataKey="rejected" 
                   fill="#ef4444" 
-                  name="Rejeitados"
+                  name={copy.analytics.chart.legend.rejected}
                   radius={[8, 8, 0, 0]}
                 />
               </BarChart>
@@ -359,26 +348,26 @@ function Analytics() {
         {/* Additional Stats Table */}
         <div className="mt-8 bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="px-6 py-4 bg-purple-50 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">Detalhes Mensais</h2>
+            <h2 className="text-xl font-bold text-gray-900">{copy.analytics.table.title}</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-purple-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Mês
+                    {copy.analytics.table.headers.month}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
+                    {copy.analytics.table.headers.total}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Aceitos
+                    {copy.analytics.table.headers.accepted}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Rejeitados
+                    {copy.analytics.table.headers.rejected}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Taxa de Aceitação
+                    {copy.analytics.table.headers.acceptanceRate}
                   </th>
                 </tr>
               </thead>

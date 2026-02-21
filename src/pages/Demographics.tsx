@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { candidateAPI } from '../services/api';
 import { Candidate } from '../types';
-
-interface ChartData {
-  name: string;
-  value: number;
-  [key: string]: string | number;
-}
+import { useLanguage } from '../contexts/LanguageContext';
+import { getCopy } from '../i18n';
 
 interface AgeGroup {
   range: string;
@@ -22,26 +18,17 @@ interface EducationData {
 }
 
 function Demographics() {
+  const { language } = useLanguage();
+  const copy = getCopy(language);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [ageData, setAgeData] = useState<AgeGroup[]>([]);
   const [educationData, setEducationData] = useState<EducationData[]>([]);
-  const [genderData, setGenderData] = useState<ChartData[]>([]);
-  const [disabilityData, setDisabilityData] = useState<ChartData[]>([]);
-  const [transportationData, setTransportationData] = useState<ChartData[]>([]);
-  const [referralData, setReferralData] = useState<ChartData[]>([]);
-  const [availabilityData, setAvailabilityData] = useState<ChartData[]>([]);
-  const [travelData, setTravelData] = useState<ChartData[]>([]);
-  const [heightPaintingData, setHeightPaintingData] = useState<ChartData[]>([]);
-  const [employmentData, setEmploymentData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Colors for charts
   const AGE_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1'];
   const EDUCATION_COLORS = ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
-  const GENDER_COLORS = ['#3b82f6', '#ec4899', '#94a3b8'];
-  const DISABILITY_COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444'];
-  const BINARY_COLORS = ['#10b981', '#ef4444'];
 
   useEffect(() => {
     fetchCandidates();
@@ -51,14 +38,6 @@ function Demographics() {
     if (candidates.length > 0) {
       processAgeData();
       processEducationData();
-      processGenderData();
-      processDisabilityData();
-      processTransportationData();
-      processReferralData();
-      processAvailabilityData();
-      processTravelData();
-      processHeightPaintingData();
-      processEmploymentData();
     }
   }, [candidates]);
 
@@ -69,7 +48,7 @@ function Demographics() {
       setCandidates(data);
       setError(null);
     } catch (err) {
-      setError('Failed to load demographics data. Please try again.');
+      setError(copy.demographics.error);
       console.error('Error fetching candidates:', err);
     } finally {
       setLoading(false);
@@ -124,13 +103,7 @@ function Demographics() {
     const educationCounts: { [key: string]: number } = {};
     
     // Map education codes to Portuguese labels
-    const educationLabels: { [key: string]: string } = {
-      'elementary': 'Ensino Fundamental',
-      'high_school': 'Ensino Médio',
-      'associate': 'Tecnólogo',
-      'bachelor': 'Bacharelado',
-      'other': 'Outro',
-    };
+    const educationLabels = copy.demographics.labels.education;
 
     candidates.forEach(candidate => {
       if (candidate.highest_education) {
@@ -148,160 +121,7 @@ function Demographics() {
     setEducationData(data);
   };
 
-  const processGenderData = () => {
-    const genderCounts: { [key: string]: number } = {
-      'Masculino': 0,
-      'Feminino': 0,
-      'Prefiro não informar': 0,
-    };
-
-    candidates.forEach(candidate => {
-      if (candidate.gender === 'masculino') genderCounts['Masculino']++;
-      else if (candidate.gender === 'feminino') genderCounts['Feminino']++;
-      else if (candidate.gender === 'prefiro_nao_informar') genderCounts['Prefiro não informar']++;
-    });
-
-    const data: ChartData[] = Object.entries(genderCounts)
-      .filter(([_, count]) => count > 0)
-      .map(([name, value]) => ({ name, value }));
-
-    setGenderData(data);
-  };
-
-  const processDisabilityData = () => {
-    const disabilityCounts: { [key: string]: number } = {};
-    
-    const disabilityLabels: { [key: string]: string } = {
-      'sem_deficiencia': 'Sem deficiência',
-      'fisica': 'Física',
-      'auditiva': 'Auditiva',
-      'visual': 'Visual',
-      'mental': 'Mental',
-      'multipla': 'Múltipla',
-      'reabilitado': 'Reabilitado',
-    };
-
-    candidates.forEach(candidate => {
-      if (candidate.disability) {
-        const label = disabilityLabels[candidate.disability] || candidate.disability;
-        disabilityCounts[label] = (disabilityCounts[label] || 0) + 1;
-      }
-    });
-
-    const data: ChartData[] = Object.entries(disabilityCounts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
-
-    setDisabilityData(data);
-  };
-
-  const processTransportationData = () => {
-    const counts = { 'Sim': 0, 'Não': 0 };
-
-    candidates.forEach(candidate => {
-      if (candidate.has_own_transportation === 'sim') counts['Sim']++;
-      else if (candidate.has_own_transportation === 'nao') counts['Não']++;
-    });
-
-    const data: ChartData[] = Object.entries(counts)
-      .filter(([_, value]) => value > 0)
-      .map(([name, value]) => ({ name, value }));
-
-    setTransportationData(data);
-  };
-
-  const processReferralData = () => {
-    const referralCounts: { [key: string]: number } = {};
-    
-    const referralLabels: { [key: string]: string } = {
-      'facebook': 'Facebook',
-      'indicacao_colaborador': 'Indicação de colaborador',
-      'instagram': 'Instagram',
-      'linkedin': 'LinkedIn',
-      'sine': 'Sine',
-      'outros': 'Outros',
-    };
-
-    candidates.forEach(candidate => {
-      if (candidate.how_found_vacancy) {
-        const label = referralLabels[candidate.how_found_vacancy] || candidate.how_found_vacancy;
-        referralCounts[label] = (referralCounts[label] || 0) + 1;
-      }
-    });
-
-    const data: ChartData[] = Object.entries(referralCounts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
-
-    setReferralData(data);
-  };
-
-  const processAvailabilityData = () => {
-    const availabilityCounts: { [key: string]: number } = {};
-    
-    const availabilityLabels: { [key: string]: string } = {
-      'imediato': 'Imediato',
-      '15_dias': '15 dias',
-      '30_dias': '30 dias',
-    };
-
-    candidates.forEach(candidate => {
-      if (candidate.availability_start) {
-        const label = availabilityLabels[candidate.availability_start] || candidate.availability_start;
-        availabilityCounts[label] = (availabilityCounts[label] || 0) + 1;
-      }
-    });
-
-    const data: ChartData[] = Object.entries(availabilityCounts)
-      .map(([name, value]) => ({ name, value }));
-
-    setAvailabilityData(data);
-  };
-
-  const processTravelData = () => {
-    const counts = { 'Sim': 0, 'Não': 0 };
-
-    candidates.forEach(candidate => {
-      if (candidate.travel_availability === 'sim') counts['Sim']++;
-      else if (candidate.travel_availability === 'nao') counts['Não']++;
-    });
-
-    const data: ChartData[] = Object.entries(counts)
-      .filter(([_, value]) => value > 0)
-      .map(([name, value]) => ({ name, value }));
-
-    setTravelData(data);
-  };
-
-  const processHeightPaintingData = () => {
-    const counts = { 'Sim': 0, 'Não': 0 };
-
-    candidates.forEach(candidate => {
-      if (candidate.height_painting === 'sim') counts['Sim']++;
-      else if (candidate.height_painting === 'nao') counts['Não']++;
-    });
-
-    const data: ChartData[] = Object.entries(counts)
-      .filter(([_, value]) => value > 0)
-      .map(([name, value]) => ({ name, value }));
-
-    setHeightPaintingData(data);
-  };
-
-  const processEmploymentData = () => {
-    const counts = { 'Sim': 0, 'Não': 0 };
-
-    candidates.forEach(candidate => {
-      if (candidate.currently_employed === 'sim') counts['Sim']++;
-      else if (candidate.currently_employed === 'nao') counts['Não']++;
-    });
-
-    const data: ChartData[] = Object.entries(counts)
-      .filter(([_, value]) => value > 0)
-      .map(([name, value]) => ({ name, value }));
-
-    setEmploymentData(data);
-  };
+  // Additional datasets retained for future use but not rendered currently
 
   const totalCandidates = candidates.length;
   const candidatesWithAge = candidates.filter(c => c.date_of_birth).length;
@@ -321,7 +141,7 @@ function Demographics() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando dados demográficos...</p>
+          <p className="mt-4 text-gray-600">{copy.demographics.loading}</p>
         </div>
       </div>
     );
@@ -333,7 +153,7 @@ function Demographics() {
         <div className="text-center">
           <p className="text-red-600 text-xl mb-4">{error}</p>
           <button onClick={fetchCandidates} className="btn-primary">
-            Tentar Novamente
+            {copy.demographics.retry}
           </button>
         </div>
       </div>
@@ -349,7 +169,7 @@ function Demographics() {
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm font-medium">Total de Candidatos</p>
+                <p className="text-blue-100 text-sm font-medium">{copy.demographics.cards.totalCandidates}</p>
                 <p className="text-4xl font-bold mt-2">{totalCandidates}</p>
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-3">
@@ -363,9 +183,9 @@ function Demographics() {
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm font-medium">Idade Média</p>
+                <p className="text-purple-100 text-sm font-medium">{copy.demographics.cards.averageAge}</p>
                 <p className="text-4xl font-bold mt-2">{averageAge.toFixed(1)}</p>
-                <p className="text-purple-100 text-xs mt-1">anos</p>
+                <p className="text-purple-100 text-xs mt-1">{copy.demographics.cards.averageAgeUnit}</p>
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-3">
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,10 +198,10 @@ function Demographics() {
           <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-pink-100 text-sm font-medium">Com Idade Registrada</p>
+                <p className="text-pink-100 text-sm font-medium">{copy.demographics.cards.withAge}</p>
                 <p className="text-4xl font-bold mt-2">{candidatesWithAge}</p>
                 <p className="text-pink-100 text-xs mt-1">
-                  {((candidatesWithAge / totalCandidates) * 100).toFixed(1)}% do total
+                  {((candidatesWithAge / totalCandidates) * 100).toFixed(1)}% {copy.demographics.cards.ofTotal}
                 </p>
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-3">
@@ -395,10 +215,10 @@ function Demographics() {
           <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-indigo-100 text-sm font-medium">Com Escolaridade</p>
+                <p className="text-indigo-100 text-sm font-medium">{copy.demographics.cards.withEducation}</p>
                 <p className="text-4xl font-bold mt-2">{candidatesWithEducation}</p>
                 <p className="text-indigo-100 text-xs mt-1">
-                  {((candidatesWithEducation / totalCandidates) * 100).toFixed(1)}% do total
+                  {((candidatesWithEducation / totalCandidates) * 100).toFixed(1)}% {copy.demographics.cards.ofTotal}
                 </p>
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-3">
@@ -414,11 +234,11 @@ function Demographics() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Age Distribution Pie Chart */}
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Distribuição por Faixa Etária</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{copy.demographics.age.title}</h2>
             
             {candidatesWithAge === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">Nenhum dado de idade disponível</p>
+                <p className="text-gray-500 text-lg">{copy.demographics.age.noData}</p>
               </div>
             ) : (
               <div className="flex flex-col items-center">
@@ -458,7 +278,7 @@ function Demographics() {
                         style={{ backgroundColor: AGE_COLORS[index % AGE_COLORS.length] }}
                       />
                       <span className="text-sm text-gray-700">
-                        {entry.range} anos: <span className="font-semibold">{entry.count}</span>
+                        {entry.range} {copy.demographics.age.legendSuffix}: <span className="font-semibold">{entry.count}</span>
                       </span>
                     </div>
                   ))}
@@ -469,11 +289,11 @@ function Demographics() {
 
           {/* Education Bar Chart */}
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Distribuição por Escolaridade</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{copy.demographics.education.title}</h2>
             
             {candidatesWithEducation === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">Nenhum dado de escolaridade disponível</p>
+                <p className="text-gray-500 text-lg">{copy.demographics.education.noData}</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
@@ -504,7 +324,7 @@ function Demographics() {
                     dataKey="count" 
                     fill="#8b5cf6" 
                     radius={[0, 8, 8, 0]}
-                    name="Candidatos"
+                    name={copy.demographics.education.candidatesLabel}
                   >
                     {educationData.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={EDUCATION_COLORS[index % EDUCATION_COLORS.length]} />
@@ -521,20 +341,20 @@ function Demographics() {
           {/* Age Details Table */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="px-6 py-4 bg-gray-100 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Detalhes por Faixa Etária</h2>
+              <h2 className="text-xl font-bold text-gray-900">{copy.demographics.age.tableTitle}</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Faixa Etária
+                      {copy.demographics.age.headers.range}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Quantidade
+                      {copy.demographics.age.headers.quantity}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Percentual
+                      {copy.demographics.age.headers.percent}
                     </th>
                   </tr>
                 </thead>
@@ -542,7 +362,7 @@ function Demographics() {
                   {ageData.map((age, index) => (
                     <tr key={age.range} className={index % 2 === 0 ? 'bg-white' : 'bg-purple-50'}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {age.range} anos
+                        {age.range} {copy.demographics.age.legendSuffix}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {age.count}
@@ -563,20 +383,20 @@ function Demographics() {
           {/* Education Details Table */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="px-6 py-4 bg-purple-50 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">Detalhes por Escolaridade</h2>
+              <h2 className="text-xl font-bold text-gray-900">{copy.demographics.education.tableTitle}</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-purple-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Nível de Escolaridade
+                      {copy.demographics.education.headers.level}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Quantidade
+                      {copy.demographics.education.headers.quantity}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Percentual
+                      {copy.demographics.education.headers.percent}
                     </th>
                   </tr>
                 </thead>
