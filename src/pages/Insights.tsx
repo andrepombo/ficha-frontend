@@ -317,24 +317,21 @@ function Insights() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header with Filters */}
         <div className="mb-8">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Insights de Candidatos</h1>
               <p className="mt-2 text-gray-600">Análise detalhada dos dados dos candidatos</p>
             </div>
             
-            {/* Filters */}
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <div className="grid grid-cols-3 gap-4">
+            {/* Filters using painel style */}
+            <div className="card w-full lg:max-w-3xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Month Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Mês
-                  </label>
+                <div className="floating-label-container">
                   <select
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm"
+                    className={`select-modern floating-select ${selectedMonth !== 'all' ? 'has-value' : ''}`}
                   >
                     <option value="all">Todos</option>
                     <option value="0">Janeiro</option>
@@ -350,40 +347,37 @@ function Insights() {
                     <option value="10">Novembro</option>
                     <option value="11">Dezembro</option>
                   </select>
+                  <label className="floating-label">Mês</label>
                 </div>
 
                 {/* Year Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ano
-                  </label>
+                <div className="floating-label-container">
                   <select
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm"
+                    className={`select-modern floating-select ${selectedYear !== 'all' ? 'has-value' : ''}`}
                   >
                     <option value="all">Todos</option>
                     {availableYears.map(year => (
                       <option key={year} value={year}>{year}</option>
                     ))}
                   </select>
+                  <label className="floating-label">Ano</label>
                 </div>
 
                 {/* Status Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
+                <div className="floating-label-container">
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm"
+                    className={`select-modern floating-select ${statusFilter !== 'all' ? 'has-value' : ''}`}
                   >
                     <option value="all">Todos</option>
                     <option value="in_process">Em Processo</option>
                     <option value="accepted">Aceitos</option>
                     <option value="rejected">Rejeitados</option>
                   </select>
+                  <label className="floating-label">Status</label>
                 </div>
               </div>
               

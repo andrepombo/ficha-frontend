@@ -170,40 +170,43 @@ function Analytics() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-end">
-            {/* Month, Year Selector and Export Buttons */}
-            <div className="flex items-center space-x-3">
-              <label htmlFor="month-select" className="text-sm font-medium text-gray-700">
-                {copy.analytics.selectors.monthLabel}:
-              </label>
-              <select
-                id="month-select"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
-              >
-                <option value="all">{copy.analytics.selectors.monthAll}</option>
-                {monthOptions.map(({ value, label }) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-              
-              <label htmlFor="year-select" className="text-sm font-medium text-gray-700">
-                {copy.analytics.selectors.yearLabel}:
-              </label>
-              <select
-                id="year-select"
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
-              >
-                <option value="all">{copy.analytics.selectors.yearAll}</option>
-                {availableYears.map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-              
-              {/* Export buttons */}
+          <div className="card flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:max-w-xl">
+              {/* Month Filter */}
+              <div className="floating-label-container">
+                <select
+                  id="month-select"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className={`select-modern floating-select ${selectedMonth !== 'all' ? 'has-value' : ''}`}
+                >
+                  <option value="all">{copy.analytics.selectors.monthAll}</option>
+                  {monthOptions.map(({ value, label }) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+                <label className="floating-label">{copy.analytics.selectors.monthLabel}</label>
+              </div>
+
+              {/* Year Filter */}
+              <div className="floating-label-container">
+                <select
+                  id="year-select"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className={`select-modern floating-select ${selectedYear !== 'all' ? 'has-value' : ''}`}
+                >
+                  <option value="all">{copy.analytics.selectors.yearAll}</option>
+                  {availableYears.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+                <label className="floating-label">{copy.analytics.selectors.yearLabel}</label>
+              </div>
+            </div>
+
+            {/* Export buttons */}
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={handleExportPDF}
