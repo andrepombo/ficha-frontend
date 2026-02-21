@@ -24,6 +24,65 @@ interface AppCopyShape {
     logout: string;
     role: string;
   };
+  candidateDetail: {
+    loading: string;
+    notFound: string;
+    error: string;
+    applicationDate: string;
+    position: string;
+    none: string;
+    na: string;
+    tabs: { personal: string; questionnaire: string };
+    contact: { email: string; phone: string; birthDate: string; cpf: string };
+    status: { label: string; updateError: string };
+    notes: { saved: string; saveError: string };
+    delete: { confirmation: string; success: string; error: string };
+    sections: {
+      scoreTitle: string;
+      scoreTotalLabel: string;
+      experienceTitle: string;
+      experienceScoreLabel: string;
+      educationTitle: string;
+      educationScoreLabel: string;
+      availabilityTitle: string;
+      availabilityScoreLabel: string;
+      referralTitle: string;
+      referralScoreLabel: string;
+      interviewsTitle: string;
+      interviewsScoreLabel: string;
+      interviewsEmptyTitle: string;
+      interviewsEmptyDesc: string;
+      scheduleInterview: string;
+      scheduleFirst: string;
+      contactTitle: string;
+    };
+    labels: {
+      experienceYears: string;
+      idleTime: string;
+      workedBefore: string;
+      educationLevel: string;
+      courses: string;
+      skills: string;
+      certifications: string;
+      availabilityStart: string;
+      ownTransport: string;
+      travelAvailability: string;
+      heightPainting: string;
+      relatives: string;
+      referredBy: string;
+      foundVacancy: string;
+    };
+    units: {
+      year: string;
+      years: string;
+      course: string;
+      courses: string;
+      skill: string;
+      skills: string;
+      certification: string;
+      certifications: string;
+    };
+  };
   filterBar: {
     searchPlaceholder: string;
     searchLabel: string;
@@ -226,6 +285,69 @@ const base: Record<SupportedLanguage, AppCopyShape> = {
       notifications: 'Notificações',
       logout: 'Sair',
       role: 'Administrador',
+    },
+    candidateDetail: {
+      loading: 'Carregando detalhes do candidato...',
+      notFound: 'Candidato não encontrado',
+      error: 'Erro ao carregar dados do candidato',
+      applicationDate: 'Candidatura',
+      position: 'Posição',
+      none: 'Sem posição',
+      na: 'N/A',
+      tabs: { personal: 'Dados Pessoais', questionnaire: 'Questionário' },
+      contact: { email: 'Email', phone: 'Telefone', birthDate: 'Data de Nascimento', cpf: 'CPF' },
+      status: { label: 'Alterar Status:', updateError: 'Falha ao atualizar status. Tente novamente.' },
+      notes: { saved: 'Notas salvas com sucesso!', saveError: 'Falha ao salvar notas. Tente novamente.' },
+      delete: {
+        confirmation: 'Tem certeza de que deseja excluir este candidato? Esta ação não pode ser desfeita.',
+        success: 'Candidato excluído com sucesso!',
+        error: 'Falha ao excluir candidato. Tente novamente.',
+      },
+      sections: {
+        scoreTitle: 'Detalhamento da Pontuação',
+        scoreTotalLabel: 'Pontuação Total',
+        experienceTitle: 'Experiências Profissionais',
+        experienceScoreLabel: 'Pontuação Experiência',
+        educationTitle: 'Educação & Qualificações',
+        educationScoreLabel: 'Pontuação Educação',
+        availabilityTitle: 'Disponibilidade & Logística',
+        availabilityScoreLabel: 'Pontuação Disponibilidade',
+        referralTitle: 'Indicação',
+        referralScoreLabel: 'Pontuação Indicação',
+        interviewsTitle: 'Entrevistas',
+        interviewsScoreLabel: 'Pontuação Entrevista',
+        interviewsEmptyTitle: 'Nenhuma entrevista agendada',
+        interviewsEmptyDesc: 'Agende a primeira entrevista com este candidato.',
+        scheduleInterview: 'Agendar Entrevista',
+        scheduleFirst: 'Agendar Primeira Entrevista',
+        contactTitle: 'Contato e Endereço',
+      },
+      labels: {
+        experienceYears: 'Anos de Experiência',
+        idleTime: 'Tempo Parado',
+        workedBefore: 'Trabalhou na empresa antes?',
+        educationLevel: 'Escolaridade',
+        courses: 'Cursos Adicionais',
+        skills: 'Habilidades',
+        certifications: 'Certificações',
+        availabilityStart: 'Disponibilidade para Início',
+        ownTransport: 'Transporte Próprio',
+        travelAvailability: 'Disponibilidade para Viagens',
+        heightPainting: 'Pintura em Altura (Balancim/Cadeirinha/Andaimes)',
+        relatives: 'Parentes/Amigos na Empresa',
+        referredBy: 'Indicado Por',
+        foundVacancy: 'Como Soube da Vaga',
+      },
+      units: {
+        year: 'ano',
+        years: 'anos',
+        course: 'curso',
+        courses: 'cursos',
+        skill: 'habilidade',
+        skills: 'habilidades',
+        certification: 'certificação',
+        certifications: 'certificações',
+      },
     },
     filterBar: {
       searchPlaceholder: 'Nome, telefone ou CPF...',
@@ -504,6 +626,69 @@ const base: Record<SupportedLanguage, AppCopyShape> = {
       notifications: 'Notifications',
       logout: 'Logout',
       role: 'Administrator',
+    },
+    candidateDetail: {
+      loading: 'Loading candidate details...',
+      notFound: 'Candidate not found',
+      error: 'Failed to load candidate details',
+      applicationDate: 'Application',
+      position: 'Position',
+      none: 'No position',
+      na: 'N/A',
+      tabs: { personal: 'Personal Data', questionnaire: 'Questionnaire' },
+      contact: { email: 'Email', phone: 'Phone', birthDate: 'Birth Date', cpf: 'CPF' },
+      status: { label: 'Change Status:', updateError: 'Failed to update status. Please try again.' },
+      notes: { saved: 'Notes saved successfully!', saveError: 'Failed to save notes. Please try again.' },
+      delete: {
+        confirmation: 'Are you sure you want to delete this candidate? This action cannot be undone.',
+        success: 'Candidate deleted successfully!',
+        error: 'Failed to delete candidate. Please try again.',
+      },
+      sections: {
+        scoreTitle: 'Score Breakdown',
+        scoreTotalLabel: 'Total Score',
+        experienceTitle: 'Professional Experience',
+        experienceScoreLabel: 'Experience Score',
+        educationTitle: 'Education & Qualifications',
+        educationScoreLabel: 'Education Score',
+        availabilityTitle: 'Availability & Logistics',
+        availabilityScoreLabel: 'Availability Score',
+        referralTitle: 'Referral',
+        referralScoreLabel: 'Referral Score',
+        interviewsTitle: 'Interviews',
+        interviewsScoreLabel: 'Interview Score',
+        interviewsEmptyTitle: 'No interviews scheduled',
+        interviewsEmptyDesc: 'Schedule the first interview with this candidate.',
+        scheduleInterview: 'Schedule Interview',
+        scheduleFirst: 'Schedule First Interview',
+        contactTitle: 'Contact & Address',
+      },
+      labels: {
+        experienceYears: 'Years of Experience',
+        idleTime: 'Idle Time',
+        workedBefore: 'Worked at the company before?',
+        educationLevel: 'Education Level',
+        courses: 'Additional Courses',
+        skills: 'Skills',
+        certifications: 'Certifications',
+        availabilityStart: 'Start Availability',
+        ownTransport: 'Own Transportation',
+        travelAvailability: 'Travel Availability',
+        heightPainting: 'Height Painting (Cradle/Rope/Scaffolding)',
+        relatives: 'Relatives/Friends in Company',
+        referredBy: 'Referred By',
+        foundVacancy: 'How Found the Vacancy',
+      },
+      units: {
+        year: 'year',
+        years: 'years',
+        course: 'course',
+        courses: 'courses',
+        skill: 'skill',
+        skills: 'skills',
+        certification: 'certification',
+        certifications: 'certifications',
+      },
     },
     filterBar: {
       searchPlaceholder: 'Name, phone or ID...',

@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { candidateAPI, questionnaireApi } from '../services/api';
 import { Candidate, CandidateStatus, Interview } from '../types';
 import { getTranslatedStatus } from '../utils/statusTranslations';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getCopy, getLocale } from '../i18n';
 import InterviewModal from '../components/InterviewModal';
 import FeedbackModal from '../components/FeedbackModal';
 import InterviewCard from '../components/InterviewCard';
@@ -12,6 +14,7 @@ import CertificationsModal from '../components/CertificationsModal';
 import DocumentViewer from '../components/DocumentViewer';
 
 const statusColors: Record<CandidateStatus, string> = {
+  incomplete: 'bg-gray-100 text-gray-800',
   pending: 'bg-orange-100 text-orange-800',
   reviewing: 'bg-blue-100 text-blue-800',
   shortlisted: 'bg-cyan-100 text-cyan-800',
@@ -59,6 +62,10 @@ function InfoItem({ label, value, score, maxScore, onClick, clickable }: InfoIte
 function CandidateDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const copy = getCopy(language);
+  const locale = getLocale(language);
+  const t = copy.candidateDetail;
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -147,9 +154,9 @@ function CandidateDetail() {
       
       setError(null);
     } catch (err) {
-      setError('Failed to load candidate details.');
+      setError(t.error);
       console.error('Error fetching candidate:', err);
-      setError('Erro ao carregar dados do candidato');
+      setError(t.error);
     } finally {
       setLoading(false);
     }
@@ -175,7 +182,7 @@ function CandidateDetail() {
       setCandidate(prev => prev ? { ...prev, status: newStatus as CandidateStatus } : null);
     } catch (err) {
       console.error('Error updating status:', err);
-      alert('Failed to update status. Please try again.');
+      alert(t.status.updateError);
     }
   };
 
@@ -186,10 +193,10 @@ function CandidateDetail() {
       setSaving(true);
       await candidateAPI.updateNotes(candidate.id, notes);
       setCandidate(prev => prev ? { ...prev, notes } : null);
-      alert('Notes saved successfully!');
+      alert(t.notes.saved);
     } catch (err) {
       console.error('Error saving notes:', err);
-      alert('Failed to save notes. Please try again.');
+      alert(t.notes.saveError);
     } finally {
       setSaving(false);
     }
@@ -198,17 +205,17 @@ function CandidateDetail() {
   const handleDelete = async () => {
     if (!candidate) return;
     
-    if (!window.confirm('Are you sure you want to delete this candidate? This action cannot be undone.')) {
+    if (!window.confirm(t.delete.confirmation)) {
       return;
     }
     
     try {
       await candidateAPI.delete(candidate.id);
-      alert('Candidate deleted successfully!');
+      alert(t.delete.success);
       navigate('/dashboard');
     } catch (err) {
       console.error('Error deleting candidate:', err);
-      alert('Failed to delete candidate. Please try again.');
+      alert(t.delete.error);
     }
   };
 
@@ -256,7 +263,7 @@ function CandidateDetail() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando detalhes do candidato...</p>
+          <p className="mt-4 text-gray-600">{t.loading}</p>
         </div>
       </div>
     );
@@ -266,7 +273,7 @@ function CandidateDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 text-xl mb-4">{error || 'Candidato não encontrado'}</p>
+          <p className="text-red-600 text-xl mb-4">{error || t.notFound}</p>
         </div>
       </div>
     );
@@ -326,13 +333,13 @@ function CandidateDetail() {
                       <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span className="font-medium">Candidatura: {new Date(candidate.applied_date).toLocaleDateString('pt-BR')}</span>
+                      <span className="font-medium">{t.applicationDate}: {new Date(candidate.applied_date).toLocaleDateString(locale)}</span>
                     </div>
                     <div className="inline-flex items-center gap-2 text-sm text-gray-600 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-100">
                       <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m2 8H7a2 2 0 01-2-2V8a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2z" />
                       </svg>
-                      <span className="font-medium">Posição: {candidate.position_applied || 'Sem posição'}</span>
+                      <span className="font-medium">{t.position}: {candidate.position_applied || t.none}</span>
                     </div>
                   </div>
                 </div>
@@ -340,7 +347,7 @@ function CandidateDetail() {
               
               <div className="flex flex-col items-end gap-3">
                 <span className={`status-badge ${statusColors[candidate.status]} inline-block text-sm px-5 py-2 rounded-xl font-semibold shadow-md`}>
-                  {getTranslatedStatus(candidate.status)}
+                  {getTranslatedStatus(candidate.status, language)}
                 </span>
               </div>
             </div>
@@ -354,8 +361,8 @@ function CandidateDetail() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">Email</p>
-                  <p className="text-gray-900 font-medium truncate">{candidate.email || 'Não informado'}</p>
+                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">{t.contact.email}</p>
+                  <p className="text-gray-900 font-medium truncate">{candidate.email || t.na}</p>
                 </div>
               </div>
 
@@ -366,8 +373,8 @@ function CandidateDetail() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">Telefone</p>
-                  <p className="text-gray-900 font-medium">{candidate.phone_number}</p>
+                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">{t.contact.phone}</p>
+                  <p className="text-gray-900 font-medium">{candidate.phone_number || t.na}</p>
                 </div>
               </div>
 
@@ -378,8 +385,8 @@ function CandidateDetail() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">Data de Nascimento</p>
-                  <p className="text-gray-900 font-medium">{candidate.date_of_birth ? new Date(candidate.date_of_birth).toLocaleDateString('pt-BR') : 'N/A'}</p>
+                  <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">{t.contact.birthDate}</p>
+                  <p className="text-gray-900 font-medium">{candidate.date_of_birth ? new Date(candidate.date_of_birth).toLocaleDateString(locale) : t.na}</p>
                 </div>
               </div>
             </div>
@@ -390,25 +397,25 @@ function CandidateDetail() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>CPF: {candidate.cpf}</span>
+                <span>{t.contact.cpf}: {candidate.cpf}</span>
               </div>
               
               {/* Inline Status Change - pushed to the right */}
               <div className="flex items-center gap-2 ml-auto">
                 <label className="text-sm font-semibold text-indigo-600 whitespace-nowrap">
-                  Alterar Status:
+                  {t.status.label}
                 </label>
                 <select
                   value={candidate.status}
                   onChange={(e) => handleStatusChange(e.target.value)}
                   className="select-modern pl-4 pr-10 py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white shadow-sm hover:border-purple-300 transition-all font-medium appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.5em] bg-[right_0.5rem_center] bg-no-repeat"
                 >
-                  <option value="pending">🟡 Pendente</option>
-                  <option value="reviewing">🔵 Em Análise</option>
-                  <option value="shortlisted">🟢 Selecionado para Entrevista</option>
-                  <option value="interviewed">🟣 Entrevistado</option>
-                  <option value="accepted">✅ Aceito</option>
-                  <option value="rejected">❌ Rejeitado</option>
+                  <option value="pending">🟡 {copy.status.pending}</option>
+                  <option value="reviewing">🔵 {copy.status.reviewing}</option>
+                  <option value="shortlisted">🟢 {copy.status.shortlisted}</option>
+                  <option value="interviewed">🟣 {copy.status.interviewed}</option>
+                  <option value="accepted">✅ {copy.status.accepted}</option>
+                  <option value="rejected">❌ {copy.status.rejected}</option>
                 </select>
               </div>
             </div>
@@ -430,7 +437,7 @@ function CandidateDetail() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Dados Pessoais
+                {t.tabs.personal}
               </span>
               {activeTab === 'personal' && (
                 <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full"></span>
@@ -450,7 +457,7 @@ function CandidateDetail() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  {r.template_title || 'Questionário'}
+                  {r.template_title || t.tabs.questionnaire}
                   <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
                     activeTab === `q-${r.id}` ? 'bg-white/20' : 'bg-purple-100 text-purple-700'
                   }`}>
@@ -477,7 +484,7 @@ function CandidateDetail() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Detalhamento da Pontuação</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t.sections.scoreTitle}</h2>
               </div>
               {candidate.score !== undefined && candidate.score !== null && (() => {
                 const score = Number(candidate.score);
@@ -501,7 +508,7 @@ function CandidateDetail() {
                 
                 return (
                   <div className={`${bgColor} ${borderColor} border px-4 py-2 rounded-xl`}>
-                    <div className={`text-xs font-semibold ${textColor} uppercase tracking-wide`}>Pontuação Total</div>
+                    <div className={`text-xs font-semibold ${textColor} uppercase tracking-wide`}>{t.sections.scoreTotalLabel}</div>
                     <div className={`text-lg font-bold ${textColor}`}>{score.toFixed(1)}/100</div>
                   </div>
                 );
@@ -517,7 +524,7 @@ function CandidateDetail() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold text-blue-900 text-sm">Experiência</h3>
+                  <h3 className="font-semibold text-blue-900 text-sm">{t.sections.experienceTitle}</h3>
                 </div>
                 <div className="flex items-end justify-between">
                   <div className="text-2xl font-extrabold text-blue-700">{(candidate.score_breakdown.experience_skills || 0).toFixed(1)}</div>
@@ -539,7 +546,7 @@ function CandidateDetail() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold text-purple-900 text-sm">Educação</h3>
+                  <h3 className="font-semibold text-purple-900 text-sm">{t.sections.educationTitle}</h3>
                 </div>
                 <div className="flex items-end justify-between">
                   <div className="text-2xl font-extrabold text-purple-700">{(candidate.score_breakdown.education || 0).toFixed(1)}</div>
@@ -561,7 +568,7 @@ function CandidateDetail() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold text-green-900 text-sm">Disponibilidade</h3>
+                  <h3 className="font-semibold text-green-900 text-sm">{t.sections.availabilityTitle}</h3>
                 </div>
                 <div className="flex items-end justify-between">
                   <div className="text-2xl font-extrabold text-green-700">{(candidate.score_breakdown.availability_logistics || 0).toFixed(1)}</div>
@@ -583,7 +590,7 @@ function CandidateDetail() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold text-teal-900 text-sm">Indicação</h3>
+                  <h3 className="font-semibold text-teal-900 text-sm">{t.sections.referralTitle}</h3>
                 </div>
                 <div className="flex items-end justify-between">
                   <div className="text-2xl font-extrabold text-teal-700">
@@ -655,11 +662,11 @@ function CandidateDetail() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900">Experiências Profissionais</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{t.sections.experienceTitle}</h2>
               </div>
               {candidate.score_breakdown && candidate.score_breakdown.experience_skills > 0 && scoringConfig && (
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-200">
-                  <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Pontuação Experiência</div>
+                  <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">{t.sections.experienceScoreLabel}</div>
                   <div className="text-lg font-bold text-blue-700">
                     {(candidate.score_breakdown.experience_skills || 0).toFixed(1)}/
                     {Object.values(scoringConfig.experience_skills).reduce((sum: number, val) => sum + (typeof val === 'number' ? val : 0), 0)}
@@ -672,7 +679,7 @@ function CandidateDetail() {
             {scoringConfig && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 <InfoItem 
-                  label="Anos de Experiência" 
+                  label={t.labels.experienceYears}
                   value={(() => {
                     const totalDays = candidate.professional_experiences.reduce((total, exp) => {
                       if (exp.data_admissao) {
@@ -685,7 +692,8 @@ function CandidateDetail() {
                       return total;
                     }, 0);
                     const years = Math.round((totalDays / 365.25) * 10) / 10;
-                    return `${years} ano${years !== 1 ? 's' : ''}`;
+                    const unit = years === 1 ? t.units.year : t.units.years;
+                    return `${years} ${unit}`;
                   })()}
                   score={scoringConfig ? (() => {
                     const totalDays = candidate.professional_experiences.reduce((total, exp) => {
@@ -709,7 +717,7 @@ function CandidateDetail() {
                   maxScore={scoringConfig?.experience_skills.years_of_experience}
                 />
                 <InfoItem 
-                  label="Tempo Parado" 
+                  label={t.labels.idleTime}
                   value={(() => {
                     // Find the most recent job (with the latest data_desligamento)
                     const sortedExperiences = [...candidate.professional_experiences].sort((a, b) => {
@@ -722,7 +730,7 @@ function CandidateDetail() {
                     
                     // If the most recent job has no end date, they're currently employed
                     if (!mostRecentJob?.data_desligamento) {
-                      return 'Empregado atualmente';
+                      return t.na;
                     }
                     
                     // Use the idle_time_formatted from backend if available
@@ -730,7 +738,7 @@ function CandidateDetail() {
                       return mostRecentJob.idle_time_formatted;
                     }
                     
-                    return 'N/A';
+                    return t.na;
                   })()}
                   score={scoringConfig ? (() => {
                     const sortedExperiences = [...candidate.professional_experiences].sort((a, b) => {
@@ -763,7 +771,7 @@ function CandidateDetail() {
                   maxScore={scoringConfig?.experience_skills.idle_time}
                 />
                 <InfoItem 
-                  label="Trabalhou na empresa antes?" 
+                  label={t.labels.workedBefore}
                   value={candidate.worked_at_pinte_before === 'sim' ? 'Sim' : candidate.worked_at_pinte_before === 'nao' ? 'Não' : 'N/A'} 
                   score={scoringConfig && scoringConfig.experience_skills.worked_at_pinte_before > 0 ? (candidate.worked_at_pinte_before === 'sim' ? scoringConfig.experience_skills.worked_at_pinte_before : 0) : undefined}
                   maxScore={scoringConfig?.experience_skills.worked_at_pinte_before}
@@ -804,11 +812,11 @@ function CandidateDetail() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Educação & Qualificações</h2>
+              <h2 className="text-2xl font-bold text-gray-900">{t.sections.educationTitle}</h2>
             </div>
             {candidate.score_breakdown && (
               <div className="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-2 rounded-xl border border-purple-200">
-                <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Pontuação Educação</div>
+                <div className="text-xs font-semibold text-purple-600 uppercase tracking-wide">{t.sections.educationScoreLabel}</div>
                 <div className="text-lg font-bold text-purple-700">
                   {(candidate.score_breakdown.education || 0).toFixed(1)}/
                   {scoringConfig ? (scoringConfig.education.education_level + scoringConfig.education.courses + (scoringConfig.education.skills || 0) + (scoringConfig.education.certifications || 0)) : 29}
@@ -818,7 +826,7 @@ function CandidateDetail() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InfoItem 
-              label="Escolaridade" 
+              label={t.labels.educationLevel}
               value={
                 candidate.highest_education === 'analfabeto' ? 'Analfabeto' :
                 candidate.highest_education === 'fundamental_incompleto' ? 'Ensino fundamental incompleto' :
@@ -844,12 +852,13 @@ function CandidateDetail() {
               maxScore={scoringConfig?.education.education_level}
             />
             <InfoItem 
-              label="Cursos Adicionais" 
+              label={t.labels.courses}
               value={(() => {
                 const courses = (candidate as any).courses || '';
-                if (!courses || !courses.trim()) return 'Nenhum';
+                if (!courses || !courses.trim()) return t.none;
                 const courseList = courses.split(',').map((c: string) => c.trim()).filter((c: string) => c);
-                return `${courseList.length} curso${courseList.length !== 1 ? 's' : ''}`;
+                const unit = courseList.length === 1 ? t.units.course : t.units.courses;
+                return `${courseList.length} ${unit}`;
               })()}
               score={scoringConfig ? (() => {
                 const courses = (candidate as any).courses || '';
@@ -862,12 +871,13 @@ function CandidateDetail() {
               onClick={() => setIsCoursesModalOpen(true)}
             />
             <InfoItem 
-              label="Habilidades" 
+              label={t.labels.skills}
               value={(() => {
                 const skills = candidate.skills || '';
-                if (!skills.trim()) return 'Nenhuma';
+                if (!skills.trim()) return t.none;
                 const skillList = skills.split(',').map((s: string) => s.trim()).filter((s: string) => s);
-                return `${skillList.length} habilidade${skillList.length !== 1 ? 's' : ''}`;
+                const unit = skillList.length === 1 ? t.units.skill : t.units.skills;
+                return `${skillList.length} ${unit}`;
               })()}
               score={scoringConfig ? (() => {
                 const skills = candidate.skills || '';
@@ -884,12 +894,13 @@ function CandidateDetail() {
               onClick={() => setIsSkillsModalOpen(true)}
             />
             <InfoItem 
-              label="Certificações" 
+              label={t.labels.certifications}
               value={(() => {
                 const certs = candidate.certifications || '';
-                if (!certs.trim()) return 'Nenhuma';
+                if (!certs.trim()) return t.none;
                 const certList = certs.split(',').map((c: string) => c.trim()).filter((c: string) => c);
-                return `${certList.length} certificação${certList.length !== 1 ? 'ões' : ''}`;
+                const unit = certList.length === 1 ? t.units.certification : t.units.certifications;
+                return `${certList.length} ${unit}`;
               })()}
               score={scoringConfig ? (() => {
                 const certs = candidate.certifications || '';
