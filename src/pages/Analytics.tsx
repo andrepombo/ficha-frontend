@@ -7,7 +7,8 @@ import CompactFunnelCharts from '../components/CompactFunnelCharts';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getCopy } from '../i18n';
 
-const DEMO_MODE = (import.meta as unknown as { env: { VITE_DEMO_MODE?: string } }).env.VITE_DEMO_MODE === 'true';
+const DEFAULT_YEAR = '2025';
+const DEFAULT_MONTH = 'all';
 
 interface MonthlyData {
   month: string;
@@ -24,11 +25,8 @@ function Analytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const defaultYear = DEMO_MODE ? '2025' : new Date().getFullYear().toString();
-  const defaultMonth = DEMO_MODE ? '6' : 'all'; // 6 = July (0-indexed for Analytics selectors)
-
-  const [selectedMonth, setSelectedMonth] = useState<string>(defaultMonth);
-  const [selectedYear, setSelectedYear] = useState<string>(defaultYear);
+  const [selectedMonth, setSelectedMonth] = useState<string>(DEFAULT_MONTH);
+  const [selectedYear, setSelectedYear] = useState<string>(DEFAULT_YEAR);
   const [availableYears, setAvailableYears] = useState<string[]>([]);
 
   const monthOptions = copy.analytics.selectors.monthsShort;
@@ -50,7 +48,9 @@ function Analytics() {
       setCandidates(data);
       
       // Extract unique years from candidates
-      const years = [...new Set(data.map(c => new Date(c.applied_date).getFullYear().toString()))];
+      const yearsSet = new Set(data.map(c => new Date(c.applied_date).getFullYear().toString()));
+      yearsSet.add(DEFAULT_YEAR);
+      const years = Array.from(yearsSet);
       setAvailableYears(years.sort((a, b) => parseInt(b) - parseInt(a)));
       
       setError(null);
