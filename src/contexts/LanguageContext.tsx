@@ -21,7 +21,7 @@ export const useLanguage = () => {
 const STORAGE_KEY = 'app_language';
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<SupportedLanguage>('pt');
+  const [language, setLanguage] = useState<SupportedLanguage>('en');
 
   useEffect(() => {
     const stored = typeof window !== 'undefined' ? (localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null) : null;
