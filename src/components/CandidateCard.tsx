@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Candidate, CandidateStatus } from '../types';
 import { getTranslatedStatus } from '../utils/statusTranslations';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getCopy, getLocale } from '../i18n';
 import ScoreBadge from './ScoreBadge';
 import ScoreBreakdownModal from './ScoreBreakdownModal';
 
@@ -22,6 +24,9 @@ const statusColors: Record<CandidateStatus, string> = {
 
 function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
   const [showScoreModal, setShowScoreModal] = useState(false);
+  const { language } = useLanguage();
+  const copy = getCopy(language);
+  const locale = getLocale(language);
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault();
@@ -36,7 +41,7 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
       <div className="mb-4">
         <div className="flex justify-between items-start mb-2">
           <span className="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">
-            ID: {candidate.id}
+            {copy.candidateCard.idPrefix}: {candidate.id}
           </span>
           <div className="flex items-center gap-2">
             {candidate.score !== undefined && candidate.score > 0 && (
@@ -48,7 +53,7 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
               />
             )}
             <span className={`status-badge ${statusColors[candidate.status]} flex-shrink-0`}>
-              {getTranslatedStatus(candidate.status)}
+              {getTranslatedStatus(candidate.status, language)}
             </span>
           </div>
         </div>
@@ -78,7 +83,7 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
             </svg>
           </div>
-          <span className="text-gray-700 font-medium">CPF: {candidate.cpf}</span>
+          <span className="text-gray-700 font-medium">{copy.candidateCard.cpf}: {candidate.cpf}</span>
         </div>
 
         <div className="flex items-center text-sm">
@@ -87,7 +92,7 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <span className="text-gray-700 font-medium">{new Date(candidate.applied_date).toLocaleDateString('pt-BR')}</span>
+          <span className="text-gray-700 font-medium">{new Date(candidate.applied_date).toLocaleDateString(locale)}</span>
         </div>
       </div>
 
@@ -97,20 +102,20 @@ function CandidateCard({ candidate, onStatusChange }: CandidateCardProps) {
           onChange={handleStatusChange}
           className="flex-1 select-modern text-sm font-medium"
         >
-          <option value="incomplete">Incompleto</option>
-          <option value="pending">Pendente</option>
-          <option value="reviewing">Em Análise</option>
-          <option value="shortlisted">Selecionado para Entrevista</option>
-          <option value="interviewed">Entrevistado</option>
-          <option value="accepted">Aceito</option>
-          <option value="rejected">Rejeitado</option>
+          <option value="incomplete">{copy.status.incomplete}</option>
+          <option value="pending">{copy.status.pending}</option>
+          <option value="reviewing">{copy.status.reviewing}</option>
+          <option value="shortlisted">{copy.status.shortlisted}</option>
+          <option value="interviewed">{copy.status.interviewed}</option>
+          <option value="accepted">{copy.status.accepted}</option>
+          <option value="rejected">{copy.status.rejected}</option>
         </select>
         
         <Link
           to={`/candidate/${candidate.id}`}
           className="px-6 py-2.5 bg-white text-indigo-700 border-2 border-indigo-200 rounded-xl text-sm font-semibold hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-300"
         >
-          Ver
+          {copy.candidateCard.view}
         </Link>
       </div>
 

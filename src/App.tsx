@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { SidebarProvider } from './contexts/SidebarContext'
+import { LanguageProvider } from './contexts/LanguageContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -17,9 +18,10 @@ import Positions from './pages/Positions'
 
 function App() {
   return (
-    <AuthProvider>
-      <SidebarProvider>
-        <Router basename="/painel">
+    <LanguageProvider>
+      <AuthProvider>
+        <SidebarProvider>
+          <Router basename="/painel">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -124,9 +126,10 @@ function App() {
             }
           />
         </Routes>
-        </Router>
-      </SidebarProvider>
-    </AuthProvider>
+          </Router>
+        </SidebarProvider>
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
 

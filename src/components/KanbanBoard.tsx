@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Candidate } from '../types';
 import ScoreBadge from './ScoreBadge';
 import { candidateAPI } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getCopy, getLocale } from '../i18n';
 
 interface KanbanBoardProps {
   candidates: Candidate[];
@@ -18,10 +20,10 @@ interface KanbanColumn {
   borderColor: string;
 }
 
-const kanbanColumns: KanbanColumn[] = [
+const baseColumns: KanbanColumn[] = [
   {
     id: 'incomplete',
-    title: 'Incompleto',
+    title: 'incomplete',
     status: ['incomplete'],
     color: 'text-yellow-700',
     bgColor: 'bg-yellow-50',
@@ -29,7 +31,7 @@ const kanbanColumns: KanbanColumn[] = [
   },
   {
     id: 'pending',
-    title: 'Pendente',
+    title: 'pending',
     status: ['pending'],
     color: 'text-orange-700',
     bgColor: 'bg-orange-50',
@@ -37,7 +39,7 @@ const kanbanColumns: KanbanColumn[] = [
   },
   {
     id: 'reviewing',
-    title: 'Em Análise',
+    title: 'reviewing',
     status: ['reviewing'],
     color: 'text-purple-700',
     bgColor: 'bg-purple-50',
@@ -45,7 +47,7 @@ const kanbanColumns: KanbanColumn[] = [
   },
   {
     id: 'shortlisted',
-    title: 'Pré-Escolhido',
+    title: 'shortlisted',
     status: ['shortlisted'],
     color: 'text-cyan-700',
     bgColor: 'bg-cyan-50',
@@ -53,7 +55,7 @@ const kanbanColumns: KanbanColumn[] = [
   },
   {
     id: 'interviewed',
-    title: 'Entrevistado',
+    title: 'interviewed',
     status: ['interviewed'],
     color: 'text-indigo-700',
     bgColor: 'bg-indigo-50',
@@ -61,7 +63,7 @@ const kanbanColumns: KanbanColumn[] = [
   },
   {
     id: 'accepted',
-    title: 'Aceito',
+    title: 'accepted',
     status: ['accepted'],
     color: 'text-green-700',
     bgColor: 'bg-green-50',
@@ -69,7 +71,7 @@ const kanbanColumns: KanbanColumn[] = [
   },
   {
     id: 'rejected',
-    title: 'Rejeitado',
+    title: 'rejected',
     status: ['rejected'],
     color: 'text-red-700',
     bgColor: 'bg-red-50',
@@ -80,6 +82,13 @@ const kanbanColumns: KanbanColumn[] = [
 const KanbanBoard: React.FC<KanbanBoardProps> = ({ candidates, onStatusChange }) => {
   const [draggedCandidate, setDraggedCandidate] = useState<Candidate | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+  const { language } = useLanguage();
+  const copy = getCopy(language);
+  const locale = getLocale(language);
+  const kanbanColumns = baseColumns.map(column => ({
+    ...column,
+    title: copy.kanban.columnTitles[column.id as keyof typeof copy.kanban.columnTitles],
+  }));
 
   const getCandidatesForColumn = (columnStatuses: string[]) => {
     return candidates.filter(candidate => columnStatuses.includes(candidate.status));
@@ -153,7 +162,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ candidates, onStatusChange })
               <div className="space-y-3">
                 {columnCandidates.length === 0 ? (
                   <div className="text-center py-8 text-gray-400">
-                    <p className="text-sm">Nenhum candidato</p>
+                    <p className="text-sm">{copy.kanban.empty}</p>
                   </div>
                 ) : (
                   columnCandidates.map(candidate => (
@@ -194,7 +203,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ candidates, onStatusChange })
 
                       {/* Applied Date */}
                       <p className="text-xs text-gray-500 mb-3">
-                        📅 {new Date(candidate.applied_date).toLocaleDateString('pt-BR')}
+                        📅 {new Date(candidate.applied_date).toLocaleDateString(locale)}
                       </p>
 
                       {/* Action Button */}
@@ -203,7 +212,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ candidates, onStatusChange })
                         className="block w-full text-center px-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-600 transition-all"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Ver Detalhes
+                        {copy.kanban.viewDetails}
                       </Link>
                     </div>
                   ))

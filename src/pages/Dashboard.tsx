@@ -10,8 +10,13 @@ import ScoreBadge from '../components/ScoreBadge';
 import KanbanBoard from '../components/KanbanBoard';
 import { getTranslatedStatus } from '../utils/statusTranslations';
 import { downloadFile } from '../utils/downloadFile';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getCopy, getLocale } from '../i18n';
 
 function Dashboard() {
+  const { language } = useLanguage();
+  const copy = getCopy(language);
+  const locale = getLocale(language);
   const [searchParams] = useSearchParams();
   const candidateListRef = useRef<HTMLDivElement>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -159,7 +164,7 @@ function Dashboard() {
       calculateStats(data);
       setError(null);
     } catch (err) {
-      setError('Failed to load candidates. Please try again.');
+      setError(copy.dashboard.error);
       console.error('Error fetching candidates:', err);
     } finally {
       setLoading(false);
@@ -192,7 +197,7 @@ function Dashboard() {
       calculateStats(updatedCandidates);
     } catch (err) {
       console.error('Error updating status:', err);
-      alert('Failed to update status. Please try again.');
+      alert(copy.dashboard.statusUpdateError);
     }
   };
 
@@ -220,7 +225,7 @@ function Dashboard() {
       downloadFile(blob, filename);
     } catch (err) {
       console.error('Error exporting PDF:', err);
-      alert('Falha ao exportar PDF. Por favor, tente novamente.');
+      alert(copy.dashboard.exportPdfError);
     }
   };
 
@@ -230,7 +235,7 @@ function Dashboard() {
       downloadFile(blob, `candidatos_${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (error) {
       console.error('Error exporting to Excel:', error);
-      alert('Erro ao exportar para Excel. Por favor, tente novamente.');
+      alert(copy.dashboard.exportExcelError);
     }
   };
 
@@ -333,7 +338,7 @@ function Dashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando candidatos...</p>
+          <p className="mt-4 text-gray-600">{copy.dashboard.loading}</p>
         </div>
       </div>
     );
@@ -345,7 +350,7 @@ function Dashboard() {
         <div className="text-center">
           <p className="text-red-600 text-xl mb-4">{error}</p>
           <button onClick={fetchCandidates} className="btn-primary">
-            Tentar Novamente
+            {copy.dashboard.retry}
           </button>
         </div>
       </div>
@@ -354,30 +359,18 @@ function Dashboard() {
 
   // Get filtered month and year display
   const getFilteredMonthYear = () => {
-    const months = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-    ];
-    
-    // If both month and year are selected (not 'all'), show the specific period
-    if (filters.month !== 'all' && filters.year !== 'all') {
-      const monthIndex = parseInt(filters.month) - 1;
-      return `${months[monthIndex]} ${filters.year}`;
+    const monthLabel = copy.filterBar.months.find((m) => m.value === filters.month)?.label;
+
+    if (filters.month !== 'all' && filters.year !== 'all' && monthLabel) {
+      return `${monthLabel} ${filters.year}`;
     }
-    
-    // If only year is selected, show just the year
     if (filters.year !== 'all' && filters.month === 'all') {
-      return `Ano ${filters.year}`;
+      return `${copy.dashboard.yearPrefix} ${filters.year}`;
     }
-    
-    // If only month is selected, show month with current year
-    if (filters.month !== 'all' && filters.year === 'all') {
-      const monthIndex = parseInt(filters.month) - 1;
-      return `${months[monthIndex]} (Todos os anos)`;
+    if (filters.month !== 'all' && filters.year === 'all' && monthLabel) {
+      return `${monthLabel} ${copy.dashboard.monthAllYearsSuffix}`;
     }
-    
-    // If both are 'all', show "Todos os períodos"
-    return 'Todos os períodos';
+    return copy.dashboard.allPeriods;
   };
 
   return (
@@ -395,13 +388,13 @@ function Dashboard() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-extrabold text-indigo-900">{getFilteredMonthYear()}</h1>
-                  <p className="text-sm text-indigo-600 font-semibold mt-1">Estatísticas de candidatos</p>
+                  <p className="text-sm text-indigo-600 font-semibold mt-1">{copy.dashboard.subtitle}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="hidden sm:flex items-center space-x-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl px-6 py-3 border-2 border-indigo-200 shadow-md">
                   <span className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{stats.total}</span>
-                  <span className="text-sm text-indigo-700 font-bold uppercase">candidatos</span>
+                  <span className="text-sm text-indigo-700 font-bold uppercase">{copy.dashboard.totalLabel}</span>
                 </div>
                 {/* Export buttons */}
                 <div className="flex items-center space-x-2">
@@ -409,23 +402,23 @@ function Dashboard() {
                     type="button"
                     onClick={handleExportPDF}
                     className="px-4 py-2.5 text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                    title="Exportar PDF"
+                    title={copy.dashboard.exportPdf}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
-                    <span className="hidden lg:inline">PDF</span>
+                    <span className="hidden lg:inline">{copy.dashboard.exportPdf}</span>
                   </button>
                   <button
                     type="button"
                     onClick={handleExportExcel}
                     className="px-4 py-2.5 text-sm font-bold flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                    title="Exportar Excel"
+                    title={copy.dashboard.exportExcel}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <span className="hidden lg:inline">Excel</span>
+                    <span className="hidden lg:inline">{copy.dashboard.exportExcel}</span>
                   </button>
                 </div>
                 {/* View mode toggle */}
@@ -436,12 +429,12 @@ function Dashboard() {
                     className={`px-4 py-2.5 text-sm font-bold flex items-center space-x-2 transition-all duration-300 ${
                       viewMode === 'kanban' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' : 'text-indigo-700 hover:bg-white'
                     }`}
-                    title="Kanban"
+                    title={copy.dashboard.viewModes.kanban}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
                     </svg>
-                    <span className="hidden md:inline">Kanban</span>
+                    <span className="hidden md:inline">{copy.dashboard.viewModes.kanban}</span>
                   </button>
                   <button
                     type="button"
@@ -449,12 +442,12 @@ function Dashboard() {
                     className={`px-4 py-2.5 text-sm font-bold flex items-center space-x-2 border-l-2 border-indigo-200 transition-all duration-300 ${
                       viewMode === 'cards' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' : 'text-indigo-700 hover:bg-white'
                     }`}
-                    title="Cartões"
+                    title={copy.dashboard.viewModes.cards}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
-                    <span className="hidden md:inline">Cartões</span>
+                    <span className="hidden md:inline">{copy.dashboard.viewModes.cards}</span>
                   </button>
                   <button
                     type="button"
@@ -462,12 +455,12 @@ function Dashboard() {
                     className={`px-4 py-2.5 text-sm font-bold flex items-center space-x-2 border-l-2 border-indigo-200 transition-all duration-300 ${
                       viewMode === 'list' ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' : 'text-indigo-700 hover:bg-white'
                     }`}
-                    title="Lista"
+                    title={copy.dashboard.viewModes.list}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
-                    <span className="hidden md:inline">Lista</span>
+                    <span className="hidden md:inline">{copy.dashboard.viewModes.list}</span>
                   </button>
                 </div>
               </div>
@@ -476,13 +469,13 @@ function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4 mb-8">
-          <StatsCard title="Incompleto" count={stats.incomplete} color="yellow" />
-          <StatsCard title="Pendente" count={stats.pending} color="orange" />
-          <StatsCard title="Em Análise" count={stats.reviewing} color="purple" />
-          <StatsCard title="Selecionado" count={stats.shortlisted} color="cyan" />
-          <StatsCard title="Entrevistado" count={stats.interviewed} color="indigo" />
-          <StatsCard title="Aceito" count={stats.accepted} color="green" />
-          <StatsCard title="Rejeitado" count={stats.rejected} color="red" />
+          <StatsCard title={copy.dashboard.statLabels.incomplete} count={stats.incomplete} color="yellow" />
+          <StatsCard title={copy.dashboard.statLabels.pending} count={stats.pending} color="orange" />
+          <StatsCard title={copy.dashboard.statLabels.reviewing} count={stats.reviewing} color="purple" />
+          <StatsCard title={copy.dashboard.statLabels.shortlisted} count={stats.shortlisted} color="cyan" />
+          <StatsCard title={copy.dashboard.statLabels.interviewed} count={stats.interviewed} color="indigo" />
+          <StatsCard title={copy.dashboard.statLabels.accepted} count={stats.accepted} color="green" />
+          <StatsCard title={copy.dashboard.statLabels.rejected} count={stats.rejected} color="red" />
         </div>
 
         <FilterBar
@@ -495,7 +488,7 @@ function Dashboard() {
         <div className="mt-6" ref={candidateListRef}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900">
-              Candidatos ({filteredCandidates.length})
+              {copy.dashboard.candidatesTitle} ({filteredCandidates.length})
             </h2>
             {/* Secondary toggle (mobile) */}
             <div className="sm:hidden">
@@ -504,24 +497,24 @@ function Dashboard() {
                   type="button"
                   onClick={() => setViewMode('kanban')}
                   className={`px-3 py-2 text-sm ${viewMode === 'kanban' ? 'bg-indigo-600 text-white' : 'text-indigo-700'}`}
-                >Kanban</button>
+                >{copy.dashboard.viewModes.kanban}</button>
                 <button
                   type="button"
                   onClick={() => setViewMode('cards')}
                   className={`px-3 py-2 text-sm border-l border-indigo-200 ${viewMode === 'cards' ? 'bg-indigo-600 text-white' : 'text-indigo-700'}`}
-                >Cartões</button>
+                >{copy.dashboard.viewModes.cards}</button>
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
                   className={`px-3 py-2 text-sm border-l border-indigo-200 ${viewMode === 'list' ? 'bg-indigo-600 text-white' : 'text-indigo-700'}`}
-                >Lista</button>
+                >{copy.dashboard.viewModes.list}</button>
               </div>
             </div>
           </div>
 
           {filteredCandidates.length === 0 ? (
             <div className="card text-center py-12">
-              <p className="text-gray-500 text-lg">Nenhum candidato encontrado com os filtros selecionados.</p>
+              <p className="text-gray-500 text-lg">{copy.dashboard.emptyState}</p>
             </div>
           ) : viewMode === 'kanban' ? (
             <KanbanBoard
@@ -548,7 +541,7 @@ function Dashboard() {
                       onClick={() => handleSort('name')}
                     >
                       <div className="flex items-center">
-                        Nome
+                        {copy.dashboard.tableHeaders.name}
                         {renderSortIcon('name')}
                       </div>
                     </th>
@@ -557,7 +550,7 @@ function Dashboard() {
                       onClick={() => handleSort('phone')}
                     >
                       <div className="flex items-center">
-                        Telefone
+                        {copy.dashboard.tableHeaders.phone}
                         {renderSortIcon('phone')}
                       </div>
                     </th>
@@ -566,7 +559,7 @@ function Dashboard() {
                       onClick={() => handleSort('cpf')}
                     >
                       <div className="flex items-center">
-                        CPF
+                        {copy.dashboard.tableHeaders.cpf}
                         {renderSortIcon('cpf')}
                       </div>
                     </th>
@@ -575,7 +568,7 @@ function Dashboard() {
                       onClick={() => handleSort('status')}
                     >
                       <div className="flex items-center">
-                        Status
+                        {copy.dashboard.tableHeaders.status}
                         {renderSortIcon('status')}
                       </div>
                     </th>
@@ -584,7 +577,7 @@ function Dashboard() {
                       onClick={() => handleSort('score')}
                     >
                       <div className="flex items-center">
-                        Pontuação
+                        {copy.dashboard.tableHeaders.score}
                         {renderSortIcon('score')}
                       </div>
                     </th>
@@ -593,11 +586,11 @@ function Dashboard() {
                       onClick={() => handleSort('date')}
                     >
                       <div className="flex items-center">
-                        Aplicado em
+                        {copy.dashboard.tableHeaders.date}
                         {renderSortIcon('date')}
                       </div>
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Ações</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">{copy.dashboard.tableHeaders.actions}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
@@ -608,7 +601,7 @@ function Dashboard() {
                       <td className="px-4 py-3 text-sm text-gray-700">{candidate.cpf || 'N/A'}</td>
                       <td className="px-4 py-3 text-sm">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClasses(candidate.status)}`}>
-                          {getTranslatedStatus(candidate.status)}
+                          {getTranslatedStatus(candidate.status, language)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">
@@ -618,13 +611,13 @@ function Dashboard() {
                           <span className="text-gray-400 text-xs">N/A</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{new Date(candidate.applied_date).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{new Date(candidate.applied_date).toLocaleDateString(locale)}</td>
                       <td className="px-4 py-3 text-sm text-right">
                         <Link
                           to={`/candidate/${candidate.id}`}
                           className="inline-flex items-center px-3 py-1.5 border border-indigo-200 text-indigo-700 hover:bg-indigo-50 rounded-md text-sm font-medium"
                         >
-                          Ver
+                          {copy.candidateCard.view}
                         </Link>
                       </td>
                     </tr>
