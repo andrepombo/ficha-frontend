@@ -75,6 +75,22 @@ interface AppCopyShape {
     cpf: string;
     view: string;
   };
+  sidebar: {
+    brandTitle: string;
+    brandSubtitle: string;
+    nav: Record<
+      'dashboard' | 'analytics' | 'demographics' | 'insights' | 'calendar' | 'questionnaires' | 'positions' | 'scoring' | 'activityLog',
+      string
+    >;
+    collapseTooltip: {
+      expand: string;
+      collapse: string;
+    };
+    footer: {
+      line1: string;
+      line2: string;
+    };
+  };
   kanban: {
     columnTitles: Record<CandidateStatus, string>;
     empty: string;
@@ -219,6 +235,29 @@ const base: Record<SupportedLanguage, AppCopyShape> = {
       empty: 'Nenhum candidato',
       viewDetails: 'Ver Detalhes',
     },
+    sidebar: {
+      brandTitle: 'Recrutamento',
+      brandSubtitle: 'Sistema RH',
+      nav: {
+        dashboard: 'Painel',
+        analytics: 'Análise',
+        demographics: 'Demografia',
+        insights: 'Insights',
+        calendar: 'Calendário',
+        questionnaires: 'Questionários',
+        positions: 'Cargos',
+        scoring: 'Pontuação',
+        activityLog: 'Logs de Atividade',
+      },
+      collapseTooltip: {
+        expand: 'Expandir',
+        collapse: 'Recolher',
+      },
+      footer: {
+        line1: '© 2026 Andre Pombo',
+        line2: 'Sistema de Gestão RH',
+      },
+    },
   },
   en: {
     status: statusLabels.en,
@@ -334,6 +373,29 @@ const base: Record<SupportedLanguage, AppCopyShape> = {
       },
       empty: 'No candidates',
       viewDetails: 'View Details',
+    },
+    sidebar: {
+      brandTitle: 'Recruitment',
+      brandSubtitle: 'HR Platform',
+      nav: {
+        dashboard: 'Dashboard',
+        analytics: 'Analytics',
+        demographics: 'Demographics',
+        insights: 'Insights',
+        calendar: 'Calendar',
+        questionnaires: 'Questionnaires',
+        positions: 'Positions',
+        scoring: 'Scoring',
+        activityLog: 'Activity Log',
+      },
+      collapseTooltip: {
+        expand: 'Expand',
+        collapse: 'Collapse',
+      },
+      footer: {
+        line1: '© 2026 Andre Pombo',
+        line2: 'HR Management System',
+      },
     },
   },
 };
