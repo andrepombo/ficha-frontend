@@ -4,6 +4,9 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { candidateAPI } from '../services/api';
 import { Candidate } from '../types';
 
+const DEFAULT_YEAR = '2025';
+const DEFAULT_MONTH = 'all';
+
 interface ChartData {
   name: string;
   value: number;
@@ -15,8 +18,8 @@ function Insights() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedMonth, setSelectedMonth] = useState<string>('all');
-  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState<string>(DEFAULT_MONTH);
+  const [selectedYear, setSelectedYear] = useState<string>(DEFAULT_YEAR);
   const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -135,8 +138,10 @@ function Insights() {
       const data = await candidateAPI.getAll();
       setCandidates(data);
       
-      // Extract unique years from candidates
-      const years = [...new Set(data.map(c => new Date(c.applied_date).getFullYear().toString()))];
+      // Extract unique years from candidates and ensure default year is available
+      const yearsSet = new Set(data.map(c => new Date(c.applied_date).getFullYear().toString()));
+      yearsSet.add(DEFAULT_YEAR);
+      const years = Array.from(yearsSet);
       setAvailableYears(years.sort((a, b) => parseInt(b) - parseInt(a)));
       
       setError(null);

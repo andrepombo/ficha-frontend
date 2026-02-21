@@ -5,17 +5,15 @@ import InterviewModal from '../components/InterviewModal';
 import FeedbackModal from '../components/FeedbackModal';
 import InterviewCard from '../components/InterviewCard';
 
-const DEMO_MODE = (import.meta as unknown as { env: { VITE_DEMO_MODE?: string } }).env.VITE_DEMO_MODE === 'true';
+const DEFAULT_YEAR = 2025;
+const DEFAULT_MONTH: number | 'all' = 'all';
 
 const Calendar: React.FC = () => {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const defaultYear = DEMO_MODE ? 2025 : new Date().getFullYear();
-  const defaultMonth = DEMO_MODE ? 7 : new Date().getMonth() + 1; // 7 = July (1-indexed for calendar)
-
-  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
-  const [selectedYear, setSelectedYear] = useState(defaultYear);
+  const [selectedMonth, setSelectedMonth] = useState<number | 'all'>(DEFAULT_MONTH);
+  const [selectedYear, setSelectedYear] = useState<number>(DEFAULT_YEAR);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('list');
   
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
@@ -29,7 +27,8 @@ const Calendar: React.FC = () => {
   const loadInterviews = async () => {
     setLoading(true);
     try {
-      const data = await interviewAPI.getCalendar(selectedMonth, selectedYear);
+      const monthParam = selectedMonth === 'all' ? undefined : selectedMonth;
+      const data = await interviewAPI.getCalendar(monthParam, selectedYear);
       setInterviews(data);
     } catch (error) {
       console.error('Error loading interviews:', error);
@@ -63,7 +62,8 @@ const Calendar: React.FC = () => {
     setSelectedInterview(null);
   };
 
-  const getMonthName = (month: number) => {
+  const getMonthName = (month: number | 'all') => {
+    if (month === 'all') return 'Todos os meses';
     const months = [
       'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
@@ -94,6 +94,7 @@ const Calendar: React.FC = () => {
   };
 
   const generateCalendarDays = () => {
+    if (selectedMonth === 'all') return [];
     const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
     const firstDay = getFirstDayOfMonth(selectedYear, selectedMonth);
     const days = [];
@@ -112,12 +113,14 @@ const Calendar: React.FC = () => {
   };
 
   const getInterviewsForDay = (day: number) => {
+    if (selectedMonth === 'all') return [];
     const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const grouped = groupInterviewsByDate();
     return grouped[dateStr] || [];
   };
 
   const isToday = (day: number) => {
+    if (selectedMonth === 'all') return false;
     const today = new Date();
     return (
       day === today.getDate() &&
@@ -142,10 +145,14 @@ const Calendar: React.FC = () => {
                   📅 {getMonthName(selectedMonth)} {selectedYear}
                 </p>
                 <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                  value={selectedMonth === 'all' ? 'all' : selectedMonth}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSelectedMonth(value === 'all' ? 'all' : parseInt(value));
+                  }}
                   className="px-4 py-2 rounded-xl border-2 border-white bg-white text-gray-900 font-medium focus:ring-2 focus:ring-indigo-300 transition-all"
                 >
+                  <option value="all">Todos os meses</option>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
                     <option key={month} value={month}>
                       {getMonthName(month)}
@@ -242,6 +249,12 @@ const Calendar: React.FC = () => {
                 </div>
               );
             })}
+          </div>
+        ) : selectedMonth === 'all' ? (
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <p className="text-lg text-gray-700 font-medium">
+              Selecione um mês específico para visualizar o calendário.
+            </p>
           </div>
         ) : (
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
