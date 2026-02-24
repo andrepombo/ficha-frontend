@@ -61,7 +61,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed, redirect to login or handle as needed
         await authService.logout();
-        window.location.href = '/login';
+        const base = import.meta.env.BASE_URL || '/';
+        window.location.href = `${base}login`;
         return Promise.reject(refreshError);
       }
     }

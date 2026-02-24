@@ -1,6 +1,7 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -8,7 +9,48 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
+
+  const copy = useMemo(
+    () => ({
+      en: {
+        title: 'Welcome back',
+        subtitle: 'Sign in to access your dashboard',
+        emailLabel: 'Email',
+        emailPlaceholder: 'Enter your email',
+        passwordLabel: 'Password',
+        passwordPlaceholder: 'Enter your password',
+        remember: 'Remember me',
+        forgot: 'Forgot your password?',
+        submit: 'Sign in',
+        demo: 'Demo mode: use your email and the password 12345 to enter.',
+        footer: "Don’t have an account?",
+        footerLink: 'Contact an administrator',
+        errorFallback: 'Invalid username or password',
+        toggleLabel: 'Switch to Portuguese',
+      },
+      pt: {
+        title: 'Bem-vindo de volta',
+        subtitle: 'Faça login para acessar seu painel',
+        emailLabel: 'E-mail',
+        emailPlaceholder: 'Digite seu e-mail',
+        passwordLabel: 'Senha',
+        passwordPlaceholder: 'Digite sua senha',
+        remember: 'Lembrar-me',
+        forgot: 'Esqueceu sua senha?',
+        submit: 'Entrar',
+        demo: 'Modo demonstração: use seu e-mail e a senha 12345 para entrar.',
+        footer: 'Não tem uma conta?',
+        footerLink: 'Entre em contato com o administrador',
+        errorFallback: 'Usuário ou senha inválidos',
+        toggleLabel: 'Switch to English',
+      },
+    }),
+    []
+  );
+
+  const t = copy[language];
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -19,7 +61,7 @@ const Login = () => {
       await login(username, password);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Usuário ou senha inválidos');
+      setError(err.response?.data?.detail || t.errorFallback);
     } finally {
       setIsLoading(false);
     }
@@ -28,16 +70,35 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
       <div className="max-w-md w-full space-y-8">
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            className="px-3 py-1.5 rounded-full text-xs bg-indigo-600 text-white border border-indigo-500 inline-flex items-center gap-1.5 shadow-sm hover:bg-indigo-700 transition"
+          >
+            {language === 'pt' ? (
+              <>
+                <span>EN</span>
+                <span role="img" aria-label="English">🇬🇧</span>
+              </>
+            ) : (
+              <>
+                <span>PT</span>
+                <span role="img" aria-label="Portuguese">🇧🇷</span>
+              </>
+            )}
+          </button>
+        </div>
         {/* Logo/Brand Section */}
         <div className="text-center">
           <div className="mx-auto h-32 w-32 flex items-center justify-center">
             <img src="/painel/andre.svg" alt="Andre" className="h-32 w-32 object-contain" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Bem-vindo de volta
+            {t.title}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Faça login para acessar seu painel
+            {t.subtitle}
           </p>
         </div>
 
@@ -55,18 +116,18 @@ const Login = () => {
                 htmlFor="username"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Usuário
+                {t.emailLabel}
               </label>
               <input
                 id="username"
                 name="username"
-                type="text"
-                autoComplete="username"
+                type="email"
+                autoComplete="email"
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-150"
-                placeholder="Digite seu usuário"
+                placeholder={t.emailPlaceholder}
               />
             </div>
 
@@ -75,7 +136,7 @@ const Login = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Senha
+                {t.passwordLabel}
               </label>
               <input
                 id="password"
@@ -86,7 +147,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-150"
-                placeholder="Digite sua senha"
+                placeholder={t.passwordPlaceholder}
               />
             </div>
 
@@ -102,7 +163,7 @@ const Login = () => {
                   htmlFor="remember-me"
                   className="ml-2 block text-sm text-gray-700"
                 >
-                  Lembrar-me
+                  {t.remember}
                 </label>
               </div>
 
@@ -111,7 +172,7 @@ const Login = () => {
                   href="#"
                   className="font-medium text-indigo-600 hover:text-indigo-500 transition duration-150"
                 >
-                  Esqueceu sua senha?
+                  {t.forgot}
                 </a>
               </div>
             </div>
@@ -143,20 +204,32 @@ const Login = () => {
                   ></path>
                 </svg>
               ) : (
-                'Entrar'
+                t.submit
               )}
             </button>
           </form>
         </div>
 
+        <div className="mt-4 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg text-sm shadow-sm">
+          {t.demo.replace('12345', '<pw>')
+            .split('<pw>')
+            .map((segment, idx) =>
+              idx === 1 ? (
+                <span key={idx} className="font-semibold">12345</span>
+              ) : (
+                <span key={idx}>{segment}</span>
+              )
+            )}
+        </div>
+
         {/* Footer */}
         <p className="text-center text-sm text-gray-600">
-          Não tem uma conta?{' '}
+          {t.footer}{' '}
           <a
             href="#"
             className="font-medium text-indigo-600 hover:text-indigo-500 transition duration-150"
           >
-            Entre em contato com o administrador
+            {t.footerLink}
           </a>
         </p>
       </div>

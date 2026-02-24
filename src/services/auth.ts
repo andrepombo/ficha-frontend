@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const API_BASE_URL = '/api';
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD || '12345';
+const ENABLE_DEMO_LOGIN = import.meta.env.VITE_ENABLE_DEMO_LOGIN !== 'false';
 
 export interface LoginCredentials {
   username: string;
@@ -40,19 +42,44 @@ class AuthService {
   }
 
   async login(username: string, password: string): Promise<AuthResponse> {
+    if (ENABLE_DEMO_LOGIN && password === DEMO_PASSWORD) {
+      const demoUser: User = {
+        id: 0,
+        username: username || 'demo',
+        email: username || 'demo@example.com',
+        first_name: 'Demo',
+        last_name: 'User',
+        is_superuser: false,
+      };
+
+      const access = 'demo-access-token';
+      const refresh = 'demo-refresh-token';
+
+      this.accessToken = access;
+      this.refreshToken = refresh;
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
+      localStorage.setItem('user', JSON.stringify(demoUser));
+
+      return { access, refresh, user: demoUser };
+    }
+
     try {
       const response = await axios.post<AuthResponse>(`${API_BASE_URL}/token/`, {
         username,
         password,
       });
 
-      const { access, refresh } = response.data;
+      const { access, refresh, user } = response.data;
       
       // Store tokens
       this.accessToken = access;
       this.refreshToken = refresh;
       localStorage.setItem('access_token', access);
       localStorage.setItem('refresh_token', refresh);
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
 
       return response.data;
     } catch (error) {
@@ -70,6 +97,10 @@ class AuthService {
   }
 
   async refreshAccessToken(): Promise<string> {
+    if (this.isDemoSession() && this.accessToken) {
+      return this.accessToken;
+    }
+
     if (!this.refreshToken) {
       throw new Error('No refresh token available');
     }
@@ -126,6 +157,10 @@ class AuthService {
     }
   }
 
+  isDemoSession(): boolean {
+    return this.accessToken === 'demo-access-token' || this.refreshToken === 'demo-refresh-token';
+  }
+
   // Decode a JWT without verifying signature to read payload
   private decodeJwt(token: string): any | null {
     try {
@@ -139,6 +174,7 @@ class AuthService {
 
   // Check if access token is expired (with buffer)
   isAccessTokenExpired(bufferSeconds: number = 30): boolean {
+    if (this.isDemoSession()) return false;
     if (!this.accessToken) return true;
     const payload = this.decodeJwt(this.accessToken);
     if (!payload || !payload.exp) return true;
@@ -148,6 +184,10 @@ class AuthService {
 
   // Ensure we have a valid (non-expired) access token before making requests
   async ensureValidAccessToken(): Promise<string | null> {
+    if (this.isDemoSession() && this.accessToken) {
+      return this.accessToken;
+    }
+
     if (!this.accessToken && this.refreshToken) {
       // No access token but refresh exists
       try {
