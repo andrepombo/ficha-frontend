@@ -5,6 +5,7 @@ import { LanguageProvider } from './contexts/LanguageContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
+import DemoLoginRedirect from './pages/DemoLoginRedirect'
 import Dashboard from './pages/Dashboard'
 import CandidateDetail from './pages/CandidateDetail'
 import Analytics from './pages/Analytics'
@@ -23,6 +24,7 @@ function App() {
         <SidebarProvider>
           <Router basename="/painel">
         <Routes>
+          <Route path="/demo-login" element={<DemoLoginRedirect />} />
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route
